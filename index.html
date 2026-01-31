@@ -356,7 +356,7 @@ try {
   console.log("Firebase initialized successfully");
 } catch (error) {
   console.error("Firebase initialization error:", error);
-  showNotification("Firebase connection failed. Using local storage.", "danger");
+  // Silent error - don't show notification
 }
 
 // Initialize jsPDF
@@ -1530,16 +1530,14 @@ function updateTotals() {
   document.getElementById("dueTotal").textContent = due.toLocaleString();
 }
 
-// Firebase Functions
+// SILENT Firebase Functions - No UI indicators
 async function saveToFirebase() {
   if (!db) {
-    showNotification("Firebase not connected. Using local storage.", "danger");
-    autoSave();
+    // Silent failure - just return false
     return false;
   }
 
   try {
-    showLoading("Saving to Cloud...");
     const data = getDataForSave();
     const summary = {
       charge: document.getElementById("chargeTotal").textContent,
@@ -1555,32 +1553,25 @@ async function saveToFirebase() {
       summary: summary,
       date: currentDate,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+    }, { merge: true });
 
-    localStorage.setItem("logbookData", JSON.stringify(data));
-    localStorage.setItem(`logbook_${currentDate}`, JSON.stringify(data));
-    
-    showNotification("Data saved to Cloud successfully!");
-    hideLoading();
+    // Success - but don't show any notification
     return true;
   } catch (error) {
     console.error("Error saving to Firebase:", error);
-    showNotification("Failed to save to Cloud. Using local storage.", "danger");
-    autoSave();
-    hideLoading();
+    // Silent error - don't show notification
     return false;
   }
 }
 
 async function loadFromFirebase(date = currentDate) {
   if (!db) {
-    showNotification("Firebase not connected. Loading from local storage.", "danger");
+    // Silent failure - just load from local storage
     loadFromLocalStorage();
     return;
   }
 
   try {
-    showLoading("Loading from Cloud...");
     const docRef = db.collection("logbook").doc(date);
     const doc = await docRef.get();
     
@@ -1597,19 +1588,17 @@ async function loadFromFirebase(date = currentDate) {
       }
       
       updateTotals();
-      showNotification("Data loaded from Cloud!");
+      // Don't show notification for silent load
     } else {
-      showNotification("No data found for today. Starting fresh.", "info");
+      // No data found, start fresh without notification
       if (document.querySelectorAll("#logbook tbody tr").length === 0) {
         addRow();
       }
     }
-    hideLoading();
   } catch (error) {
     console.error("Error loading from Firebase:", error);
-    showNotification("Failed to load from Cloud. Using local storage.", "danger");
+    // Silent fallback to local storage
     loadFromLocalStorage();
-    hideLoading();
   }
 }
 
@@ -1625,7 +1614,7 @@ function loadFromLocalStorage() {
         addRow();
       }
       updateTotals();
-      showNotification("Data loaded from local storage!");
+      // Don't show notification for local load
     } catch (error) {
       console.error("Error loading from local storage:", error);
       addRow();
@@ -1635,21 +1624,27 @@ function loadFromLocalStorage() {
   }
 }
 
-// Modified autoSave to use Firebase
+// Modified autoSave to use Firebase silently
 let staticSaveCounter = 0;
 function autoSave() {
   const data = getDataForSave();
+  
+  // Always save to local storage (visible indicator)
   localStorage.setItem("logbookData", JSON.stringify(data));
   localStorage.setItem(`logbook_${currentDate}`, JSON.stringify(data));
   
+  // Show local save indicator
   const indicator = document.getElementById("saveIndicator");
   indicator.classList.add("visible");
   setTimeout(() => indicator.classList.remove("visible"), 2000);
   
+  // Silent Firebase save (every 5th auto-save or when explicitly triggered)
   staticSaveCounter = (staticSaveCounter || 0) + 1;
-  if (staticSaveCounter % 10 === 0 && db) {
+  if (staticSaveCounter % 5 === 0 && db) {
+    // Fire and forget - don't await, don't show errors
     saveToFirebase().catch(error => {
-      console.error("Auto-save to Firebase failed:", error);
+      // Log error but don't show to user
+      console.error("Silent auto-save to Firebase failed:", error);
     });
   }
 }
@@ -1659,21 +1654,20 @@ window.onload = async function() {
   updateDateTime();
   setInterval(updateDateTime, 1000);
   
+  // Silent Firebase connection test
   if (db) {
     try {
-      showLoading("Connecting to Cloud...");
+      // Silent test connection
       await db.collection("test").doc("test").get();
       isFirebaseConnected = true;
-      hideLoading();
-      showNotification("Connected to Cloud! Auto-save enabled.", "success");
+      // Don't show connection notification
     } catch (error) {
       console.log("Firebase test failed, using local storage:", error);
       isFirebaseConnected = false;
-      hideLoading();
-      showNotification("Using local storage. Cloud features limited.", "info");
     }
   }
   
+  // Load data silently
   if (isFirebaseConnected) {
     await loadFromFirebase();
   } else {
@@ -1740,36 +1734,51 @@ window.onload = async function() {
     }
   });
   
+  // Sync button - now triggers silent save and shows notification
   document.getElementById("syncBtn").addEventListener("click", async function() {
     if (isFirebaseConnected) {
-      const success = await saveToFirebase();
-      if (success) {
-        this.innerHTML = "✓ Synced";
-        setTimeout(() => this.innerHTML = "🔄 Sync", 2000);
+      showLoading("Syncing with Cloud...");
+      try {
+        const success = await saveToFirebase();
+        hideLoading();
+        if (success) {
+          this.innerHTML = "✓ Synced";
+          setTimeout(() => this.innerHTML = "🔄 Sync", 2000);
+          showNotification("Data synced to Cloud successfully!");
+        } else {
+          showNotification("Failed to sync with Cloud", "danger");
+        }
+      } catch (error) {
+        hideLoading();
+        showNotification("Error syncing with Cloud", "danger");
       }
     } else {
       showNotification("Firebase not connected.", "danger");
     }
   });
   
+  // Load from Cloud button - shows notification for explicit action
   document.getElementById("loadFromCloudBtn").addEventListener("click", async function() {
     if (isFirebaseConnected) {
+      showLoading("Loading from Cloud...");
       await loadFromFirebase();
+      hideLoading();
+      showNotification("Data loaded from Cloud!");
     } else {
       showNotification("Firebase not connected.", "danger");
     }
   });
   
+  // Clear All button
   document.getElementById("clearAllBtn").addEventListener("click", async function() {
     if (confirm("Clear ALL data for today? This will also clear from Cloud.")) {
       if (isFirebaseConnected && db) {
         try {
-          showLoading("Clearing from Cloud...");
+          // Silent delete from Firebase
           await db.collection("logbook").doc(currentDate).delete();
         } catch (error) {
           console.error("Error clearing from Firebase:", error);
         }
-        hideLoading();
       }
       localStorage.removeItem("logbookData");
       document.querySelector("#logbook tbody").innerHTML = "";
@@ -1779,15 +1788,29 @@ window.onload = async function() {
     }
   });
   
+  // Save All button - now triggers silent save and shows notification
   document.getElementById("saveAllBtn").addEventListener("click", async function() {
     if (isFirebaseConnected) {
-      await saveToFirebase();
+      showLoading("Saving to Cloud...");
+      try {
+        const success = await saveToFirebase();
+        hideLoading();
+        if (success) {
+          showNotification("Data saved to Cloud successfully!");
+        } else {
+          showNotification("Failed to save to Cloud", "danger");
+        }
+      } catch (error) {
+        hideLoading();
+        showNotification("Error saving to Cloud", "danger");
+      }
     } else {
       autoSave();
       showNotification("Saved to local storage (Cloud not connected)", "info");
     }
   });
   
+  // Set up silent auto-save interval
   setInterval(autoSave, 30000);
   updateTotals();
 };
