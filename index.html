@@ -2,23 +2,23 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Ivan Charging Station</title>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-<!-- PDF Export Libraries -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<!-- SheetJS for Excel export -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 <style>
 :root{--primary:#f1c40f;--success:#27ae60;--danger:#e74c3c;--info:#3498db;--purple:#9b59b6;--dark:#2c3e50;--light:#ecf0f1;--text:#333;--bg:#f8f9fa;--card-bg:#fff;--border:#ddd;--shadow:rgba(0,0,0,0.08)}
 .dark-mode{--primary:#f39c12;--success:#2ecc71;--danger:#e74c3c;--info:#2980b9;--purple:#8e44ad;--dark:#1a252f;--light:#34495e;--text:#ecf0f1;--bg:#2c3e50;--card-bg:#34495e;--border:#4a6278;--shadow:rgba(0,0,0,0.2)}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI','Roboto',sans-serif;background:var(--bg);color:var(--text);line-height:1.4;padding:10px;min-height:100vh;font-size:13px;transition:all 0.3s}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:rgba(0,0,0,0);-webkit-touch-callout:none}
+body{font-family:'Segoe UI','Roboto',sans-serif;background:var(--bg);color:var(--text);line-height:1.4;padding:10px;min-height:100vh;font-size:13px;transition:all 0.3s;touch-action:pan-y}
 .container{max-width:1400px;margin:0 auto}
 .header{text-align:center;margin-bottom:10px;position:relative}
 .header h1{font-size:1.6rem;color:var(--dark);margin-bottom:6px;background:linear-gradient(45deg,var(--success),var(--info));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:900}
 .top-controls{position:absolute;top:0;right:0;display:flex;gap:6px;z-index:1000}
+.top-left-controls{position:absolute;top:0;left:0;display:flex;gap:6px;z-index:1000}
 .datetime-display{display:flex;justify-content:center;gap:12px;margin-bottom:15px;flex-wrap:wrap}
 .datetime-card{background:var(--card-bg);padding:12px;border-radius:10px;box-shadow:0 4px 12px var(--shadow);flex:1;min-width:160px;text-align:center;border-left:4px solid var(--info);transition:transform 0.2s}
 .datetime-card:hover{transform:translateY(-3px);box-shadow:0 6px 16px var(--shadow)}
@@ -26,200 +26,514 @@ body{font-family:'Segoe UI','Roboto',sans-serif;background:var(--bg);color:var(-
 .datetime-label{font-size:0.75rem;font-weight:900;color:var(--info);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
 .datetime-value{font-size:1rem;font-weight:900;color:var(--text);text-shadow:0 1px 2px rgba(0,0,0,0.1)}
 .slogan-value{color:var(--success);font-size:0.95rem;font-weight:900;text-shadow:0 1px 2px rgba(0,0,0,0.1)}
-.btn{padding:6px 12px;border:none;border-radius:6px;font-weight:600;font-size:0.8rem;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;justify-content:center;gap:5px;text-transform:uppercase;letter-spacing:0.2px;box-shadow:0 2px 4px var(--shadow)}
+.btn{padding:6px 12px;border:none;border-radius:6px;font-weight:600;font-size:0.8rem;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;justify-content:center;gap:5px;text-transform:uppercase;letter-spacing:0.2px;box-shadow:0 2px 4px var(--shadow);min-height:36px;touch-action:manipulation}
 .btn:hover{transform:translateY(-1px);box-shadow:0 4px 8px var(--shadow)}
 .btn-primary{background:linear-gradient(45deg,var(--primary),#e67e22);color:#000}
 .btn-success{background:linear-gradient(45deg,var(--success),#2ecc71);color:#fff}
 .btn-danger{background:linear-gradient(45deg,var(--danger),#c0392b);color:#fff}
 .btn-info{background:linear-gradient(45deg,var(--info),#2980b9);color:#fff}
 .btn-purple{background:linear-gradient(45deg,var(--purple),#8e44ad);color:#fff}
-.btn-sm{padding:5px 10px;font-size:0.75rem}
-.floating-save-btn{position:fixed;bottom:20px;right:20px;z-index:1000;animation:float 3s ease-in-out infinite;box-shadow:0 4px 12px rgba(39,174,96,0.3)}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
-.floating-save-btn .btn{padding:8px 16px;font-size:0.85rem;font-weight:700;border-radius:8px}
+.btn-gold{background:linear-gradient(45deg,#f1c40f,#e67e22);color:#000;font-weight:700}
+.btn-excel{background:linear-gradient(45deg,#27ae60,#2ecc71);color:#fff;font-weight:700}
+.btn-sm{padding:5px 10px;font-size:0.75rem;min-height:32px}
+.floating-save-btn{position:fixed;bottom:15px;right:15px;z-index:1000;box-shadow:0 4px 12px rgba(39,174,96,0.3)}
+.floating-save-btn .btn{padding:6px 12px;font-size:0.75rem;font-weight:700;border-radius:6px;min-height:36px}
 .main-controls{display:flex;justify-content:flex-start;gap:8px;margin:10px 0;flex-wrap:wrap}
-.summary-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:15px 0}
-.summary-card{background:var(--card-bg);padding:15px;border-radius:10px;box-shadow:0 4px 12px var(--shadow);text-align:center;position:relative;overflow:hidden;transition:transform 0.2s}
+/* Adjusted summary cards to move them up */
+.summary-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin:8px 0}
+.summary-card{background:var(--card-bg);padding:12px;border-radius:10px;box-shadow:0 4px 12px var(--shadow);text-align:center;position:relative;overflow:hidden;transition:transform 0.2s}
 .summary-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:4px;background:linear-gradient(45deg,var(--primary),var(--success))}
 .summary-card.charge::before,.summary-card.cafe::before,.summary-card.total::before{background:linear-gradient(45deg,var(--info),#2980b9)!important}
 .summary-card.due::before{background:linear-gradient(45deg,#f39c12,#d35400)}
 .summary-card:hover{transform:translateY(-3px)}
-.summary-label{font-size:0.8rem;font-weight:800;color:var(--info);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
-.summary-value{font-size:1.4rem;font-weight:800;color:var(--dark)}
+.summary-label{font-size:0.75rem;font-weight:800;color:var(--info);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px}
+.summary-value{font-size:1.3rem;font-weight:800;color:var(--dark)}
 .dark-mode .summary-value{color:var(--light)}
-.rs-symbol{font-size:1rem;color:var(--success);font-weight:700;margin-right:3px}
+.rs-symbol{font-size:0.9rem;color:var(--success);font-weight:700;margin-right:3px}
 .summary-value.due-value{color:var(--danger)}
-.table-container{background:var(--card-bg);border-radius:10px;box-shadow:0 4px 16px var(--shadow);padding:10px;margin:15px 0;overflow:hidden;max-height:50vh;overflow-y:auto;border:1px solid var(--border)}
+/* Adjusted table container - added margin-top and increased header top position */
+.table-container{background:var(--card-bg);border-radius:10px;box-shadow:0 4px 16px var(--shadow);padding:10px;margin:8px 0;overflow:hidden;max-height:50vh;overflow-y:auto;border:1px solid var(--border)}
 .table-container::-webkit-scrollbar{width:6px}
 .table-container::-webkit-scrollbar-track{background:var(--bg);border-radius:3px}
 .table-container::-webkit-scrollbar-thumb{background:var(--primary);border-radius:3px}
 .table-container::-webkit-scrollbar-thumb:hover{background:#e67e22}
-table{width:100%;border-collapse:collapse;min-width:950px}
-thead{position:sticky;top:0;z-index:10}
-th{background:linear-gradient(45deg,var(--dark),var(--info));color:#fff;padding:8px 6px;text-align:center;font-weight:600;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.3px;border:1px solid rgba(255,255,255,0.2)}
+table{width:100%;border-collapse:collapse;min-width:900px;margin-top:10px} /* Added margin-top to table */
+thead{position:sticky;top:10px;z-index:10} /* Increased top from 0 to 10px to prevent overlap */
+th{background:linear-gradient(45deg,var(--dark),var(--info));color:#fff;padding:8px 6px;text-align:center;font-weight:600;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.3px;border:1px solid rgba(255,255,255,0.2);position:sticky;top:10px}
 th::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:2px;background:var(--primary)}
 td{padding:6px;text-align:center;border:1px solid var(--border);font-size:0.82rem;height:38px;vertical-align:middle}
 tr{transition:all 0.2s}
 tr:hover{background:rgba(52,152,219,0.08)!important}
 tr.locked-row{background:rgba(39,174,96,0.05)!important}
 tr.locked-row:hover{background:rgba(39,174,96,0.08)!important}
-/* Light red background for rows with due amounts */
 tr.due-row{background:rgba(231,76,60,0.1)!important}
 tr.due-row:hover{background:rgba(231,76,60,0.15)!important}
 .dark-mode tr.due-row{background:rgba(231,76,60,0.2)!important}
 .dark-mode tr.due-row:hover{background:rgba(231,76,60,0.25)!important}
 tr:nth-child(even){background:rgba(0,0,0,0.02)}
 .dark-mode tr:nth-child(even){background:rgba(255,255,255,0.04)}
-/* Override for even rows with due */
 tr.due-row:nth-child(even){background:rgba(231,76,60,0.15)!important}
 .dark-mode tr.due-row:nth-child(even){background:rgba(231,76,60,0.25)!important}
-/* Adjusted column widths with new Diff column */
+/* Adjusted column widths - added delete column */
 th:nth-child(1),td:nth-child(1){width:50px}
 th:nth-child(2),td:nth-child(2){width:70px}
-th:nth-child(3),td:nth-child(3){width:110px}
-th:nth-child(4),td:nth-child(4){width:80px} /* % SOC */
-th:nth-child(5),td:nth-child(5){width:60px} /* Diff column */
-th:nth-child(6),td:nth-child(6){width:80px} /* Amount */
-th:nth-child(7),td:nth-child(7){width:75px} /* Cafe */
-th:nth-child(8),td:nth-child(8){width:65px} /* Total */
-th:nth-child(9),td:nth-child(9){width:75px} /* Paid */
-th:nth-child(10),td:nth-child(10){width:75px} /* Status */
-th:nth-child(11),td:nth-child(11){width:80px} /* Due - Make this column bold red font */
-th:nth-child(12),td:nth-child(12){width:30px;padding:2px}
-input{width:100%;padding:4px 6px;border:1.5px solid var(--border);border-radius:4px;background:var(--card-bg);color:var(--text);font-size:0.82rem;transition:all 0.2s;height:26px;display:block;box-sizing:border-box;text-align:center}
+th:nth-child(3),td:nth-child(3){width:130px} /* Increased for Vehicle */
+th:nth-child(4),td:nth-child(4){width:85px} /* % SOC */
+th:nth-child(5),td:nth-child(5){width:65px} /* Diff */
+th:nth-child(6),td:nth-child(6){width:90px} /* Amount */
+th:nth-child(7),td:nth-child(7){width:85px} /* Cafe */
+th:nth-child(8),td:nth-child(8){width:85px} /* Total */
+th:nth-child(9),td:nth-child(9){width:85px} /* Paid */
+th:nth-child(10),td:nth-child(10){width:110px} /* Status - made wider */
+th:nth-child(11),td:nth-child(11){width:80px} /* Due */
+th:nth-child(12),td:nth-child(12){width:50px} /* Delete */
+input{width:100%;padding:4px 6px;border:1.5px solid var(--border);border-radius:4px;background:var(--card-bg);color:var(--text);font-size:0.82rem;transition:all 0.2s;height:30px;display:block;box-sizing:border-box;text-align:center;font-weight:bold;color:#000!important;touch-action:manipulation}
 input:not([readonly]){cursor:text;caret-color:var(--primary)}
 .vehicle-input{text-transform:uppercase}
 input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 2px rgba(241,196,15,0.15)}
 input[readonly]{background:var(--bg);opacity:0.8;cursor:default}
-td input{border:1.5px solid var(--border)!important;background:var(--card-bg)!important;color:var(--text)!important;font-weight:500}
+td input{border:1.5px solid var(--border)!important;background:var(--card-bg)!important;color:#000!important;font-weight:bold!important}
 input.empty-value{color:transparent!important}
-.diff-input{font-weight:700;color:var(--success)!important;background:rgba(39,174,96,0.1)!important}
+.diff-input{font-weight:700;color:var(--success)!important;background:rgba(39,174,96,0.1)!important;font-weight:bold!important}
 .dark-mode .diff-input{background:rgba(39,174,96,0.2)!important}
-/* Make ALL due values bold red */
 .due-input{color:#ff0000!important;font-weight:900!important;font-size:0.95rem!important;text-shadow:0 1px 3px rgba(255,0,0,0.4)!important}
 .dark-mode .due-input{color:#ff6b6b!important}
-/* Style for zero due values - show as blank */
 .due-input.empty-value{color:transparent!important;text-shadow:none!important}
-.status-select{width:100%;padding:4px 6px;border:1.5px solid var(--border);border-radius:4px;background:var(--card-bg);color:var(--text);font-size:0.82rem;transition:all 0.2s;height:26px;text-align:center;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");background-repeat:no-repeat;background-position:right 6px center;background-size:12px;padding-right:20px}
-.status-select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 2px rgba(241,196,15,0.15)}
-.status-select:disabled{opacity:0.7;cursor:default}
-/* Hide dropdown arrow when status is selected */
-.status-select[value="paid"],
-.status-select[value="due"],
-.status-select.status-paid,
-.status-select.status-due {
-    background-image: none;
-}
-.status-paid{color:var(--success)!important;font-weight:700!important}
-.status-due{color:#ff0000!important;font-weight:700!important}
+.status-buttons{display:flex;justify-content:center;align-items:center;width:100%;height:100%;position:relative}
+.status-button{padding:4px 12px;border:none;border-radius:4px;font-size:0.75rem;font-weight:600;cursor:pointer;transition:all 0.2s;text-align:center;min-height:26px;flex:1;min-height:30px;touch-action:manipulation}
+.status-button:hover{transform:translateY(-1px);box-shadow:0 2px 4px rgba(0,0,0,0.2)}
+.paid-button{background:var(--success);color:white}
+.due-button{background:var(--danger);color:white}
+.status-button.active{transform:scale(1.05);box-shadow:0 3px 6px rgba(0,0,0,0.3);font-weight:700}
+.status-button:disabled{opacity:0.5;cursor:not-allowed;transform:none!important}
+.delete-button{background:var(--danger);color:white;border:none;border-radius:4px;cursor:pointer;width:28px;height:26px;font-size:0.9rem;font-weight:bold;display:flex;align-items:center;justify-content:center;transition:all 0.2s;margin:0 auto;opacity:0;visibility:hidden;touch-action:manipulation}
+tr:hover .delete-button{opacity:1;visibility:visible}
+.delete-button:hover{background:#c0392b;transform:scale(1.1);box-shadow:0 2px 4px rgba(231,76,60,0.3)}
 .save-indicator{position:fixed;bottom:70px;right:20px;background:linear-gradient(45deg,var(--success),#2ecc71);color:#fff;padding:8px 14px;border-radius:6px;box-shadow:0 4px 12px rgba(39,174,96,0.3);opacity:0;transition:all 0.2s;font-weight:600;display:flex;align-items:center;gap:6px;z-index:1000;transform:translateX(80px);font-size:0.8rem}
 .save-indicator.visible{opacity:1;transform:translateX(0)}
-.delete-btn{background:#e74c3c;color:white;border:none;border-radius:3px;padding:2px 6px;cursor:pointer;font-size:0.7rem;transition:all 0.2s;width:100%;height:22px;display:flex;align-items:center;justify-content:center;min-width:28px;opacity:0}
-tr:hover .delete-btn{opacity:1}
-.delete-btn:hover{background:#c0392b;transform:scale(1.05)}
-.delete-btn:disabled{background:#95a5a6;cursor:not-allowed;opacity:0}
 .soc-container{position:relative;width:100%}
 .soc-input{width:100%}
-.action-cell{min-width:30px;padding:2px!important}
-.loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;justify-content:center;align-items:center;z-index:2000;color:white;font-size:1.2rem;flex-direction:column;gap:15px}
+.loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:none;justify-content:center;align-items:center;z-index:2000;color:white;font-size:1.2rem;flex-direction:column;gap:15px}
 .loading-spinner{width:40px;height:40px;border:4px solid #f3f3f3;border-top:4px solid var(--primary);border-radius:50%;animation:spin 1s linear infinite}
 @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-.report-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:2000;justify-content:center;align-items:center}
-.report-content{background:var(--card-bg);padding:20px;border-radius:10px;width:90%;max-width:500px;max-height:80vh;overflow-y:auto}
-.report-options{display:flex;flex-direction:column;gap:10px;margin-top:15px}
-.report-option-btn{width:100%;padding:12px;text-align:center}
-@media (max-width:768px){body{padding:8px;font-size:12px}.header h1{font-size:1.4rem}.datetime-display{flex-direction:column;align-items:center;gap:8px}.datetime-card{width:100%;min-width:unset;padding:10px}.summary-cards{grid-template-columns:repeat(2,1fr);gap:10px}.table-container{padding:8px;max-height:40vh}.top-controls{position:relative;top:0;right:0;justify-content:center;margin-bottom:10px}.btn{padding:5px 10px;font-size:0.75rem}.summary-value{font-size:1.3rem}th,td{padding:5px 4px}.floating-save-btn{bottom:15px;right:15px}.floating-save-btn .btn{padding:6px 14px;font-size:0.8rem}.main-controls{justify-content:center}}
-@media (max-width:480px){.summary-cards{grid-template-columns:1fr}.btn{padding:4px 8px;font-size:0.7rem}.summary-value{font-size:1.2rem}th,td{padding:4px 3px;font-size:0.75rem}.floating-save-btn{bottom:10px;right:10px}.floating-save-btn .btn{padding:5px 12px;font-size:0.75rem}}
-/* Print styles - FIXED */
-@media print{
+/* Report Modal Styles */
+.report-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:none;justify-content:center;align-items:center;z-index:3000}
+.report-content{background:var(--card-bg);border-radius:12px;width:90%;max-width:800px;max-height:80vh;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.3);display:flex;flex-direction:column}
+.report-header{background:linear-gradient(45deg,var(--dark),var(--info));color:#fff;padding:15px 20px;display:flex;justify-content:space-between;align-items:center}
+.report-header h2{margin:0;font-size:1.4rem;font-weight:600}
+.report-close{background:none;border:none;color:#fff;font-size:1.8rem;cursor:pointer;line-height:1;padding:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center}
+.report-close:hover{color:var(--primary)}
+.report-periods{display:flex;gap:10px;padding:15px 20px;background:var(--bg);border-bottom:1px solid var(--border)}
+.report-period-btn{padding:8px 16px;font-size:0.85rem}
+.report-table-container{flex:1;overflow-y:auto;padding:15px}
+.report-table{width:100%;border-collapse:collapse}
+.report-table th{background:linear-gradient(45deg,var(--dark),var(--info));color:#fff;padding:10px;text-align:center;font-weight:600;font-size:0.85rem;position:sticky;top:0}
+.report-table td{padding:10px;text-align:center;border:1px solid var(--border);font-size:0.9rem}
+.report-table tr:nth-child(even){background:rgba(0,0,0,0.03)}
+.report-table tr:hover{background:rgba(52,152,219,0.08)}
+.report-total-row{background:linear-gradient(45deg,rgba(39,174,96,0.1),rgba(52,152,219,0.1))!important;font-weight:700}
+.dark-mode .report-total-row{background:linear-gradient(45deg,rgba(39,174,96,0.2),rgba(52,152,219,0.2))!important}
+.report-total-row td{font-weight:800;color:var(--success)}
+.report-date-cell{font-weight:600;color:var(--info)}
+.report-no-data{text-align:center;padding:40px;color:var(--text);font-style:italic}
+.report-loading{text-align:center;padding:40px;color:var(--info)}
+/* Contributors Modal Styles */
+.contributors-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:none;justify-content:center;align-items:center;z-index:3000}
+.contributors-content{background:var(--card-bg);border-radius:12px;width:90%;max-width:900px;max-height:85vh;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.3);display:flex;flex-direction:column}
+.contributors-header{background:linear-gradient(45deg,var(--dark),#f39c12);color:#fff;padding:15px 20px;display:flex;justify-content:space-between;align-items:center}
+.contributors-header h2{margin:0;font-size:1.4rem;font-weight:600}
+.contributors-close{background:none;border:none;color:#fff;font-size:1.8rem;cursor:pointer;line-height:1;padding:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center}
+.contributors-close:hover{color:var(--primary)}
+.contributors-table-container{flex:1;overflow-y:auto;padding:15px}
+.contributors-table{width:100%;border-collapse:collapse}
+.contributors-table th{background:linear-gradient(45deg,var(--dark),#f39c12);color:#fff;padding:10px;text-align:center;font-weight:600;font-size:0.85rem;position:sticky;top=0}
+.contributors-table td{padding:10px;text-align:center;border:1px solid var(--border);font-size:0.9rem}
+.contributors-table tr:nth-child(even){background:rgba(0,0,0,0.03)}
+.contributors-table tr:hover{background:rgba(52,152,219,0.08)}
+.top-contributor{background:linear-gradient(45deg,rgba(39,174,96,0.15),rgba(52,152,219,0.1))!important;font-weight:700}
+.dark-mode .top-contributor{background:linear-gradient(45deg,rgba(39,174,96,0.25),rgba(52,152,219,0.2))!important}
+.top-contributor td{color:var(--success);font-weight:700}
+.contributor-rank{font-weight:800;font-size:1.1rem;color:var(--dark)}
+.dark-mode .contributor-rank{color:var(--light)}
+.contributor-vehicle{font-weight:600;color:var(--info)}
+.contributor-amount{font-weight:700;color:var(--success)}
+.contributor-count{font-weight:600;color:var(--purple)}
+.contributors-no-data{text-align:center;padding:40px;color:var(--text);font-style:italic}
+.contributors-loading{text-align:center;padding:40px;color:var(--info)}
+.contributors-summary{display:flex;justify-content:space-around;padding:15px 20px;background:var(--bg);border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px}
+.contributors-summary-item{text-align:center}
+.contributors-summary-label{font-size:0.8rem;color:var(--info);font-weight:600;margin-bottom:4px}
+.contributors-summary-value{font-size:1.2rem;font-weight:800;color:var(--success)}
+/* Vehicle suggestions popup - UPDATED: Fixed positioning to appear above table */
+.vehicle-suggestions-popup {
+    position: fixed;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 9999;
+    display: none;
+    box-shadow: 0 4px 12px var(--shadow);
+    width: 200px;
+    padding: 4px;
+    top: 0;
+    left: 0;
+}
+.vehicle-suggestion-item {
+    padding: 6px 8px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.75rem;
+    text-align: center;
+    border-radius: 3px;
+}
+.vehicle-suggestion-item:hover {
+    background: var(--primary);
+    color: #000;
+}
+.vehicle-suggestion-item:last-child {
+    border-bottom: none;
+}
+/* Vehicle cell with relative positioning */
+.vehicle-cell {
+    position: relative;
+}
+/* Mobile Chrome optimizations */
+@media (max-width: 768px) {
+    body {
+        padding: 8px;
+        font-size: 12px;
+        -webkit-text-size-adjust: none
+    }
+    .header h1 {
+        font-size: 1.4rem
+    }
+    .datetime-display {
+        flex-direction: column;
+        align-items: center;
+        gap: 8px
+    }
+    .datetime-card {
+        width: 100%;
+        min-width: unset;
+        padding: 10px
+    }
+    .summary-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+        margin: 6px 0
+    }
+    .summary-card {
+        padding: 10px
+    }
+    .summary-label {
+        font-size: 0.7rem
+    }
+    .summary-value {
+        font-size: 1.1rem
+    }
+    .table-container {
+        padding: 8px;
+        max-height: 40vh;
+        margin: 6px 0
+    }
+    table {
+        margin-top: 8px;
+        min-width: 100%
+    }
+    thead {
+        top: 8px
+    }
+    .top-controls {
+        position: relative;
+        top: 0;
+        right: 0;
+        justify-content: center;
+        margin-bottom: 10px
+    }
+    .top-left-controls {
+        position: relative;
+        top: 0;
+        left: 0;
+        justify-content: center;
+        margin-bottom: 5px
+    }
+    .btn {
+        padding: 5px 10px;
+        font-size: 0.75rem;
+        min-height: 36px
+    }
+    th, td {
+        padding: 5px 4px
+    }
+    th {
+        font-size: 0.7rem;
+        position: sticky;
+        top: 8px
+    }
+    td {
+        font-size: 0.75rem
+    }
+    input {
+        font-size: 0.8rem;
+        height: 34px;
+        padding: 6px 8px
+    }
+    .status-button {
+        padding: 3px 8px;
+        font-size: 0.7rem;
+        min-height: 30px
+    }
+    .delete-button {
+        width: 32px;
+        height: 30px;
+        font-size: 0.9rem
+    }
+    .floating-save-btn {
+        bottom: 15px;
+        right: 15px
+    }
+    .floating-save-btn .btn {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        min-height: 36px
+    }
+    .main-controls {
+        justify-content: center
+    }
+    .report-content {
+        width: 95%;
+        max-height: 90vh
+    }
+    .report-header {
+        padding: 12px 15px
+    }
+    .report-header h2 {
+        font-size: 1.2rem
+    }
+    .report-periods {
+        flex-direction: column;
+        padding: 10px
+    }
+    .report-period-btn {
+        width: 100%
+    }
+    .report-table-container {
+        padding: 10px
+    }
+    .report-table th, .report-table td {
+        padding: 8px 5px;
+        font-size: 0.8rem
+    }
+    .contributors-content {
+        width: 95%;
+        max-height: 90vh
+    }
+    .contributors-header {
+        padding: 12px 15px
+    }
+    .contributors-header h2 {
+        font-size: 1.2rem
+    }
+    .contributors-table-container {
+        padding: 10px
+    }
+    .contributors-table th, .contributors-table td {
+        padding: 8px 5px;
+        font-size: 0.8rem
+    }
+    .contributors-summary {
+        flex-direction: column;
+        align-items: center;
+        padding: 10px
+    }
+    .contributors-summary-item {
+        margin-bottom: 10px
+    }
+    .vehicle-suggestions-popup {
+        max-height: 120px;
+        font-size: 0.75rem;
+        width: 180px
+    }
+    /* Prevent zoom on input focus for mobile */
+    input, select, textarea {
+        font-size: 16px !important
+    }
+    @supports (-webkit-touch-callout: none) {
+        input, select, textarea {
+            font-size: 16px !important
+        }
+    }
+}
+@media (max-width: 480px) {
+    .summary-cards {
+        grid-template-columns: 1fr;
+        gap: 5px;
+        margin: 5px 0
+    }
+    .summary-card {
+        padding: 8px
+    }
+    .summary-label {
+        font-size: 0.65rem
+    }
+    .summary-value {
+        font-size: 1rem
+    }
+    .btn {
+        padding: 4px 8px;
+        font-size: 0.7rem;
+        min-height: 32px
+    }
+    th, td {
+        padding: 4px 3px;
+        font-size: 0.75rem
+    }
+    th {
+        font-size: 0.65rem
+    }
+    input {
+        font-size: 0.8rem;
+        height: 32px;
+        padding: 5px 7px
+    }
+    .status-button {
+        padding: 2px 6px;
+        font-size: 0.65rem;
+        min-height: 28px
+    }
+    .delete-button {
+        width: 30px;
+        height: 28px;
+        font-size: 0.8rem
+    }
+    .floating-save-btn {
+        bottom: 10px;
+        right: 10px
+    }
+    .floating-save-btn .btn {
+        padding: 5px 10px;
+        font-size: 0.7rem;
+        min-height: 32px
+    }
+    .report-table th, .report-table td {
+        padding: 6px 3px;
+        font-size: 0.75rem
+    }
+    .contributors-table th, .contributors-table td {
+        padding: 6px 3px;
+        font-size: 0.75rem
+    }
+    .vehicle-suggestions-popup {
+        max-height: 100px;
+        width: 160px
+    }
+}
+@media print {
     @page {
         margin: 0.5in;
-        size: A4 portrait;
+        size: A4 portrait
     }
     body {
         background: white !important;
         color: black !important;
         padding: 0 !important;
         font-size: 12pt !important;
-        margin: 0 !important;
+        margin: 0 !important
     }
     .container {
         max-width: 100% !important;
         margin: 0 !important;
-        padding: 0 !important;
+        padding: 0 !important
     }
     .no-print {
-        display: none !important;
+        display: none !important
     }
-    /* Header for print */
     .header {
         text-align: center !important;
         margin-bottom: 20px !important;
         page-break-after: avoid !important;
+        position: static !important
     }
     .header h1 {
         font-size: 24pt !important;
         color: black !important;
         background: none !important;
         -webkit-text-fill-color: black !important;
-        margin-bottom: 10px !important;
+        margin-bottom: 10px !important
     }
-    /* Date display for print */
     .datetime-display {
         display: flex !important;
         justify-content: center !important;
         gap: 20px !important;
         margin: 20px 0 !important;
-        page-break-inside: avoid !important;
+        page-break-inside: avoid !important
     }
     .datetime-card {
         border: 1px solid #000 !important;
         box-shadow: none !important;
         background: white !important;
+        border-left: 4px solid #3498db !important
+    }
+    .datetime-card.slogan {
+        border-left-color: #27ae60 !important;
+        background: linear-gradient(135deg, #fff 0%, rgba(39, 174, 96, 0.08) 100%) !important
+    }
+    .datetime-label {
+        color: #3498db !important;
+        font-size: 9pt !important
     }
     .datetime-value, .slogan-value {
         color: black !important;
-        font-weight: bold !important;
+        font-weight: bold !important
     }
-    /* Summary cards for print - REMOVED no-print class from HTML */
+    .slogan-value {
+        color: #27ae60 !important
+    }
     .summary-cards {
         display: flex !important;
         flex-wrap: wrap !important;
         justify-content: center !important;
         gap: 15px !important;
         margin: 20px 0 !important;
-        page-break-inside: avoid !important;
+        page-break-inside: avoid !important
     }
     .summary-card {
-        flex: 1 !important;
-        min-width: 180px !important;
-        max-width: 220px !important;
-        page-break-inside: avoid !important;
         border: 1px solid #000 !important;
         box-shadow: none !important;
         background: white !important;
         padding: 10px !important;
+        position: relative !important;
+        overflow: hidden !important
     }
     .summary-card::before {
-        display: none !important;
+        display: block !important;
+        height: 4px !important;
+        background: linear-gradient(45deg, #f1c40f, #27ae60) !important
+    }
+    .summary-card.charge::before, .summary-card.cafe::before, .summary-card.total::before {
+        background: linear-gradient(45deg, #3498db, #2980b9) !important
+    }
+    .summary-card.due::before {
+        background: linear-gradient(45deg, #f39c12, #d35400) !important
     }
     .summary-label {
-        color: black !important;
+        color: #3498db !important;
         font-size: 9pt !important;
-        font-weight: bold !important;
+        font-weight: bold !important
     }
     .summary-value {
         color: black !important;
         font-size: 14pt !important;
-        font-weight: bold !important;
+        font-weight: bold !important
     }
     .summary-value.due-value {
-        color: #c0392b !important;
+        color: #e74c3c !important
     }
     .rs-symbol {
-        color: black !important;
+        color: #27ae60 !important
     }
-    /* Table container for print */
     .table-container {
         box-shadow: none !important;
         border: 1px solid #000 !important;
@@ -227,111 +541,223 @@ tr:hover .delete-btn{opacity:1}
         overflow: visible !important;
         padding: 5px !important;
         background: white !important;
-        page-break-inside: auto !important;
+        page-break-inside: auto !important
     }
-    /* Table for print */
     table {
         width: 100% !important;
         border-collapse: collapse !important;
         page-break-inside: auto !important;
+        margin-top: 0 !important
+    }
+    thead {
+        display: table-header-group !important;
+        position: static !important;
+        top: auto !important;
+        z-index: auto !important
     }
     th {
-        background: #333 !important;
-        color: white !important;
+        background: linear-gradient(45deg, #2c3e50, #3498db) !important;
+        color: #fff !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
         font-size: 8pt !important;
         padding: 6px 4px !important;
-        border: 1px solid #000 !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        position: static !important
     }
     td {
-        border: 1px solid #000 !important;
+        border: 1px solid #ddd !important;
         font-size: 8pt !important;
         padding: 4px !important;
         color: black !important;
+        font-weight: bold !important
     }
     tr {
         page-break-inside: avoid !important;
-        page-break-after: auto !important;
+        page-break-after: auto !important
     }
     tr:nth-child(even) {
-        background: #f5f5f5 !important;
+        background: rgba(0, 0, 0, 0.02) !important;
         -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
+        print-color-adjust: exact !important
     }
-    /* Input fields in print */
+    tr.locked-row {
+        background: rgba(39, 174, 96, 0.05) !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important
+    }
+    tr.due-row {
+        background: rgba(231, 76, 60, 0.1) !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important
+    }
     td input {
         background: white !important;
         color: black !important;
         border: none !important;
         text-align: center !important;
+        font-weight: bold !important
     }
     input.empty-value {
-        color: transparent !important;
+        color: transparent !important
     }
     .due-input {
-        color: #c0392b !important;
-        font-weight: bold !important;
+        color: #e74c3c !important;
+        font-weight: bold !important
     }
-    /* Remove all animations and transitions */
+    .diff-input {
+        color: #27ae60 !important;
+        font-weight: bold !important;
+        background: rgba(39, 174, 96, 0.1) !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important
+    }
+    .status-button {
+        background: #27ae60 !important;
+        color: white !important;
+        border: 1px solid #000 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important
+    }
+    .status-button.due-button {
+        background: #e74c3c !important
+    }
+    .delete-button {
+        display: none !important
+    }
+    th:nth-child(12), td:nth-child(12) {
+        display: none !important
+    }
     * {
         animation: none !important;
-        transition: none !important;
+        transition: none !important
     }
-    /* Page break control */
     .page-break {
-        page-break-before: always;
+        page-break-before: always
+    }
+    .report-modal {
+        display: none !important
+    }
+    .contributors-modal {
+        display: none !important
+    }
+    .vehicle-suggestions-popup {
+        display: none !important
     }
 }
-@keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
-.fade-in{animation:fadeIn 0.3s ease forwards}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px)
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0)
+    }
+}
+.fade-in {
+    animation: fadeIn 0.3s ease forwards
+}
 </style>
 </head>
 <body>
 <div class="container">
 <div class="header"><h1>⚡ Ivan Charging Station</h1>
+<div class="top-left-controls no-print">
+    <button id="contributorsBtn" class="btn btn-gold btn-sm">🏆 Top 10</button>
+</div>
 <div class="top-controls no-print">
     <button id="darkModeBtn" class="btn btn-primary btn-sm">🌙 Dark</button>
+    <button id="excelBtn" class="btn btn-excel btn-sm">📊 Excel</button>
+    <button id="reportBtn" class="btn btn-purple btn-sm">📈 Report</button>
     <button id="printBtn" class="btn btn-info btn-sm">🖨️ Print</button>
-    <button id="reportBtn" class="btn btn-purple btn-sm">📊 Report</button>
     <button id="syncBtn" class="btn btn-success btn-sm">🔄 Sync</button>
 </div></div>
 <div class="datetime-display"><div class="datetime-card"><div class="datetime-label">Date</div><div class="datetime-value" id="englishDateDisplay"></div></div>
 <div class="datetime-card slogan"><div class="datetime-label">Slogan</div><div class="slogan-value">SKIP THE GAS, SHOW THE CLASS</div></div>
 <div class="datetime-card"><div class="datetime-label">Time</div><div class="datetime-value" id="timeDisplay"></div></div></div>
-<div class="main-controls no-print">
-    <button id="clearAllBtn" class="btn btn-danger btn-sm">🗑️ Clear All</button>
-    <button id="loadFromCloudBtn" class="btn btn-info btn-sm">☁️ Load Cloud</button>
-</div>
-<!-- REMOVED no-print class from summary-cards -->
 <div class="summary-cards"><div class="summary-card charge"><div class="summary-label">CHARGE REVENUE</div><div class="summary-value"><span class="rs-symbol">Rs.</span> <span id="chargeTotal">0</span></div></div>
 <div class="summary-card cafe"><div class="summary-label">CAFE REVENUE</div><div class="summary-value"><span class="rs-symbol">Rs.</span> <span id="cafeTotal">0</span></div></div>
 <div class="summary-card total"><div class="summary-label">TOTAL REVENUE</div><div class="summary-value"><span class="rs-symbol">Rs.</span> <span id="allTotal">0</span></div></div>
 <div class="summary-card due"><div class="summary-label">DUE</div><div class="summary-value due-value"><span class="rs-symbol">Rs.</span> <span id="dueTotal">0</span></div></div></div>
 <div class="table-container"><table id="logbook"><thead><tr><th>S.N.</th><th>Time</th><th>Vehicle</th><th>% SOC</th><th>Diff</th><th>Amount</th><th>Cafe</th><th>Total</th><th>Paid</th><th>Status</th><th>Due</th><th></th></tr></thead><tbody></tbody></table></div>
-<div class="floating-save-btn no-print"><button id="saveAllBtn" class="btn btn-success btn-sm">💾 Save to Cloud</button></div>
+<div class="floating-save-btn no-print"><button id="saveAllBtn" class="btn btn-success btn-sm">💾 Save</button></div>
 <div id="saveIndicator" class="save-indicator"><span>✓</span><span>Data Saved</span></div>
-
-<!-- Report Modal -->
-<div id="reportModal" class="report-modal">
-    <div class="report-content">
-        <h2 style="text-align:center;margin-bottom:20px;color:var(--dark)">📊 Generate Report</h2>
-        <div class="report-options">
-            <button id="dailyReportBtn" class="btn btn-success report-option-btn">📅 Daily Report</button>
-            <button id="weeklyReportBtn" class="btn btn-info report-option-btn">📆 Weekly Report</button>
-            <button id="monthlyReportBtn" class="btn btn-purple report-option-btn">📈 Monthly Report</button>
-            <button id="customReportBtn" class="btn btn-primary report-option-btn">📋 Custom Report</button>
-            <button id="exportCSVBtn" class="btn btn-success report-option-btn">📄 Export as CSV</button>
-            <button id="exportPDFBtn" class="btn btn-danger report-option-btn">📑 Export as PDF</button>
-            <button id="closeReportBtn" class="btn btn-danger report-option-btn">❌ Close</button>
-        </div>
-    </div>
-</div>
-
 <div id="loadingOverlay" class="loading-overlay" style="display: none;">
     <div class="loading-spinner"></div>
     <div id="loadingText">Connecting to Cloud...</div>
 </div>
+</div>
+
+<!-- Report Modal -->
+<div id="reportModal" class="report-modal no-print">
+    <div class="report-content">
+        <div class="report-header">
+            <h2>📊 Revenue Report</h2>
+            <button class="report-close" id="reportCloseBtn">×</button>
+        </div>
+        <div class="report-periods">
+            <button class="btn btn-info report-period-btn" data-period="daily">Daily Report</button>
+            <button class="btn btn-info report-period-btn" data-period="weekly">Weekly Report</button>
+            <button class="btn btn-info report-period-btn" data-period="monthly">Monthly Report</button>
+        </div>
+        <div class="report-table-container">
+            <table class="report-table" id="reportTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>CHARGE REVENUE</th>
+                        <th>CAFE REVENUE</th>
+                        <th>TOTAL REVENUE</th>
+                        <th>DUE</th>
+                    </tr>
+                </thead>
+                <tbody id="reportTableBody">
+                    <!-- Report data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Top Contributors Modal -->
+<div id="contributorsModal" class="contributors-modal no-print">
+    <div class="contributors-content">
+        <div class="contributors-header">
+            <h2 id="contributorsTitle">🏆 Top Contributors</h2>
+            <button class="contributors-close" id="contributorsCloseBtn">×</button>
+        </div>
+        <div class="contributors-summary">
+            <div class="contributors-summary-item">
+                <div class="contributors-summary-label">Total Contributors</div>
+                <div class="contributors-summary-value" id="totalContributors">0</div>
+            </div>
+            <div class="contributors-summary-item">
+                <div class="contributors-summary-label">Total Transactions</div>
+                <div class="contributors-summary-value" id="totalTransactions">0</div>
+            </div>
+            <div class="contributors-summary-item">
+                <div class="contributors-summary-label">Month Revenue</div>
+                <div class="contributors-summary-value" id="monthRevenue">Rs. 0</div>
+            </div>
+        </div>
+        <div class="contributors-table-container">
+            <table class="contributors-table" id="contributorsTable">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Vehicle</th>
+                        <th>Total Amount</th>
+                        <th>Transactions</th>
+                        <th>Daily Average</th>
+                    </tr>
+                </thead>
+                <tbody id="contributorsTableBody">
+                    <!-- Contributors data will be inserted here -->
+                </tbody>
+            </table>
+</div>
+    </div>
 </div>
 
 <script>
@@ -356,29 +782,179 @@ try {
   console.log("Firebase initialized successfully");
 } catch (error) {
   console.error("Firebase initialization error:", error);
-  // Silent error - don't show notification
 }
 
-// Initialize jsPDF
-const { jsPDF } = window.jspdf;
-
 // Application State
-let currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+let currentDate = getBusinessDayDate(); // Use business day (5:00 AM to 5:00 AM)
 let isFirebaseConnected = false;
+let nextDayTimer = null;
+let vehicleDatabase = new Map(); // Changed to Map to store vehicle name + number
+
+// Load vehicle database from saved data
+function loadVehicleDatabase() {
+  vehicleDatabase.clear();
+  
+  // Load from localStorage
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key.startsWith('logbook_')) {
+      try {
+        const data = JSON.parse(localStorage.getItem(key));
+        data.forEach(entry => {
+          if (entry.vehicle && entry.vehicle.trim()) {
+            const vehicle = entry.vehicle.trim();
+            // Extract the number part (last 4 digits after space)
+            const parts = vehicle.split(' ');
+            if (parts.length >= 2) {
+              const numbers = parts[parts.length - 1];
+              // Store as number->full vehicle mapping
+              if (/^\d{4}$/.test(numbers)) {
+                vehicleDatabase.set(numbers, vehicle);
+              }
+            }
+          }
+        });
+      } catch (error) {
+        console.error("Error loading vehicle data from localStorage:", error);
+      }
+    }
+  }
+  
+  // Also load from current table
+  document.querySelectorAll("#logbook tbody tr .vehicle-input").forEach(input => {
+    if (input.value && input.value.trim()) {
+      const vehicle = input.value.trim();
+      const parts = vehicle.split(' ');
+      if (parts.length >= 2) {
+        const numbers = parts[parts.length - 1];
+        if (/^\d{4}$/.test(numbers)) {
+          vehicleDatabase.set(numbers, vehicle);
+        }
+      }
+    }
+  });
+  
+  console.log("Vehicle database loaded:", vehicleDatabase.size, "vehicles");
+}
+
+// Find vehicle by exact 4-digit number match
+function findVehicleByExactNumber(numberStr) {
+  if (!numberStr || !/^\d{4}$/.test(numberStr)) return null;
+  
+  // Look for exact match in the database
+  if (vehicleDatabase.has(numberStr)) {
+    return vehicleDatabase.get(numberStr);
+  }
+  
+  // Also check all vehicles for number match
+  for (let [num, vehicle] of vehicleDatabase) {
+    if (num === numberStr) {
+      return vehicle;
+    }
+  }
+  
+  return null;
+}
+
+// Business day calculation (5:00 AM to next day 5:00 AM)
+function getBusinessDayDate(date = new Date()) {
+  const now = new Date(date);
+  const currentHour = now.getHours();
+  const currentMinute = now.getMinutes();
+  
+  // If current time is before 5:00 AM, use yesterday's date as business day
+  // This means 5:00 AM to 4:59 AM next day is considered one business day
+  if (currentHour < 5 || (currentHour === 5 && currentMinute < 0)) {
+    now.setDate(now.getDate() - 1);
+  }
+  
+  // Return date in YYYY-MM-DD format
+  return now.toISOString().split('T')[0];
+}
+
+// Calculate next 5:00 AM
+function getNext5AM() {
+  const now = new Date();
+  const next5AM = new Date(now);
+  
+  // Set to next 5:00 AM
+  next5AM.setHours(5, 0, 0, 0);
+  
+  // If we're already past 5:00 AM today, set to tomorrow's 5:00 AM
+  if (now.getHours() >= 5) {
+    next5AM.setDate(next5AM.getDate() + 1);
+  }
+  
+  return next5AM;
+}
+
+// Schedule daily reset at 5:00 AM
+function scheduleDailyReset() {
+  const next5AM = getNext5AM();
+  const timeUntilNext5AM = next5AM.getTime() - Date.now();
+  
+  // Clear existing timer
+  if (nextDayTimer) {
+    clearTimeout(nextDayTimer);
+  }
+  
+  // Set new timer
+  nextDayTimer = setTimeout(() => {
+    // Reset the table for new business day
+    resetTableForNewDay();
+    
+    // Schedule next reset
+    scheduleDailyReset();
+  }, timeUntilNext5AM);
+  
+  console.log(`Next table reset scheduled at: ${next5AM.toString()}`);
+  console.log(`Time until reset: ${Math.round(timeUntilNext5AM/1000/60)} minutes`);
+}
+
+// Reset table for new business day
+async function resetTableForNewDay() {
+  // Show notification before reset
+  showNotification(`Business day ending. Saving data for ${currentDate}...`, "info");
+  
+  // Save current day's data before clearing
+  await autoSave(true);
+  
+  // Clear the table
+  document.querySelector("#logbook tbody").innerHTML = "";
+  
+  // Update current date to new business day
+  const oldDate = currentDate;
+  currentDate = getBusinessDayDate();
+  
+  // Add new empty row
+  addRow();
+  
+  // Update totals
+  updateTotals();
+  
+  // Load any existing data for new day
+  if (isFirebaseConnected) {
+    await loadFromFirebase(currentDate);
+  } else {
+    loadFromLocalStorage();
+  }
+  
+  showNotification(`New business day started (${currentDate}). Previous day (${oldDate}) data saved.`, "success");
+  
+  // Update date display
+  updateDateTimeDisplay();
+}
 
 // Date/Time Functions
 const englishMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const englishDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-function updateDateTime() {
+function updateDateTimeDisplay() {
   const now = new Date();
   const day = englishDays[now.getDay()];
   const month = englishMonths[now.getMonth()];
   document.getElementById("englishDateDisplay").textContent = `${day}, ${now.getDate()} ${month} ${now.getFullYear()}`;
   document.getElementById("timeDisplay").textContent = now.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true});
-  
-  // Update current date
-  currentDate = now.toISOString().split('T')[0];
 }
 
 // Utility Functions
@@ -425,633 +1001,118 @@ function showNotification(message, type = "success") {
   }, 3000);
 }
 
-// Report Functions
-function generateDailyReport() {
-  const reportWindow = window.open('', '_blank');
+// Vehicle number formatting function with EV30 and EV32 as special vehicle names
+function formatVehicleNumber(value) {
+  // Remove all spaces and convert to uppercase
+  let formatted = value.replace(/\s/g, '').toUpperCase();
   
-  // Get current summary values
-  const charge = document.getElementById("chargeTotal").textContent;
-  const cafe = document.getElementById("cafeTotal").textContent;
-  const total = document.getElementById("allTotal").textContent;
-  const due = document.getElementById("dueTotal").textContent;
-  const date = document.getElementById("englishDateDisplay").textContent;
+  // Check for EV30 or EV32 followed by numbers (vehicle names)
+  const ev30Match = formatted.match(/^(EV30)(\d*)$/);
+  const ev32Match = formatted.match(/^(EV32)(\d*)$/);
   
-  // Get table data
-  const rows = document.querySelectorAll("#logbook tbody tr");
-  
-  let html = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Daily Report - Ivan Charging Station</title>
-        <style>
-            body { 
-                font-family: Arial, sans-serif; 
-                margin: 20px; 
-                background: white;
-                color: black;
-            }
-            h1, h2 { 
-                color: #333; 
-                text-align: center; 
-            }
-            .report-header { 
-                text-align: center; 
-                margin-bottom: 30px; 
-                border-bottom: 2px solid #333; 
-                padding-bottom: 15px; 
-            }
-            .summary-container { 
-                display: flex; 
-                justify-content: center; 
-                gap: 20px; 
-                margin: 20px 0; 
-                flex-wrap: wrap; 
-            }
-            .summary-box { 
-                padding: 15px; 
-                border-radius: 8px; 
-                text-align: center; 
-                min-width: 200px;
-                border: 2px solid;
-            }
-            .charge-box { 
-                background: #e3f2fd; 
-                border-color: #2196f3; 
-            }
-            .cafe-box { 
-                background: #e8f5e9; 
-                border-color: #4caf50; 
-            }
-            .total-box { 
-                background: #fff3e0; 
-                border-color: #ff9800; 
-            }
-            .due-box { 
-                background: #ffebee; 
-                border-color: #f44336; 
-            }
-            table { 
-                width: 100%; 
-                border-collapse: collapse; 
-                margin: 20px 0; 
-            }
-            th { 
-                background: #333; 
-                color: white; 
-                padding: 10px; 
-                text-align: center; 
-            }
-            td { 
-                padding: 8px; 
-                border: 1px solid #ddd; 
-                text-align: center; 
-            }
-            tr:nth-child(even) { 
-                background: #f5f5f5; 
-            }
-            .footer { 
-                text-align: center; 
-                margin-top: 30px; 
-                color: #666; 
-            }
-            @media print { 
-                .no-print { display: none; }
-                .print-btn { display: none; }
-                body { margin: 0.5in; }
-            }
-        </style>
-    </head>
-    <body>
-        <div class="report-header">
-            <h1>⚡ Ivan Charging Station</h1>
-            <h2>Daily Report - ${date}</h2>
-        </div>
-        
-        <div class="summary-container">
-            <div class="summary-box charge-box">
-                <h3>CHARGE REVENUE</h3>
-                <h2>Rs. ${charge}</h2>
-            </div>
-            <div class="summary-box cafe-box">
-                <h3>CAFE REVENUE</h3>
-                <h2>Rs. ${cafe}</h2>
-            </div>
-            <div class="summary-box total-box">
-                <h3>TOTAL REVENUE</h3>
-                <h2>Rs. ${total}</h2>
-            </div>
-            <div class="summary-box due-box">
-                <h3>DUE AMOUNT</h3>
-                <h2>Rs. ${due}</h2>
-            </div>
-        </div>
-        
-        <h3>Transaction Details</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>S.N.</th><th>Time</th><th>Vehicle</th><th>% SOC</th><th>Diff</th>
-                    <th>Amount</th><th>Cafe</th><th>Total</th><th>Paid</th><th>Status</th><th>Due</th>
-                </tr>
-            </thead>
-            <tbody>
-  `;
-  
-  rows.forEach((row, index) => {
-    const inputs = row.querySelectorAll("input");
-    const select = row.querySelector("select");
-    const status = select?.value || '';
+  if (ev30Match) {
+    const vehicleName = ev30Match[1];
+    const numbers = ev30Match[2];
     
-    html += `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${inputs[0]?.value || ''}</td>
-                    <td>${inputs[1]?.value || ''}</td>
-                    <td>${inputs[2]?.value || ''}</td>
-                    <td>${inputs[3]?.value || ''}</td>
-                    <td>${inputs[4]?.value || ''}</td>
-                    <td>${inputs[5]?.value || ''}</td>
-                    <td>${inputs[6]?.value || ''}</td>
-                    <td>${inputs[7]?.value || ''}</td>
-                    <td>${status}</td>
-                    <td>${inputs[8]?.value || ''}</td>
-                </tr>
-    `;
-  });
-  
-  html += `
-            </tbody>
-        </table>
-        
-        <div class="footer">
-            <p>Generated on: ${new Date().toLocaleString()}</p>
-            <p><strong>SKIP THE GAS, SHOW THE CLASS</strong></p>
-            <button class="print-btn" onclick="window.print()" style="padding:10px 20px;margin:20px;background:#4CAF50;color:white;border:none;border-radius:5px;cursor:pointer;">🖨️ Print Report</button>
-        </div>
-    </body>
-    </html>
-  `;
-  
-  reportWindow.document.write(html);
-  reportWindow.document.close();
-}
-
-function generateWeeklyReport() {
-  showLoading("Generating Weekly Report...");
-  
-  if (!db) {
-    hideLoading();
-    showNotification("Firebase not connected. Weekly reports require cloud data.", "danger");
-    return;
+    // If there are numbers after EV30, add a space after EV30
+    if (numbers) {
+      return vehicleName + ' ' + numbers;
+    }
+    return vehicleName;
   }
   
-  try {
-    // Calculate date range for last 7 days
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - 6); // Last 7 days including today
+  if (ev32Match) {
+    const vehicleName = ev32Match[1];
+    const numbers = ev32Match[2];
     
-    const dateRange = [];
-    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-      dateRange.push(d.toISOString().split('T')[0]);
+    // If there are numbers after EV32, add a space after EV32
+    if (numbers) {
+      return vehicleName + ' ' + numbers;
     }
+    return vehicleName;
+  }
+  
+  // For other cases, use the original logic
+  // Regular expression to match letters followed by numbers
+  const match = formatted.match(/^([A-Z]+)(\d*)$/);
+  
+  if (match) {
+    const letters = match[1];
+    const numbers = match[2];
     
-    // Fetch data for each day
-    const promises = dateRange.map(date => db.collection("logbook").doc(date).get());
+    if (numbers) {
+      // Add a space between letters and numbers for other vehicles
+      return letters + ' ' + numbers;
+    }
+    return letters;
+  }
+  
+  // Return as is if pattern doesn't match
+  return formatted;
+}
+
+// Check if vehicle has 4 numbers and auto-switch to SOC field
+function checkVehicleForAutoSwitch(vehicleInput, row) {
+  const value = vehicleInput.value.trim();
+  
+  // Check if we have a pattern like "ABC 1234" or "EV30 1234" or "EV32 1234"
+  const parts = value.split(' ');
+  
+  if (parts.length === 2) {
+    const numbers = parts[1];
     
-    Promise.all(promises).then(docs => {
-      let weeklyData = [];
-      let weeklyCharge = 0;
-      let weeklyCafe = 0;
-      let weeklyTotal = 0;
-      let weeklyDue = 0;
-      
-      docs.forEach((doc, index) => {
-        if (doc.exists) {
-          const data = doc.data();
-          const dateStr = dateRange[index];
-          const date = new Date(dateStr);
-          const formattedDate = `${date.getDate()} ${englishMonths[date.getMonth()].substring(0,3)}`;
-          
-          weeklyData.push({
-            date: formattedDate,
-            charge: data.summary?.charge?.replace(/,/g, '') || '0',
-            cafe: data.summary?.cafe?.replace(/,/g, '') || '0',
-            total: data.summary?.total?.replace(/,/g, '') || '0',
-            due: data.summary?.due?.replace(/,/g, '') || '0'
-          });
-          
-          weeklyCharge += parseFloat(data.summary?.charge?.replace(/,/g, '') || 0);
-          weeklyCafe += parseFloat(data.summary?.cafe?.replace(/,/g, '') || 0);
-          weeklyTotal += parseFloat(data.summary?.total?.replace(/,/g, '') || 0);
-          weeklyDue += parseFloat(data.summary?.due?.replace(/,/g, '') || 0);
+    // Check if numbers part has exactly 4 digits
+    if (/^\d{4}$/.test(numbers)) {
+      // Auto-switch to SOC field after a small delay
+      setTimeout(() => {
+        const socInput = row.querySelector(".soc-input");
+        if (socInput) {
+          socInput.focus();
+          // Move cursor to the beginning of SOC field
+          socInput.setSelectionRange(0, 0);
         }
-      });
-      
-      hideLoading();
-      
-      // Create weekly report window
-      const reportWindow = window.open('', '_blank');
-      let html = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Weekly Report - Ivan Charging Station</title>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 20px; }
-                h1, h2 { color: #333; text-align: center; }
-                .report-header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 15px; }
-                .summary-container { display: flex; justify-content: center; gap: 20px; margin: 20px 0; flex-wrap: wrap; }
-                .summary-box { padding: 15px; border-radius: 8px; text-align: center; min-width: 200px; border: 2px solid; }
-                .charge-box { background: #e3f2fd; border-color: #2196f3; }
-                .cafe-box { background: #e8f5e9; border-color: #4caf50; }
-                .total-box { background: #fff3e0; border-color: #ff9800; }
-                .due-box { background: #ffebee; border-color: #f44336; }
-                table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-                th { background: #333; color: white; padding: 10px; text-align: center; }
-                td { padding: 8px; border: 1px solid #ddd; text-align: center; }
-                tr:nth-child(even) { background: #f5f5f5; }
-                .footer { text-align: center; margin-top: 30px; color: #666; }
-                @media print { .no-print { display: none; } .print-btn { display: none; } body { margin: 0.5in; } }
-            </style>
-        </head>
-        <body>
-            <div class="report-header">
-                <h1>⚡ Ivan Charging Station</h1>
-                <h2>Weekly Report - ${startDate.toLocaleDateString()} to ${endDate.toLocaleDateString()}</h2>
-            </div>
-            
-            <div class="summary-container">
-                <div class="summary-box charge-box">
-                    <h3>TOTAL CHARGE REVENUE</h3>
-                    <h2>Rs. ${weeklyCharge.toLocaleString()}</h2>
-                </div>
-                <div class="summary-box cafe-box">
-                    <h3>TOTAL CAFE REVENUE</h3>
-                    <h2>Rs. ${weeklyCafe.toLocaleString()}</h2>
-                </div>
-                <div class="summary-box total-box">
-                    <h3>TOTAL REVENUE</h3>
-                    <h2>Rs. ${weeklyTotal.toLocaleString()}</h2>
-                </div>
-                <div class="summary-box due-box">
-                    <h3>TOTAL DUE</h3>
-                    <h2>Rs. ${weeklyDue.toLocaleString()}</h2>
-                </div>
-            </div>
-            
-            <h3>Daily Breakdown</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Date</th><th>Charge Revenue</th><th>Cafe Revenue</th><th>Total Revenue</th><th>Due Amount</th>
-                    </tr>
-                </thead>
-                <tbody>
-      `;
-      
-      weeklyData.forEach(day => {
-        html += `
-                    <tr>
-                        <td>${day.date}</td>
-                        <td>Rs. ${parseFloat(day.charge).toLocaleString()}</td>
-                        <td>Rs. ${parseFloat(day.cafe).toLocaleString()}</td>
-                        <td>Rs. ${parseFloat(day.total).toLocaleString()}</td>
-                        <td>Rs. ${parseFloat(day.due).toLocaleString()}</td>
-                    </tr>
-        `;
-      });
-      
-      html += `
-                </tbody>
-            </table>
-            
-            <div class="footer">
-                <p>Generated on: ${new Date().toLocaleString()}</p>
-                <p><strong>SKIP THE GAS, SHOW THE CLASS</strong></p>
-                <button class="print-btn" onclick="window.print()" style="padding:10px 20px;margin:20px;background:#4CAF50;color:white;border:none;border-radius:5px;cursor:pointer;">🖨️ Print Report</button>
-            </div>
-        </body>
-        </html>
-      `;
-      
-      reportWindow.document.write(html);
-      reportWindow.document.close();
-      showNotification("Weekly report generated!");
-      
-    }).catch(error => {
-      hideLoading();
-      console.error("Error generating weekly report:", error);
-      showNotification("Error generating weekly report", "danger");
-    });
-    
-  } catch (error) {
-    hideLoading();
-    console.error("Error:", error);
-    showNotification("Error generating weekly report", "danger");
+      }, 50);
+      return true;
+    }
   }
+  
+  return false;
 }
 
-function generateMonthlyReport() {
-  showLoading("Generating Monthly Report...");
+// Check if SOC has number after hyphen greater than 10 or equals to 100, then auto-switch to Amount field
+function checkSOCForAutoSwitch(socInput, row) {
+  const value = socInput.value.trim();
   
-  if (!db) {
-    hideLoading();
-    showNotification("Firebase not connected. Monthly reports require cloud data.", "danger");
-    return;
-  }
-  
-  try {
-    const today = new Date();
-    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  // Check if value contains a hyphen
+  if (value.includes('-')) {
+    const parts = value.split('-');
     
-    const dateRange = [];
-    for (let d = new Date(firstDay); d <= lastDay; d.setDate(d.getDate() + 1)) {
-      dateRange.push(d.toISOString().split('T')[0]);
-    }
-    
-    const promises = dateRange.map(date => db.collection("logbook").doc(date).get());
-    
-    Promise.all(promises).then(docs => {
-      let monthlyData = [];
-      let monthlyCharge = 0;
-      let monthlyCafe = 0;
-      let monthlyTotal = 0;
-      let monthlyDue = 0;
+    if (parts.length === 2) {
+      const afterHyphen = parts[1];
       
-      docs.forEach((doc, index) => {
-        if (doc.exists) {
-          const data = doc.data();
-          const dateStr = dateRange[index];
-          const date = new Date(dateStr);
-          const formattedDate = `${date.getDate()} ${englishMonths[date.getMonth()].substring(0,3)}`;
-          
-          monthlyData.push({
-            date: formattedDate,
-            charge: data.summary?.charge?.replace(/,/g, '') || '0',
-            cafe: data.summary?.cafe?.replace(/,/g, '') || '0',
-            total: data.summary?.total?.replace(/,/g, '') || '0',
-            due: data.summary?.due?.replace(/,/g, '') || '0'
-          });
-          
-          monthlyCharge += parseFloat(data.summary?.charge?.replace(/,/g, '') || 0);
-          monthlyCafe += parseFloat(data.summary?.cafe?.replace(/,/g, '') || 0);
-          monthlyTotal += parseFloat(data.summary?.total?.replace(/,/g, '') || 0);
-          monthlyDue += parseFloat(data.summary?.due?.replace(/,/g, '') || 0);
+      // Try to parse the number after hyphen (take only digits)
+      const numbers = afterHyphen.match(/\d+/);
+      if (numbers) {
+        const numberAfterHyphen = parseInt(numbers[0]);
+        
+        // If number after hyphen is greater than 10 or equals to 100, switch to Amount field
+        if (!isNaN(numberAfterHyphen) && (numberAfterHyphen > 10 || numberAfterHyphen === 100)) {
+          // Auto-switch to Amount field after a small delay
+          setTimeout(() => {
+            const amountInput = row.querySelector(".amount-input");
+            if (amountInput) {
+              amountInput.focus();
+              // Move cursor to the beginning of Amount field
+              amountInput.setSelectionRange(0, 0);
+            }
+          }, 50);
+          return true;
         }
-      });
-      
-      hideLoading();
-      
-      const reportWindow = window.open('', '_blank');
-      let html = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Monthly Report - Ivan Charging Station</title>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 20px; }
-                h1, h2 { color: #333; text-align: center; }
-                .report-header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 15px; }
-                .summary-container { display: flex; justify-content: center; gap: 20px; margin: 20px 0; flex-wrap: wrap; }
-                .summary-box { padding: 15px; border-radius: 8px; text-align: center; min-width: 200px; border: 2px solid; }
-                .charge-box { background: #e3f2fd; border-color: #2196f3; }
-                .cafe-box { background: #e8f5e9; border-color: #4caf50; }
-                .total-box { background: #fff3e0; border-color: #ff9800; }
-                .due-box { background: #ffebee; border-color: #f44336; }
-                table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-                th { background: #333; color: white; padding: 10px; text-align: center; }
-                td { padding: 8px; border: 1px solid #ddd; text-align: center; }
-                tr:nth-child(even) { background: #f5f5f5; }
-                .footer { text-align: center; margin-top: 30px; color: #666; }
-                @media print { .no-print { display: none; } .print-btn { display: none; } body { margin: 0.5in; } }
-            </style>
-        </head>
-        <body>
-            <div class="report-header">
-                <h1>⚡ Ivan Charging Station</h1>
-                <h2>Monthly Report - ${englishMonths[today.getMonth()]} ${today.getFullYear()}</h2>
-            </div>
-            
-            <div class="summary-container">
-                <div class="summary-box charge-box">
-                    <h3>TOTAL CHARGE REVENUE</h3>
-                    <h2>Rs. ${monthlyCharge.toLocaleString()}</h2>
-                </div>
-                <div class="summary-box cafe-box">
-                    <h3>TOTAL CAFE REVENUE</h3>
-                    <h2>Rs. ${monthlyCafe.toLocaleString()}</h2>
-                </div>
-                <div class="summary-box total-box">
-                    <h3>TOTAL REVENUE</h3>
-                    <h2>Rs. ${monthlyTotal.toLocaleString()}</h2>
-                </div>
-                <div class="summary-box due-box">
-                    <h3>TOTAL DUE</h3>
-                    <h2>Rs. ${monthlyDue.toLocaleString()}</h2>
-                </div>
-            </div>
-            
-            <h3>Daily Breakdown (${englishMonths[today.getMonth()]} ${today.getFullYear()})</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Date</th><th>Charge Revenue</th><th>Cafe Revenue</th><th>Total Revenue</th><th>Due Amount</th>
-                    </tr>
-                </thead>
-                <tbody>
-      `;
-      
-      monthlyData.forEach(day => {
-        html += `
-                    <tr>
-                        <td>${day.date}</td>
-                        <td>Rs. ${parseFloat(day.charge).toLocaleString()}</td>
-                        <td>Rs. ${parseFloat(day.cafe).toLocaleString()}</td>
-                        <td>Rs. ${parseFloat(day.total).toLocaleString()}</td>
-                        <td>Rs. ${parseFloat(day.due).toLocaleString()}</td>
-                    </tr>
-        `;
-      });
-      
-      html += `
-                </tbody>
-            </table>
-            
-            <div class="footer">
-                <p>Generated on: ${new Date().toLocaleString()}</p>
-                <p><strong>SKIP THE GAS, SHOW THE CLASS</strong></p>
-                <button class="print-btn" onclick="window.print()" style="padding:10px 20px;margin:20px;background:#4CAF50;color:white;border:none;border-radius:5px;cursor:pointer;">🖨️ Print Report</button>
-            </div>
-        </body>
-        </html>
-      `;
-      
-      reportWindow.document.write(html);
-      reportWindow.document.close();
-      showNotification("Monthly report generated!");
-      
-    }).catch(error => {
-      hideLoading();
-      console.error("Error generating monthly report:", error);
-      showNotification("Error generating monthly report", "danger");
-    });
-    
-  } catch (error) {
-    hideLoading();
-    console.error("Error:", error);
-    showNotification("Error generating monthly report", "danger");
-  }
-}
-
-function generateCustomReport() {
-  const startDate = prompt("Enter start date (YYYY-MM-DD):", currentDate);
-  const endDate = prompt("Enter end date (YYYY-MM-DD):", currentDate);
-  
-  if (!startDate || !endDate) {
-    showNotification("Date range required for custom report", "info");
-    return;
-  }
-  
-  showLoading("Generating Custom Report...");
-  showNotification("Custom date range report coming soon!", "info");
-  hideLoading();
-}
-
-function exportToCSV() {
-  try {
-    const rows = document.querySelectorAll("#logbook tbody tr");
-    let csv = "S.N.,Time,Vehicle,% SOC,Diff,Amount,Cafe,Total,Paid,Status,Due\n";
-    rows.forEach((row, index) => {
-      const inputs = row.querySelectorAll("input");
-      const select = row.querySelector("select");
-      csv += `${index + 1},${inputs[0]?.value || ''},${inputs[1]?.value || ''},${inputs[2]?.value || ''},${inputs[3]?.value || ''},${inputs[4]?.value || ''},${inputs[5]?.value || ''},${inputs[6]?.value || ''},${inputs[7]?.value || ''},${select?.value || ''},${inputs[8]?.value || ''}\n`;
-    });
-    csv += `\nSUMMARY\n`;
-    csv += `Charge Revenue,Rs.${document.getElementById("chargeTotal").textContent}\n`;
-    csv += `Cafe Revenue,Rs.${document.getElementById("cafeTotal").textContent}\n`;
-    csv += `Total Revenue,Rs.${document.getElementById("allTotal").textContent}\n`;
-    csv += `Pending Due,Rs.${document.getElementById("dueTotal").textContent}\n`;
-    
-    const now = new Date();
-    const filename = `charging_report_${now.getFullYear()}_${String(now.getMonth()+1).padStart(2,'0')}_${String(now.getDate()).padStart(2,'0')}.csv`;
-    const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = filename;
-    link.click();
-    showNotification("CSV exported successfully!");
-  } catch {
-    showNotification("Error exporting CSV!", "danger");
-  }
-}
-
-async function exportToPDF() {
-  showLoading("Generating PDF...");
-  
-  try {
-    // Create a temporary div for PDF generation
-    const printContent = document.createElement('div');
-    printContent.style.cssText = 'position:absolute;left:-9999px;top:-9999px;width:800px;background:white;padding:20px;';
-    
-    // Clone the main content
-    const container = document.querySelector('.container').cloneNode(true);
-    
-    // Remove no-print elements
-    const noPrintElements = container.querySelectorAll('.no-print');
-    noPrintElements.forEach(el => el.remove());
-    
-    // Add PDF-specific styling
-    container.style.cssText = 'width:100%;max-width:none;margin:0;padding:0;background:white;color:black;font-family:Arial,sans-serif;';
-    
-    // Style the summary cards for PDF
-    const summaryCards = container.querySelectorAll('.summary-card');
-    summaryCards.forEach(card => {
-      card.style.cssText = 'display:inline-block;width:180px;margin:5px;padding:10px;border:1px solid #000;text-align:center;background:white;';
-      const before = card.querySelector('.summary-card::before');
-      if (before) before.style.display = 'none';
-    });
-    
-    // Style the table for PDF
-    const table = container.querySelector('table');
-    if (table) {
-      table.style.cssText = 'width:100%;border-collapse:collapse;font-size:9pt;';
-      const ths = table.querySelectorAll('th');
-      ths.forEach(th => {
-        th.style.cssText = 'background:#333;color:white;padding:5px;border:1px solid #000;text-align:center;';
-      });
-      const tds = table.querySelectorAll('td');
-      tds.forEach(td => {
-        td.style.cssText = 'padding:4px;border:1px solid #000;text-align:center;';
-      });
+      }
     }
-    
-    printContent.appendChild(container);
-    document.body.appendChild(printContent);
-    
-    // Use html2canvas to capture the content
-    const canvas = await html2canvas(printContent, {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      backgroundColor: '#ffffff'
-    });
-    
-    // Remove temporary div
-    document.body.removeChild(printContent);
-    
-    // Create PDF
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const imgWidth = 190;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    
-    pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
-    
-    // Add header
-    pdf.setFontSize(18);
-    pdf.setTextColor(0, 0, 0);
-    pdf.text('Ivan Charging Station Report', 105, 10, { align: 'center' });
-    
-    // Add date
-    pdf.setFontSize(11);
-    pdf.text(`Date: ${document.getElementById("englishDateDisplay").textContent}`, 10, 20);
-    pdf.text(`Generated: ${new Date().toLocaleString()}`, 10, 25);
-    
-    // Add summary at the end
-    const summaryY = imgHeight + 20;
-    pdf.setFontSize(14);
-    pdf.text('SUMMARY', 105, summaryY, { align: 'center' });
-    
-    pdf.setFontSize(12);
-    pdf.text(`Charge Revenue: Rs. ${document.getElementById("chargeTotal").textContent}`, 20, summaryY + 10);
-    pdf.text(`Cafe Revenue: Rs. ${document.getElementById("cafeTotal").textContent}`, 20, summaryY + 17);
-    pdf.text(`Total Revenue: Rs. ${document.getElementById("allTotal").textContent}`, 20, summaryY + 24);
-    pdf.text(`Due Amount: Rs. ${document.getElementById("dueTotal").textContent}`, 20, summaryY + 31);
-    
-    // Save PDF
-    const filename = `charging_report_${new Date().getFullYear()}_${String(new Date().getMonth()+1).padStart(2,'0')}_${String(new Date().getDate()).padStart(2,'0')}.pdf`;
-    pdf.save(filename);
-    
-    hideLoading();
-    showNotification("PDF exported successfully!");
-    
-  } catch (error) {
-    hideLoading();
-    console.error("Error generating PDF:", error);
-    showNotification("Error generating PDF. Please try Print instead.", "danger");
   }
-}
-
-// Report Modal Control
-function openReportModal() {
-  document.getElementById('reportModal').style.display = 'flex';
-}
-
-function closeReportModal() {
-  document.getElementById('reportModal').style.display = 'none';
+  
+  return false;
 }
 
 // Data Table Functions
@@ -1064,49 +1125,34 @@ function shouldShowBlank(value) {
   }
 }
 
-function hasBlankRowsBelow(currentRow) {
+function isRowBlank(row) {
+  const inputs = row.querySelectorAll("input");
+  const paidButton = row.querySelector(".paid-button");
+  const dueButton = row.querySelector(".due-button");
+  const vehicle = inputs[1]?.value.trim();
+  const amount = inputs[4]?.value.trim();
+  const total = inputs[6]?.value.trim();
+  const paid = inputs[7]?.value.trim();
+  const hasStatus = (paidButton && paidButton.classList.contains("active")) || 
+                   (dueButton && dueButton.classList.contains("active"));
+  return !vehicle && !amount && !total && !paid && !hasStatus;
+}
+
+function getFirstBlankRowBelow(currentRow) {
   const rows = document.querySelectorAll("#logbook tbody tr");
   const currentIndex = Array.from(rows).indexOf(currentRow);
+  
   for (let i = currentIndex + 1; i < rows.length; i++) {
-    const rowInputs = rows[i].querySelectorAll("input");
-    const vehicle = rowInputs[1]?.value.trim();
-    const amount = rowInputs[4]?.value.trim();
-    const total = rowInputs[6]?.value.trim();
-    const paid = rowInputs[7]?.value.trim();
-    if (!vehicle && !amount && !total && !paid) return true;
+    if (isRowBlank(rows[i])) {
+      return rows[i];
+    }
   }
-  return false;
+  return null;
 }
 
 function isRowAboveLocked(row) {
   const prevRow = row.previousElementSibling;
   return prevRow && prevRow.classList.contains("locked-row");
-}
-
-function isRowBlank(row) {
-  const inputs = row.querySelectorAll("input");
-  const select = row.querySelector("select");
-  const vehicle = inputs[1]?.value.trim();
-  const amount = inputs[4]?.value.trim();
-  const total = inputs[6]?.value.trim();
-  const paid = inputs[7]?.value.trim();
-  const status = select?.value;
-  return !vehicle && !amount && !total && !paid && !status;
-}
-
-function deleteRow(row) {
-  if (isRowAboveLocked(row)) {
-    alert("Cannot delete row! The row above is locked (Paid status).");
-    return;
-  }
-  if (!isRowBlank(row)) {
-    if (!confirm("Are you sure you want to delete this row? Data will be lost.")) return;
-  }
-  row.remove();
-  updateSerialNumbers();
-  updateTotals();
-  autoSave();
-  showNotification("Row deleted!");
 }
 
 function updateSerialNumbers() {
@@ -1117,51 +1163,48 @@ function updateSerialNumbers() {
 
 function moveToNextCell(currentInput, row) {
   const inputs = Array.from(row.querySelectorAll("input:not([readonly])")).filter(i => !i.classList.contains('time-input') && !i.classList.contains('diff-input'));
-  const select = row.querySelector("select");
-  const allElements = [...inputs, select];
+  const allElements = [...inputs];
   const currentIndex = allElements.indexOf(currentInput);
+  
   if (currentIndex < allElements.length - 1) {
+    // Move to next cell in same row
     allElements[currentIndex + 1].focus();
-  } else if (!hasBlankRowsBelow(row)) {
-    const newRow = addRow();
-    const vehicleInput = newRow.querySelector(".vehicle-input");
-    if (vehicleInput) setTimeout(() => vehicleInput.focus(), 50);
+  } else {
+    // We're at the last cell - check for blank row below
+    const blankRow = getFirstBlankRowBelow(row);
+    if (blankRow) {
+      // Focus on the vehicle input of the blank row
+      const vehicleInput = blankRow.querySelector(".vehicle-input");
+      if (vehicleInput) setTimeout(() => vehicleInput.focus(), 50);
+    }
+    // Don't add new row automatically - let the status button handle it
   }
-}
-
-function checkAndAddNewRowIfNeeded(row) {
-  if (hasBlankRowsBelow(row)) return;
-  const newRow = addRow();
-  const vehicleInput = newRow.querySelector(".vehicle-input");
-  if (vehicleInput) setTimeout(() => vehicleInput.focus(), 50);
 }
 
 function lockRow(row) {
   const inputs = row.querySelectorAll("input:not(.time-input)");
-  const select = row.querySelector("select");
+  const buttons = row.querySelectorAll(".status-button");
   inputs.forEach(input => {
     input.setAttribute("readonly", "true");
   });
-  select.setAttribute("disabled", "true");
+  buttons.forEach(button => {
+    button.disabled = true;
+  });
   row.classList.add("locked-row");
   autoSave();
 }
 
 function unlockRow(row) {
   const inputs = row.querySelectorAll("input:not(.time-input)");
-  const select = row.querySelector("select");
+  const buttons = row.querySelectorAll(".status-button");
   inputs.forEach(input => {
     input.removeAttribute("readonly");
   });
-  select.removeAttribute("disabled");
+  buttons.forEach(button => {
+    button.disabled = false;
+  });
   row.classList.remove("locked-row");
   autoSave();
-}
-
-function updateStatusColor(select) {
-  select.classList.remove("status-paid", "status-due");
-  if (select.value === "paid") select.classList.add("status-paid");
-  else if (select.value === "due") select.classList.add("status-due");
 }
 
 function calculateSOCDiff(socValue) {
@@ -1182,85 +1225,995 @@ function calculateSOCDiff(socValue) {
 
 function formatSOCInput(value) {
   let x = value.replace(/[^a-zA-Z0-9\-]/g, '');
-  if (x.length > 2 && !x.includes('-')) {
-    return x.substring(0, 2) + '-' + x.substring(2, 5).toUpperCase();
-  } else if (x.length === 2 && !x.endsWith('-') && !x.includes('-')) {
-    return x + '-';
-  }
+  // Don't auto-add hyphen on every input - only when typing
   return x;
 }
 
-// COMPLETE addRow FUNCTION
+async function deleteRow(row) {
+  // Check if this is the first row
+  const rows = document.querySelectorAll("#logbook tbody tr");
+  const isFirstRow = rows.length > 0 && row === rows[0];
+  
+  // Check if row has data
+  const isBlank = isRowBlank(row);
+  
+  // For non-first rows, check if row above is locked
+  if (!isFirstRow && isRowAboveLocked(row)) {
+    showNotification("Cannot delete row: Row above is locked!", "danger");
+    return;
+  }
+  
+  // If row has data, ask for confirmation
+  if (!isBlank) {
+    const rowType = isFirstRow ? "first row" : "row";
+    if (!confirm(`This ${rowType} contains data. Are you sure you want to ${isFirstRow ? "clear" : "delete"} it?`)) {
+      return;
+    }
+  }
+  
+  if (isFirstRow) {
+    // For first row, only clear the data (don't delete the row)
+    if (row.classList.contains("locked-row")) {
+      unlockRow(row);
+    }
+    
+    // Clear all data in the first row
+    clearRowData(row);
+    showNotification("First row data cleared (row preserved)");
+  } else {
+    // For non-first rows, delete the row
+    row.remove();
+    updateSerialNumbers();
+    showNotification("Row deleted");
+  }
+  
+  updateTotals();
+  await autoSave(true); // Force save to cloud
+}
+
+// Function to clear row data
+function clearRowData(row) {
+  const inputs = row.querySelectorAll("input");
+  
+  // Clear all inputs
+  inputs.forEach(input => {
+    if (!input.classList.contains('time-input')) {
+      input.value = "";
+      input.dispatchEvent(new Event('input'));
+    } else {
+      // Keep time input as is (it will be auto-filled when vehicle is entered)
+      input.value = "";
+    }
+  });
+  
+  // Reset status buttons
+  const paidButton = row.querySelector(".paid-button");
+  const dueButton = row.querySelector(".due-button");
+  if (paidButton && dueButton) {
+    paidButton.style.display = "block";
+    dueButton.style.display = "block";
+    paidButton.classList.remove("active");
+    dueButton.classList.remove("active");
+  }
+  
+  // Unlock the row
+  unlockRow(row);
+  
+  // Remove due-row class
+  row.classList.remove("due-row");
+  
+  // Update totals
+  updateTotals();
+  
+  // Focus on vehicle input for easy entry
+  const vehicleInput = row.querySelector(".vehicle-input");
+  if (vehicleInput) {
+    setTimeout(() => vehicleInput.focus(), 50);
+  }
+}
+
+function checkAndAddRowIfNeeded(row, forceAdd = false) {
+  const blankRow = getFirstBlankRowBelow(row);
+  if (!blankRow || forceAdd) {
+    // No blank row below, add a new one
+    const newRow = addRow();
+    const vehicleInput = newRow.querySelector(".vehicle-input");
+    if (vehicleInput) setTimeout(() => vehicleInput.focus(), 50);
+  } else {
+    // Focus on the vehicle input of the blank row
+    const vehicleInput = blankRow.querySelector(".vehicle-input");
+    if (vehicleInput) setTimeout(() => vehicleInput.focus(), 50);
+  }
+}
+
+function setTimeOnVehicleEntry(vehicleInput, timeInput) {
+  // Set time only if vehicle has value and time is empty
+  if (vehicleInput.value.trim() && !timeInput.value) {
+    timeInput.value = new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', hour12: true});
+    timeInput.dispatchEvent(new Event('input'));
+  }
+}
+
+// Report Functions
+function formatDateForDisplay(dateStr) {
+  // Convert YYYY-MM-DD to DD/MM/YYYY
+  const parts = dateStr.split('-');
+  if (parts.length === 3) {
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  }
+  return dateStr;
+}
+
+function showReportModal() {
+  document.getElementById('reportModal').style.display = 'flex';
+  // Load daily report by default
+  loadDailyReport();
+}
+
+function hideReportModal() {
+  document.getElementById('reportModal').style.display = 'none';
+}
+
+// Top Contributors Functions
+function getCurrentMonthName() {
+  const now = new Date();
+  return englishMonths[now.getMonth()];
+}
+
+function showContributorsModal() {
+  document.getElementById('contributorsModal').style.display = 'flex';
+  // Update modal title with current month
+  const monthName = getCurrentMonthName();
+  document.getElementById('contributorsTitle').textContent = `🏆 Top Contributors - ${monthName}`;
+  // Load contributors data
+  loadTopContributors();
+}
+
+function hideContributorsModal() {
+  document.getElementById('contributorsModal').style.display = 'none';
+}
+
+async function loadTopContributors() {
+  const tbody = document.getElementById('contributorsTableBody');
+  tbody.innerHTML = '<tr><td colspan="5" class="contributors-loading">Loading top contributors...</td></tr>';
+  
+  if (!db || !isFirebaseConnected) {
+    tbody.innerHTML = '<tr><td colspan="5" class="contributors-no-data">Cloud connection required for top contributors</td></tr>';
+    return;
+  }
+  
+  try {
+    // Get current month dates
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    // Get first and last day of month
+    const firstDay = new Date(currentYear, currentMonth, 1);
+    const lastDay = new Date(currentYear, currentMonth + 1, 0);
+    
+    // Generate all dates in the month
+    const dates = [];
+    const current = new Date(firstDay);
+    
+    while (current <= lastDay) {
+      dates.push(getBusinessDayDate(new Date(current)));
+      current.setDate(current.getDate() + 1);
+    }
+    
+    // Fetch data for all dates
+    const promises = dates.map(date => db.collection("logbook").doc(date).get());
+    const docs = await Promise.all(promises);
+    
+    // Process data to find top contributors
+    const contributorsMap = new Map(); // vehicle -> {totalAmount, transactionCount}
+    let totalMonthRevenue = 0;
+    let totalTransactions = 0;
+    
+    docs.forEach((doc, index) => {
+      if (doc.exists) {
+        const data = doc.data();
+        const entries = data.entries || [];
+        
+        entries.forEach(entry => {
+          const vehicle = entry.vehicle ? entry.vehicle.trim() : '';
+          const amount = evaluateValue(entry.amount || 0);
+          
+          if (vehicle && amount > 0) {
+            totalTransactions++;
+            totalMonthRevenue += amount;
+            
+            if (!contributorsMap.has(vehicle)) {
+              contributorsMap.set(vehicle, {
+                totalAmount: 0,
+                transactionCount: 0
+              });
+            }
+            
+            const contributor = contributorsMap.get(vehicle);
+            contributor.totalAmount += amount;
+            contributor.transactionCount++;
+          }
+        });
+      }
+    });
+    
+    // Convert to array and sort by total amount (descending)
+    const contributorsArray = Array.from(contributorsMap, ([vehicle, data]) => ({
+      vehicle,
+      totalAmount: data.totalAmount,
+      transactionCount: data.transactionCount,
+      dailyAverage: data.transactionCount > 0 ? (data.totalAmount / data.transactionCount).toFixed(2) : 0
+    }));
+    
+    // Sort by total amount (highest first)
+    contributorsArray.sort((a, b) => b.totalAmount - a.totalAmount);
+    
+    // Take top 10
+    const topContributors = contributorsArray.slice(0, 10);
+    
+    // Update summary
+    document.getElementById('totalContributors').textContent = topContributors.length;
+    document.getElementById('totalTransactions').textContent = totalTransactions;
+    document.getElementById('monthRevenue').textContent = `Rs. ${totalMonthRevenue.toLocaleString()}`;
+    
+    // Clear and populate table
+    tbody.innerHTML = '';
+    
+    if (topContributors.length > 0) {
+      topContributors.forEach((contributor, index) => {
+        const row = document.createElement('tr');
+        
+        // Highlight top 5 with green color
+        if (index < 5) {
+          row.className = 'top-contributor';
+        }
+        
+        const rank = index + 1;
+        const rankEmoji = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}.`;
+        
+        row.innerHTML = `
+          <td class="contributor-rank">${rankEmoji}</td>
+          <td class="contributor-vehicle">${contributor.vehicle}</td>
+          <td class="contributor-amount">Rs. ${contributor.totalAmount.toLocaleString()}</td>
+          <td class="contributor-count">${contributor.transactionCount}</td>
+          <td>Rs. ${parseFloat(contributor.dailyAverage).toLocaleString()}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    } else {
+      tbody.innerHTML = '<tr><td colspan="5" class="contributors-no-data">No contributor data available for this month</td></tr>';
+    }
+  } catch (error) {
+    console.error("Error loading top contributors:", error);
+    tbody.innerHTML = '<tr><td colspan="5" class="contributors-no-data">Error loading top contributors</td></tr>';
+  }
+}
+
+async function loadDailyReport() {
+  const tbody = document.getElementById('reportTableBody');
+  tbody.innerHTML = '<tr><td colspan="5" class="report-loading">Loading daily report...</td></tr>';
+  
+  if (!db || !isFirebaseConnected) {
+    tbody.innerHTML = '<tr><td colspan="5" class="report-no-data">Cloud connection required for reports</td></tr>';
+    return;
+  }
+  
+  try {
+    // Get today's business day data
+    const today = getBusinessDayDate();
+    const docRef = db.collection("logbook").doc(today);
+    const doc = await docRef.get();
+    
+    tbody.innerHTML = '';
+    
+    if (doc.exists) {
+      const data = doc.data();
+      const summary = data.summary || {};
+      const charge = summary.charge ? parseInt(summary.charge.replace(/,/g, '')) || 0 : 0;
+      const cafe = summary.cafe ? parseInt(summary.cafe.replace(/,/g, '')) || 0 : 0;
+      const total = summary.total ? parseInt(summary.total.replace(/,/g, '')) || 0 : 0;
+      const due = summary.due ? parseInt(summary.due.replace(/,/g, '')) || 0 : 0;
+      
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td class="report-date-cell">${formatDateForDisplay(today)}</td>
+        <td>Rs. ${charge.toLocaleString()}</td>
+        <td>Rs. ${cafe.toLocaleString()}</td>
+        <td>Rs. ${total.toLocaleString()}</td>
+        <td>Rs. ${due.toLocaleString()}</td>
+      `;
+      tbody.appendChild(row);
+      
+      // Add total row (same as the only row for daily)
+      const totalRow = document.createElement('tr');
+      totalRow.className = 'report-total-row';
+      totalRow.innerHTML = `
+        <td><strong>TOTAL</strong></td>
+        <td><strong>Rs. ${charge.toLocaleString()}</strong></td>
+        <td><strong>Rs. ${cafe.toLocaleString()}</strong></td>
+        <td><strong>Rs. ${total.toLocaleString()}</strong></td>
+        <td><strong>Rs. ${due.toLocaleString()}</strong></td>
+      `;
+      tbody.appendChild(totalRow);
+    } else {
+      tbody.innerHTML = '<tr><td colspan="5" class="report-no-data">No data available for today</td></tr>';
+    }
+  } catch (error) {
+    console.error("Error loading daily report:", error);
+    tbody.innerHTML = '<tr><td colspan="5" class="report-no-data">Error loading report</td></tr>';
+  }
+}
+
+async function loadWeeklyReport() {
+  const tbody = document.getElementById('reportTableBody');
+  tbody.innerHTML = '<tr><td colspan="5" class="report-loading">Loading weekly report...</td></tr>';
+  
+  if (!db || !isFirebaseConnected) {
+    tbody.innerHTML = '<tr><td colspan="5" class="report-no-data">Cloud connection required for reports</td></tr>';
+    return;
+  }
+  
+  try {
+    // Get last 7 days including today
+    const dates = [];
+    const today = new Date();
+    
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      dates.push(getBusinessDayDate(date));
+    }
+    
+    // Fetch data for all dates
+    const promises = dates.map(date => db.collection("logbook").doc(date).get());
+    const docs = await Promise.all(promises);
+    
+    tbody.innerHTML = '';
+    let totalCharge = 0;
+    let totalCafe = 0;
+    let totalAll = 0;
+    let totalDue = 0;
+    let hasData = false;
+    
+    docs.forEach((doc, index) => {
+      if (doc.exists) {
+        hasData = true;
+        const data = doc.data();
+        const summary = data.summary || {};
+        const charge = summary.charge ? parseInt(summary.charge.replace(/,/g, '')) || 0 : 0;
+        const cafe = summary.cafe ? parseInt(summary.cafe.replace(/,/g, '')) || 0 : 0;
+        const total = summary.total ? parseInt(summary.total.replace(/,/g, '')) || 0 : 0;
+        const due = summary.due ? parseInt(summary.due.replace(/,/g, '')) || 0 : 0;
+        
+        totalCharge += charge;
+        totalCafe += cafe;
+        totalAll += total;
+        totalDue += due;
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="report-date-cell">${formatDateForDisplay(dates[index])}</td>
+          <td>Rs. ${charge.toLocaleString()}</td>
+          <td>Rs. ${cafe.toLocaleString()}</td>
+          <td>Rs. ${total.toLocaleString()}</td>
+          <td>Rs. ${due.toLocaleString()}</td>
+        `;
+        tbody.appendChild(row);
+      }
+    });
+    
+    if (hasData) {
+      // Add total row
+      const totalRow = document.createElement('tr');
+      totalRow.className = 'report-total-row';
+      totalRow.innerHTML = `
+        <td><strong>WEEKLY TOTAL</strong></td>
+        <td><strong>Rs. ${totalCharge.toLocaleString()}</strong></td>
+        <td><strong>Rs. ${totalCafe.toLocaleString()}</strong></td>
+        <td><strong>Rs. ${totalAll.toLocaleString()}</strong></td>
+        <td><strong>Rs. ${totalDue.toLocaleString()}</strong></td>
+      `;
+      tbody.appendChild(totalRow);
+    } else {
+      tbody.innerHTML = '<tr><td colspan="5" class="report-no-data">No data available for the last 7 days</td></tr>';
+    }
+  } catch (error) {
+    console.error("Error loading weekly report:", error);
+    tbody.innerHTML = '<tr><td colspan="5" class="report-no-data">Error loading report</td></tr>';
+  }
+}
+
+async function loadMonthlyReport() {
+  const tbody = document.getElementById('reportTableBody');
+  tbody.innerHTML = '<tr><td colspan="5" class="report-loading">Loading monthly report...</td></tr>';
+  
+  if (!db || !isFirebaseConnected) {
+    tbody.innerHTML = '<tr><td colspan="5" class="report-no-data">Cloud connection required for reports</td></tr>';
+    return;
+  }
+  
+  try {
+    // Get all dates for current month
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    // Get first and last day of month
+    const firstDay = new Date(currentYear, currentMonth, 1);
+    const lastDay = new Date(currentYear, currentMonth + 1, 0);
+    
+    // Generate all dates in the month
+    const dates = [];
+    const current = new Date(firstDay);
+    
+    while (current <= lastDay) {
+      dates.push(getBusinessDayDate(new Date(current)));
+      current.setDate(current.getDate() + 1);
+    }
+    
+    // Fetch data for all dates
+    const promises = dates.map(date => db.collection("logbook").doc(date).get());
+    const docs = await Promise.all(promises);
+    
+    tbody.innerHTML = '';
+    let totalCharge = 0;
+    let totalCafe = 0;
+    let totalAll = 0;
+    let totalDue = 0;
+    let hasData = false;
+    
+    docs.forEach((doc, index) => {
+      if (doc.exists) {
+        hasData = true;
+        const data = doc.data();
+        const summary = data.summary || {};
+        const charge = summary.charge ? parseInt(summary.charge.replace(/,/g, '')) || 0 : 0;
+        const cafe = summary.cafe ? parseInt(summary.cafe.replace(/,/g, '')) || 0 : 0;
+        const total = summary.total ? parseInt(summary.total.replace(/,/g, '')) || 0 : 0;
+        const due = summary.due ? parseInt(summary.due.replace(/,/g, '')) || 0 : 0;
+        
+        totalCharge += charge;
+        totalCafe += cafe;
+        totalAll += total;
+        totalDue += due;
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="report-date-cell">${formatDateForDisplay(dates[index])}</td>
+          <td>Rs. ${charge.toLocaleString()}</td>
+          <td>Rs. ${cafe.toLocaleString()}</td>
+          <td>Rs. ${total.toLocaleString()}</td>
+          <td>Rs. ${due.toLocaleString()}</td>
+        `;
+        tbody.appendChild(row);
+      }
+    });
+    
+    if (hasData) {
+      // Add total row
+      const totalRow = document.createElement('tr');
+      totalRow.className = 'report-total-row';
+      totalRow.innerHTML = `
+        <td><strong>MONTHLY TOTAL</strong></td>
+        <td><strong>Rs. ${totalCharge.toLocaleString()}</strong></td>
+        <td><strong>Rs. ${totalCafe.toLocaleString()}</strong></td>
+        <td><strong>Rs. ${totalAll.toLocaleString()}</strong></td>
+        <td><strong>Rs. ${totalDue.toLocaleString()}</strong></td>
+      `;
+      tbody.appendChild(totalRow);
+    } else {
+      tbody.innerHTML = '<tr><td colspan="5" class="report-no-data">No data available for this month</td></tr>';
+    }
+  } catch (error) {
+    console.error("Error loading monthly report:", error);
+    tbody.innerHTML = '<tr><td colspan="5" class="report-no-data">Error loading report</td></tr>';
+  }
+}
+
+// Excel Export Function
+function exportToExcel() {
+  try {
+    // Get all data from the table
+    const rows = document.querySelectorAll("#logbook tbody tr");
+    if (rows.length === 0) {
+      showNotification("No data to export", "danger");
+      return;
+    }
+    
+    // Prepare worksheet data
+    const wsData = [];
+    
+    // Add headers
+    const headers = [
+      "S.N.", "Time", "Vehicle", "% SOC", "Diff", 
+      "Amount", "Cafe", "Total", "Paid", "Status", "Due"
+    ];
+    wsData.push(headers);
+    
+    // Add data rows
+    rows.forEach(row => {
+      const inputs = row.querySelectorAll("input");
+      const paidButton = row.querySelector(".paid-button");
+      const dueButton = row.querySelector(".due-button");
+      
+      let status = "";
+      if (paidButton.classList.contains("active")) {
+        status = "Paid";
+      } else if (dueButton.classList.contains("active")) {
+        status = "Due";
+      }
+      
+      const rowData = [
+        row.querySelector("td:first-child").textContent,
+        inputs[0]?.value || '',
+        inputs[1]?.value || '',
+        inputs[2]?.value || '',
+        inputs[3]?.value || '',
+        inputs[4]?.value || '',
+        inputs[5]?.value || '',
+        inputs[6]?.value || '',
+        inputs[7]?.value || '',
+        status,
+        inputs[8]?.value || ''
+      ];
+      wsData.push(rowData);
+    });
+    
+    // Add summary row
+    wsData.push([]); // Empty row for separation
+    wsData.push(["SUMMARY", "", "", "", "", "", "", "", "", "", ""]);
+    
+    // Add summary data
+    const summaryData = [
+      ["", "", "", "", "", "", "", "", "", "", ""],
+      ["Charge Revenue", "", "", "", "", document.getElementById("chargeTotal").textContent, "", "", "", "", ""],
+      ["Cafe Revenue", "", "", "", "", "", document.getElementById("cafeTotal").textContent, "", "", "", ""],
+      ["Total Revenue", "", "", "", "", "", "", document.getElementById("allTotal").textContent, "", "", ""],
+      ["Due Amount", "", "", "", "", "", "", "", "", "", document.getElementById("dueTotal").textContent]
+    ];
+    
+    summaryData.forEach(row => wsData.push(row));
+    
+    // Add metadata
+    wsData.push([]); // Empty row for separation
+    wsData.push(["Export Date", new Date().toLocaleString(), "", "", "", "", "", "", "", "", ""]);
+    wsData.push(["Business Day", currentDate, "", "", "", "", "", "", "", "", ""]);
+    
+    // Create worksheet
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    
+    // Set column widths
+    const wscols = [
+      {wch: 5},   // S.N.
+      {wch: 8},   // Time
+      {wch: 12},  // Vehicle
+      {wch: 8},   // % SOC
+      {wch: 6},   // Diff
+      {wch: 10},  // Amount
+      {wch: 8},   // Cafe
+      {wch: 10},  // Total
+      {wch: 10},  // Paid
+      {wch: 8},   // Status
+      {wch: 10}   // Due
+    ];
+    ws['!cols'] = wscols;
+    
+    // Create workbook
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Ivan Charging Station");
+    
+    // Generate filename with date
+    const today = new Date();
+    const dateStr = today.toISOString().split('T')[0];
+    const timeStr = today.toTimeString().split(' ')[0].replace(/:/g, '-');
+    const filename = `Ivan_Charging_Station_${dateStr}_${timeStr}.xlsx`;
+    
+    // Save to file
+    XLSX.writeFile(wb, filename);
+    
+    showNotification(`Data exported to ${filename}`, "success");
+    
+  } catch (error) {
+    console.error("Error exporting to Excel:", error);
+    showNotification("Error exporting to Excel", "danger");
+  }
+}
+
 function addRow(data = {}) {
   const tbody = document.querySelector("#logbook tbody");
   const row = document.createElement("tr");
   row.className = "fade-in";
   
+  // Check if this is the first row
+  const isFirstRow = tbody.children.length === 0;
+  
   // S.N.
   const sn = document.createElement("td");
   sn.textContent = tbody.children.length + 1;
   
-  // Time
+  // Time - Set only when vehicle is entered
   const time = document.createElement("td");
   const timeInput = document.createElement("input");
-  timeInput.value = data.time || new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', hour12: true});
+  timeInput.value = data.time || ""; // Start with empty time
   timeInput.readOnly = true;
   timeInput.className = "time-input";
   time.appendChild(timeInput);
   
-  // Vehicle
+  // Vehicle - UPDATED: Fixed suggestions positioning
   const vehicle = document.createElement("td");
+  vehicle.className = "vehicle-cell";
+  
   const vehicleInput = document.createElement("input");
   vehicleInput.value = data.vehicle || "";
   vehicleInput.className = "vehicle-input";
+  
+  // Create suggestions popup (positioned fixed to appear above everything)
+  const suggestionsPopup = document.createElement("div");
+  suggestionsPopup.className = "vehicle-suggestions-popup";
+  document.body.appendChild(suggestionsPopup); // Append to body, not vehicle cell
+  
+  // Function to position and show suggestions
+  function showSuggestions(searchText) {
+    suggestionsPopup.innerHTML = '';
+    
+    if (!searchText || searchText.length < 3) {
+      suggestionsPopup.style.display = 'none';
+      return;
+    }
+    
+    // Only show suggestions if 3 or more consecutive numbers are found
+    const numbers = searchText.match(/\d+/g);
+    if (!numbers || numbers.join('').length < 3) {
+      suggestionsPopup.style.display = 'none';
+      return;
+    }
+    
+    // Find vehicles that contain these numbers
+    const suggestions = [];
+    const searchNumberString = numbers.join('');
+    
+    for (let [num, vehicleName] of vehicleDatabase) {
+      if (num.includes(searchNumberString)) {
+        suggestions.push(vehicleName);
+      }
+    }
+    
+    if (suggestions.length === 0) {
+      suggestionsPopup.style.display = 'none';
+      return;
+    }
+    
+    // Limit to 5 suggestions for better display
+    const limitedSuggestions = suggestions.slice(0, 5);
+    
+    limitedSuggestions.forEach(vehicle => {
+      const suggestionItem = document.createElement("div");
+      suggestionItem.className = "vehicle-suggestion-item";
+      suggestionItem.textContent = vehicle;
+      suggestionItem.addEventListener("click", function() {
+        // REPLACE THE ENTIRE INPUT WITH THE FULL VEHICLE NAME AND NUMBER
+        // Set flag to avoid formatting interference
+        isAutoFilling = true;
+        
+        // Replace the typed number with the full suggested vehicle name and number
+        vehicleInput.value = vehicle;
+        vehicleInput.dispatchEvent(new Event('input'));
+        suggestionsPopup.style.display = 'none';
+        
+        // Auto-switch to SOC field if vehicle has 4 numbers
+        setTimeout(() => {
+          checkVehicleForAutoSwitch(vehicleInput, row);
+        }, 50);
+        
+        // Add to vehicle database
+        if (vehicle.trim()) {
+          const parts = vehicle.split(' ');
+          if (parts.length >= 2) {
+            const numbers = parts[parts.length - 1];
+            if (/^\d{4}$/.test(numbers)) {
+              vehicleDatabase.set(numbers, vehicle.trim());
+            }
+          }
+        }
+      });
+      suggestionsPopup.appendChild(suggestionItem);
+    });
+    
+    // Position the popup above the input
+    const rect = vehicleInput.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+    
+    // Calculate position: above the input, centered horizontally
+    const popupTop = rect.top + scrollTop - suggestionsPopup.offsetHeight - 5;
+    const popupLeft = rect.left + scrollLeft + (rect.width / 2) - (suggestionsPopup.offsetWidth / 2);
+    
+    // Ensure popup stays within viewport
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    let finalLeft = popupLeft;
+    let finalTop = popupTop;
+    
+    // Adjust if too far left
+    if (finalLeft < 10) finalLeft = 10;
+    // Adjust if too far right
+    if (finalLeft + suggestionsPopup.offsetWidth > viewportWidth - 10) {
+      finalLeft = viewportWidth - suggestionsPopup.offsetWidth - 10;
+    }
+    
+    // Adjust if too high (above viewport)
+    if (finalTop < 10) {
+      // Position below input instead
+      finalTop = rect.top + scrollTop + rect.height + 5;
+    }
+    
+    suggestionsPopup.style.top = finalTop + 'px';
+    suggestionsPopup.style.left = finalLeft + 'px';
+    suggestionsPopup.style.display = 'block';
+  }
+  
+  // Track if we're currently auto-filling
+  let isAutoFilling = false;
+  
+  // Format vehicle number on input
   vehicleInput.addEventListener("input", function() {
-    this.value = this.value.toUpperCase();
+    // If we're auto-filling, don't process
+    if (isAutoFilling) {
+      isAutoFilling = false;
+      return;
+    }
+    
+    // First convert to uppercase
+    let value = this.value.toUpperCase();
+    
+    // Store cursor position
+    const cursorPos = this.selectionStart;
+    
+    // Don't auto-format while typing - let user type full vehicle number
+    // Only format when input is complete (on blur or when user presses space)
+    this.value = value;
+    
+    // Restore cursor position
+    this.setSelectionRange(cursorPos, cursorPos);
+    
+    // Set time when vehicle is entered
+    if (this.value.trim() && !timeInput.value) {
+      timeInput.value = new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', hour12: true});
+      timeInput.dispatchEvent(new Event('input'));
+    }
+    
+    // Show suggestions if 3 or more consecutive numbers are typed
+    const numbers = value.match(/\d+/g);
+    if (numbers && numbers.join('').length >= 3) {
+      showSuggestions(value);
+    } else {
+      suggestionsPopup.style.display = 'none';
+    }
+    
+    // Check if vehicle has 4 numbers and auto-switch to SOC field
+    checkVehicleForAutoSwitch(this, row);
   });
+  
+  vehicleInput.addEventListener("blur", function() {
+    // Final formatting on blur
+    this.value = formatVehicleNumber(this.value);
+    
+    // Check if user typed exactly 4 digits that match a saved vehicle
+    const value = this.value.trim();
+    
+    // Check for exact 4-digit number match
+    if (/^\d{4}$/.test(value)) {
+      const matchedVehicle = findVehicleByExactNumber(value);
+      if (matchedVehicle) {
+        isAutoFilling = true;
+        this.value = matchedVehicle;
+        this.dispatchEvent(new Event('input'));
+      }
+    }
+    
+    // Check for exact match in database
+    const formattedValue = this.value.trim();
+    if (formattedValue) {
+      // Check if this is a full vehicle name with number
+      const parts = formattedValue.split(' ');
+      if (parts.length >= 2) {
+        const numbers = parts[parts.length - 1];
+        if (/^\d{4}$/.test(numbers)) {
+          vehicleDatabase.set(numbers, formattedValue);
+        }
+      }
+    }
+    
+    // Set time on blur if vehicle has value and time is empty
+    setTimeOnVehicleEntry(this, timeInput);
+    
+    // Hide suggestions on blur (with delay to allow click)
+    setTimeout(() => {
+      suggestionsPopup.style.display = 'none';
+    }, 200);
+  });
+  
+  vehicleInput.addEventListener("focus", function() {
+    const value = this.value;
+    showSuggestions(value);
+  });
+  
   vehicleInput.addEventListener("keydown", e => {
-    if (e.key === "Enter") moveToNextCell(vehicleInput, row);
+    if (e.key === "Enter") {
+      // Format on Enter
+      this.value = formatVehicleNumber(this.value);
+      
+      // Check for exact 4-digit number match
+      const value = this.value.trim();
+      
+      // Check for exact 4-digit number match
+      if (/^\d{4}$/.test(value)) {
+        const matchedVehicle = findVehicleByExactNumber(value);
+        if (matchedVehicle) {
+          isAutoFilling = true;
+          this.value = matchedVehicle;
+          this.dispatchEvent(new Event('input'));
+        }
+      }
+      
+      // Check for exact match
+      const formattedValue = this.value.trim();
+      if (formattedValue) {
+        // Check if this is a full vehicle name with number
+        const parts = formattedValue.split(' ');
+        if (parts.length >= 2) {
+          const numbers = parts[parts.length - 1];
+          if (/^\d{4}$/.test(numbers)) {
+            vehicleDatabase.set(numbers, formattedValue);
+          }
+        }
+      }
+      
+      // Hide suggestions
+      suggestionsPopup.style.display = 'none';
+      
+      // Check if vehicle has 4 numbers and auto-switch to SOC field
+      if (!checkVehicleForAutoSwitch(vehicleInput, row)) {
+        moveToNextCell(vehicleInput, row);
+      }
+    } else if (e.key === "Escape") {
+      suggestionsPopup.style.display = 'none';
+    }
   });
+  
+  // Clear time if vehicle is cleared
+  vehicleInput.addEventListener("change", function() {
+    if (!this.value.trim() && timeInput.value) {
+      timeInput.value = "";
+      timeInput.dispatchEvent(new Event('input'));
+    }
+  });
+  
   vehicle.appendChild(vehicleInput);
   
-  // % SOC
+  // Clean up suggestions popup when row is removed
+  const originalRemoveChild = row.remove;
+  row.remove = function() {
+    if (suggestionsPopup && suggestionsPopup.parentNode) {
+      suggestionsPopup.parentNode.removeChild(suggestionsPopup);
+    }
+    return originalRemoveChild.apply(this, arguments);
+  };
+  
+  // % SOC - MODIFIED: Auto-add hyphen after 2 numbers and make hyphen deletable
   const soc = document.createElement("td");
   const socContainer = document.createElement("div");
   socContainer.className = "soc-container";
   const socInput = document.createElement("input");
   socInput.className = "soc-input";
   socInput.value = data.percent || "";
+  
+  // Store previous value for comparison
+  let previousSOCValue = socInput.value;
+  
   socInput.addEventListener("input", function() {
+    let value = this.value;
+    
+    // Store cursor position
     const cursorPos = this.selectionStart;
-    this.value = formatSOCInput(this.value);
-    let newCursorPos = cursorPos;
-    if (cursorPos === 2 && this.value.length > 2 && this.value.charAt(2) === '-') {
-      newCursorPos = 3;
+    
+    // Allow only digits and hyphen
+    value = value.replace(/[^0-9\-]/g, '');
+    
+    // Auto-add hyphen after 2 numbers
+    // Check if we have exactly 2 digits and no hyphen
+    if (value.length === 2 && !value.includes('-') && previousSOCValue.length < 2) {
+      value = value + '-';
     }
-    this.setSelectionRange(newCursorPos, newCursorPos);
+    
+    // Handle hyphen deletion with backspace
+    if (previousSOCValue.length === 3 && previousSOCValue.includes('-') && 
+        value.length === 2 && !value.includes('-')) {
+      // User deleted the hyphen, keep just the digits
+      value = value;
+    }
+    
+    // Update the value
+    this.value = value;
+    previousSOCValue = value;
+    
+    // Restore cursor position (adjust for hyphen addition/removal)
+    if (cursorPos === 2 && value.length === 3 && value[2] === '-') {
+      this.setSelectionRange(3, 3); // Move cursor after hyphen
+    } else if (cursorPos === 3 && previousSOCValue.length === 3 && 
+               previousSOCValue.includes('-') && value.length === 2) {
+      this.setSelectionRange(2, 2); // Move cursor to end when hyphen deleted
+    } else {
+      this.setSelectionRange(cursorPos, cursorPos);
+    }
+    
     shouldShowBlank(this.value) ? this.classList.add('empty-value') : this.classList.remove('empty-value');
     updateDiffColumn(this);
+    
+    // Check if SOC has number after hyphen greater than 10 or equals to 100 and auto-switch to Amount field
+    checkSOCForAutoSwitch(this, row);
   });
+  
+  // Handle backspace key specifically for hyphen deletion
   socInput.addEventListener("keydown", e => {
-    if (e.key === "Enter") moveToNextCell(socInput, row);
     if (e.key === "Backspace") {
       const cursorPos = this.selectionStart;
       const value = this.value;
-      if (cursorPos === 3 && value.charAt(2) === '-') {
-        this.value = value.substring(0, 2) + value.substring(3);
-        this.setSelectionRange(2, 2);
-        e.preventDefault();
-        updateDiffColumn(this);
+      
+      // If cursor is right after hyphen (position 3) and we press backspace
+      if (cursorPos === 3 && value.length === 3 && value[2] === '-') {
+        // Allow backspace to delete the hyphen
+        // The input event will handle the rest
       }
     }
   });
-  socInput.addEventListener("blur", function() {
-    const parts = this.value.split('-');
-    if (parts[0]) {
-      let num = parseInt(parts[0]);
-      if (num > 100) this.value = "100" + (parts[1] ? '-' + parts[1] : '');
+  
+  socInput.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      // Check if SOC has number after hyphen greater than 10 or equals to 100 and auto-switch to Amount field
+      if (!checkSOCForAutoSwitch(socInput, row)) {
+        moveToNextCell(socInput, row);
+      }
     }
+  });
+  
+  socInput.addEventListener("blur", function() {
+    // Format on blur: ensure proper hyphen placement
+    let value = this.value;
+    
+    // If value has digits but no hyphen, try to add hyphen in reasonable place
+    if (value && !value.includes('-') && /^\d+$/.test(value)) {
+      if (value.length <= 2) {
+        // If 1-2 digits, leave as is (will show as start percentage)
+      } else if (value.length === 3) {
+        // For 3 digits, assume format like "20-100" -> "2-0100" or "20-10"
+        value = value.substring(0, 2) + '-' + value.substring(2);
+      } else if (value.length >= 4) {
+        // For 4+ digits, assume first 2 digits are start, rest are end
+        value = value.substring(0, 2) + '-' + value.substring(2);
+      }
+    }
+    
+    // Validate numbers
+    if (value.includes('-')) {
+      const parts = value.split('-');
+      if (parts[0]) {
+        let num = parseInt(parts[0]);
+        if (num > 100) {
+          parts[0] = "100";
+          value = parts[0] + (parts[1] ? '-' + parts[1] : '');
+        }
+      }
+    }
+    
+    this.value = value;
+    previousSOCValue = value;
     shouldShowBlank(this.value) ? this.classList.add('empty-value') : this.classList.remove('empty-value');
     updateDiffColumn(this);
   });
+  
   shouldShowBlank(socInput.value) ? socInput.classList.add('empty-value') : socInput.classList.remove('empty-value');
   socContainer.appendChild(socInput);
   soc.appendChild(socContainer);
@@ -1281,6 +2234,7 @@ function addRow(data = {}) {
   amountInput.addEventListener("input", function() {
     this.value = this.value.replace(/[^\d\+\-\*\/\.]/g, '');
     shouldShowBlank(this.value) ? this.classList.add('empty-value') : this.classList.remove('empty-value');
+    updateTotalFromAmount();
   });
   amountInput.addEventListener("keydown", e => {
     if (e.key === "Enter") moveToNextCell(amountInput, row);
@@ -1288,21 +2242,29 @@ function addRow(data = {}) {
   shouldShowBlank(amountInput.value) ? amountInput.classList.add('empty-value') : amountInput.classList.remove('empty-value');
   amount.appendChild(amountInput);
   
-  // Cafe
+  // Cafe - EDITABLE
   const cafe = document.createElement("td");
   const cafeInput = document.createElement("input");
   cafeInput.value = data.cafe || "";
-  cafeInput.readOnly = true;
+  cafeInput.addEventListener("input", function() {
+    this.value = this.value.replace(/[^\d\+\-\*\/\.]/g, '');
+    shouldShowBlank(this.value) ? this.classList.add('empty-value') : this.classList.remove('empty-value');
+    updateTotalFromCafe();
+  });
+  cafeInput.addEventListener("keydown", e => {
+    if (e.key === "Enter") moveToNextCell(cafeInput, row);
+  });
   shouldShowBlank(cafeInput.value) ? cafeInput.classList.add('empty-value') : cafeInput.classList.remove('empty-value');
   cafe.appendChild(cafeInput);
   
-  // Total
+  // Total - EDITABLE
   const total = document.createElement("td");
   const totalInput = document.createElement("input");
   totalInput.value = data.total || "";
   totalInput.addEventListener("input", function() {
     this.value = this.value.replace(/[^\d\+\-\*\/\.]/g, '');
     shouldShowBlank(this.value) ? this.classList.add('empty-value') : this.classList.remove('empty-value');
+    updateCafeFromTotal();
   });
   totalInput.addEventListener("keydown", e => {
     if (e.key === "Enter") moveToNextCell(totalInput, row);
@@ -1310,71 +2272,264 @@ function addRow(data = {}) {
   shouldShowBlank(totalInput.value) ? totalInput.classList.add('empty-value') : totalInput.classList.remove('empty-value');
   total.appendChild(totalInput);
   
-  // Paid
+  // Paid - MODIFIED: Implement both functions
   const paid = document.createElement("td");
   const paidInput = document.createElement("input");
   paidInput.value = data.paid || "";
+  
+  // Store previous paid value to detect changes
+  let previousPaidValue = paidInput.value;
+  
   paidInput.addEventListener("input", function() {
     this.value = this.value.replace(/[^\d\+\-\*\/\.]/g, '');
     shouldShowBlank(this.value) ? this.classList.add('empty-value') : this.classList.remove('empty-value');
+    
+    // Check if paid = total and update calculations
+    const totalVal = evaluateValue(totalInput.value);
+    const paidVal = evaluateValue(this.value);
+    
+    if (totalVal > 0 && paidVal === totalVal) {
+      // FEATURE 1: Auto-add new row only if there is no blank row below
+      // But don't do it while typing - only on blur or Enter
+    }
+    
+    previousPaidValue = this.value;
+    updateCalculations();
   });
+  
+  // FEATURE 2: Add new row when Enter key is pressed from inside the paid field
   paidInput.addEventListener("keydown", e => {
     if (e.key === "Enter") {
-      if (!hasBlankRowsBelow(row)) {
+      // Always add new row when Enter is pressed in paid field, regardless of status
+      const blankRow = getFirstBlankRowBelow(row);
+      if (!blankRow) {
+        // No blank row below, add a new one
         const newRow = addRow();
         const vehicleInput = newRow.querySelector(".vehicle-input");
+        if (vehicleInput) setTimeout(() => vehicleInput.focus(), 50);
+      } else {
+        // Focus on the blank row's vehicle input
+        const vehicleInput = blankRow.querySelector(".vehicle-input");
         if (vehicleInput) setTimeout(() => vehicleInput.focus(), 50);
       }
     }
   });
+  
+  // FEATURE 1: Auto-add new row when paid = total and user leaves the field (blur)
+  // Only if there is no blank row below
+  paidInput.addEventListener("blur", function() {
+    const totalVal = evaluateValue(totalInput.value);
+    const paidVal = evaluateValue(paidInput.value);
+    
+    // Check if paid = total and status is paid
+    const paidButton = row.querySelector(".paid-button");
+    if (totalVal > 0 && paidVal === totalVal && paidButton.classList.contains("active")) {
+      // Check if there's a blank row below
+      const blankRow = getFirstBlankRowBelow(row);
+      if (!blankRow) {
+        // No blank row below, add a new one after a short delay
+        setTimeout(() => {
+          const newRow = addRow();
+          const vehicleInput = newRow.querySelector(".vehicle-input");
+          if (vehicleInput) setTimeout(() => vehicleInput.focus(), 50);
+        }, 100);
+      }
+    }
+    
+    updateCalculations();
+  });
+  
   shouldShowBlank(paidInput.value) ? paidInput.classList.add('empty-value') : paidInput.classList.remove('empty-value');
   paid.appendChild(paidInput);
   
-  // Status
+  // Status - BUTTONS (both visible initially, then only selected one)
   const status = document.createElement("td");
-  const statusSelect = document.createElement("select");
-  statusSelect.className = "status-select";
-  const statusOptions = [
-    {value: "", text: "--Select--"},
-    {value: "paid", text: "Paid", className: "status-paid"},
-    {value: "due", text: "Due", className: "status-due"}
-  ];
-  statusOptions.forEach(option => {
-    const opt = document.createElement("option");
-    opt.value = option.value;
-    opt.textContent = option.text;
-    if (option.className) opt.className = option.className;
-    statusSelect.appendChild(opt);
-  });
-  if (data.status) statusSelect.value = data.status;
-  updateStatusColor(statusSelect);
-  if (statusSelect.value === "paid" || statusSelect.value === "due") {
-    statusSelect.style.backgroundImage = "none";
+  const statusButtonsContainer = document.createElement("div");
+  statusButtonsContainer.className = "status-buttons";
+  
+  const paidButton = document.createElement("button");
+  paidButton.className = "status-button paid-button";
+  paidButton.textContent = "Paid";
+  paidButton.dataset.status = "paid";
+  
+  const dueButton = document.createElement("button");
+  dueButton.className = "status-button due-button";
+  dueButton.textContent = "Due";
+  dueButton.dataset.status = "due";
+  
+  // Set initial active button based on data
+  let isSingleButtonMode = false;
+  
+  if (data.status === "paid") {
+    paidButton.classList.add("active");
+    dueButton.style.display = "none";
+    isSingleButtonMode = true;
+  } else if (data.status === "due") {
+    dueButton.classList.add("active");
+    paidButton.style.display = "none";
+    isSingleButtonMode = true;
+    // Add title for double click requirement
+    dueButton.title = "Double-click to change status";
+  } else {
+    // Both buttons visible
+    paidButton.classList.remove("active");
+    dueButton.classList.remove("active");
   }
-  statusSelect.addEventListener("change", function() {
-    updateStatusColor(this);
-    if (this.value === "paid" || this.value === "due") {
-      this.style.backgroundImage = "none";
-      if (!hasBlankRowsBelow(row)) {
-        const newRow = addRow();
-        const vehicleInput = newRow.querySelector(".vehicle-input");
-        if (vehicleInput) setTimeout(() => vehicleInput.focus(), 50);
+  
+  // Function to show both buttons
+  function showBothButtons() {
+    paidButton.style.display = "block";
+    dueButton.style.display = "block";
+    paidButton.classList.remove("active");
+    dueButton.classList.remove("active");
+    isSingleButtonMode = false;
+    unlockRow(row);
+    dueButton.title = "";
+  }
+  
+  // Function to show only selected button with validation
+  function showSingleButton(selectedButton) {
+    const totalVal = evaluateValue(totalInput.value);
+    const paidVal = evaluateValue(paidInput.value);
+    
+    // If total > paid and user selects paid button, auto-fill paid with total
+    if (selectedButton === paidButton && totalVal > paidVal) {
+      paidInput.value = totalInput.value;
+      paidInput.dispatchEvent(new Event('input'));
+      // Update paidVal after setting
+      const newPaidVal = evaluateValue(paidInput.value);
+      
+      // Now check if total = paid
+      if (totalVal === newPaidVal) {
+        paidButton.style.display = "block";
+        paidButton.classList.add("active");
+        dueButton.style.display = "none";
+        dueButton.classList.remove("active");
+        
+        lockRow(row);
+        
+        // Auto-add new row when paid = total (only if no blank row below)
+        if (totalVal === newPaidVal && totalVal > 0) {
+          // Check if there's a blank row below
+          const blankRow = getFirstBlankRowBelow(row);
+          if (!blankRow) {
+            // No blank row below, add a new one after a short delay
+            setTimeout(() => {
+              const newRow = addRow();
+              const vehicleInput = newRow.querySelector(".vehicle-input");
+              if (vehicleInput) setTimeout(() => vehicleInput.focus(), 50);
+            }, 100);
+          }
+        }
+        isSingleButtonMode = true;
+        autoSave();
+        return;
       }
-    } else {
-      this.style.backgroundImage = "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e\")";
     }
-    autoSave();
-    if (this.value === "paid") {
+    
+    // Validation: if total = paid, cannot change to due
+    if (selectedButton === dueButton && totalVal === paidVal && totalVal > 0) {
+      showNotification("Cannot set to Due when Total = Paid", "danger");
+      return;
+    }
+    
+    // Validation: if total > paid, cannot change to paid (but we already handled this above)
+    if (selectedButton === paidButton && totalVal > paidVal) {
+      showNotification("Cannot set to Paid when Total > Paid", "danger");
+      return;
+    }
+    
+    if (selectedButton === paidButton) {
+      paidButton.style.display = "block";
+      paidButton.classList.add("active");
+      dueButton.style.display = "none";
+      dueButton.classList.remove("active");
+      
+      // Set paid amount to total if not already set
       if (!paidInput.value || paidInput.value === "0") {
         paidInput.value = totalInput.value;
+        paidInput.dispatchEvent(new Event('input'));
       }
-      paidInput.dispatchEvent(new Event('input'));
+      
       lockRow(row);
-    } else if (this.value === "due") {
+      
+      // Auto-add new row when paid = total (only if no blank row below)
+      if (totalVal === paidVal && totalVal > 0) {
+        // Check if there's a blank row below
+        const blankRow = getFirstBlankRowBelow(row);
+        if (!blankRow) {
+          // No blank row below, add a new one after a short delay
+          setTimeout(() => {
+            const newRow = addRow();
+            const vehicleInput = newRow.querySelector(".vehicle-input");
+            if (vehicleInput) setTimeout(() => vehicleInput.focus(), 50);
+          }, 100);
+        }
+      }
+      isSingleButtonMode = true;
+    } else {
+      dueButton.style.display = "block";
+      dueButton.classList.add("active");
+      paidButton.style.display = "none";
+      paidButton.classList.remove("active");
+      
       unlockRow(row);
+      // Add title for double click requirement when status is due
+      dueButton.title = "Double-click to change status";
+      isSingleButtonMode = true;
+    }
+    autoSave();
+  }
+  
+  // Due button requires double click to change when active
+  let dueButtonClickCount = 0;
+  let dueButtonClickTimer = null;
+  
+  dueButton.addEventListener("click", function() {
+    if (isSingleButtonMode && dueButton.classList.contains("active")) {
+      // If due is active, require double click
+      dueButtonClickCount++;
+      
+      if (dueButtonClickCount === 1) {
+        dueButtonClickTimer = setTimeout(() => {
+          dueButtonClickCount = 0;
+        }, 500);
+        return; // Wait for second click
+      }
+      
+      clearTimeout(dueButtonClickTimer);
+      dueButtonClickCount = 0;
+    }
+    
+    // Normal behavior for non-active due button
+    if (isSingleButtonMode) {
+      // If already in single button mode, clicking the active button shows both again
+      if (dueButton.classList.contains("active")) {
+        showBothButtons();
+      } else {
+        showSingleButton(dueButton);
+      }
+    } else {
+      showSingleButton(dueButton);
     }
   });
-  status.appendChild(statusSelect);
+  
+  paidButton.addEventListener("click", function() {
+    if (isSingleButtonMode) {
+      // If already in single button mode, clicking the active button shows both again
+      if (paidButton.classList.contains("active")) {
+        showBothButtons();
+      } else {
+        showSingleButton(paidButton);
+      }
+    } else {
+      showSingleButton(paidButton);
+    }
+  });
+  
+  statusButtonsContainer.appendChild(paidButton);
+  statusButtonsContainer.appendChild(dueButton);
+  status.appendChild(statusButtonsContainer);
   
   // Due
   const due = document.createElement("td");
@@ -1385,32 +2540,75 @@ function addRow(data = {}) {
   shouldShowBlank(dueInput.value) ? dueInput.classList.add('empty-value') : dueInput.classList.remove('empty-value');
   due.appendChild(dueInput);
   
-  // Action
-  const action = document.createElement("td");
-  action.className = "action-cell";
-  const deleteBtn = document.createElement("button");
-  deleteBtn.className = "delete-btn";
-  deleteBtn.innerHTML = "🗑️";
-  deleteBtn.title = "Delete Row";
-  deleteBtn.addEventListener("click", () => deleteRow(row));
-  action.appendChild(deleteBtn);
+  // Delete button column (X button is NEVER disabled)
+  const deleteCol = document.createElement("td");
+  const deleteButton = document.createElement("button");
+  deleteButton.className = "delete-button no-print";
+  deleteButton.textContent = "×";
   
-  // Double-click to unlock
+  // Set different title for first row
+  if (isFirstRow) {
+    deleteButton.title = "Clear first row data (cannot delete first row)";
+  } else {
+    deleteButton.title = "Delete this row (from table and cloud)";
+  }
+  
+  deleteButton.addEventListener("click", async function() {
+    await deleteRow(row);
+  });
+  deleteCol.appendChild(deleteButton);
+  
+  // Double-click to unlock and show both buttons with permission
   row.addEventListener("dblclick", function() {
     if (this.classList.contains("locked-row")) {
-      unlockRow(this);
+      // Ask for permission before unlocking
+      if (confirm("Do you want to unlock and edit this row?")) {
+        unlockRow(this);
+        showBothButtons();
+        showNotification("Row unlocked for editing", "info");
+        // Focus on the paid field for editing
+        const paidInput = this.querySelector('td:nth-child(9) input');
+        if (paidInput) {
+          setTimeout(() => paidInput.focus(), 50);
+        }
+      }
     }
   });
   
-  // Update calculations function
-  function updateCalculations() {
+  function updateTotalFromAmount() {
     const amountVal = evaluateValue(amountInput.value);
+    const cafeVal = evaluateValue(cafeInput.value);
+    const totalVal = amountVal + cafeVal;
+    
+    totalInput.value = totalVal || "";
+    shouldShowBlank(totalInput.value) ? totalInput.classList.add('empty-value') : totalInput.classList.remove('empty-value');
+    updateCalculations();
+  }
+  
+  function updateTotalFromCafe() {
+    const amountVal = evaluateValue(amountInput.value);
+    const cafeVal = evaluateValue(cafeInput.value);
+    const totalVal = amountVal + cafeVal;
+    
+    totalInput.value = totalVal || "";
+    shouldShowBlank(totalInput.value) ? totalInput.classList.add('empty-value') : totalInput.classList.remove('empty-value');
+    updateCalculations();
+  }
+  
+  function updateCafeFromTotal() {
+    const amountVal = evaluateValue(amountInput.value);
+    const totalVal = evaluateValue(totalInput.value);
+    const cafeVal = totalVal - amountVal;
+    
+    cafeInput.value = Math.max(0, cafeVal) || "";
+    shouldShowBlank(cafeInput.value) ? cafeInput.classList.add('empty-value') : cafeInput.classList.remove('empty-value');
+    updateCalculations();
+  }
+  
+  function updateCalculations() {
     const totalVal = evaluateValue(totalInput.value);
     const paidVal = evaluateValue(paidInput.value);
     const dueVal = totalVal - paidVal;
-    
-    const cafeVal = Math.max(0, totalVal - amountVal);
-    cafeInput.value = cafeVal || "";
     
     const dueAmount = Math.max(0, dueVal);
     dueInput.value = dueAmount || "";
@@ -1419,6 +2617,13 @@ function addRow(data = {}) {
     if (dueVal > 0) {
       row.classList.add("due-row");
       dueInput.classList.remove('empty-value');
+      // Auto-set status to due if due amount > 0
+      if (isSingleButtonMode && paidButton.classList.contains("active")) {
+        showBothButtons();
+      }
+      if (!isSingleButtonMode || (isSingleButtonMode && !dueButton.classList.contains("active"))) {
+        showSingleButton(dueButton);
+      }
     } else {
       row.classList.remove("due-row");
       dueInput.classList.remove('empty-value');
@@ -1429,15 +2634,14 @@ function addRow(data = {}) {
     
     if (totalVal > 0) {
       if (paidVal >= totalVal) {
-        statusSelect.value = "paid";
-        updateStatusColor(statusSelect);
-        statusSelect.style.backgroundImage = "none";
+        // Auto-set status to paid if paid >= total
+        if (!isSingleButtonMode || (isSingleButtonMode && !paidButton.classList.contains("active"))) {
+          showSingleButton(paidButton);
+        }
         row.classList.remove("due-row");
-        lockRow(row);
-      } else {
-        statusSelect.value = "due";
-        updateStatusColor(statusSelect);
-        statusSelect.style.backgroundImage = "none";
+        
+        // Auto-add new row when paid = total (only if no blank row below)
+        // This is already handled in the paid button click and paid input blur
       }
     }
     
@@ -1445,7 +2649,6 @@ function addRow(data = {}) {
     autoSave();
   }
   
-  // Update Diff column function
   function updateDiffColumn(socInputElement) {
     const diffValue = calculateSOCDiff(socInputElement.value);
     diffInput.value = diffValue || "";
@@ -1456,34 +2659,58 @@ function addRow(data = {}) {
     }
   }
   
-  // Event listeners for calculations
-  [amountInput, totalInput, paidInput].forEach(input => {
-    input.addEventListener("input", updateCalculations);
+  [amountInput, cafeInput, totalInput].forEach(input => {
+    input.addEventListener("input", function() {
+      if (input === amountInput) {
+        updateTotalFromAmount();
+      } else if (input === cafeInput) {
+        updateTotalFromCafe();
+      } else if (input === totalInput) {
+        updateCafeFromTotal();
+      }
+    });
   });
   
-  // Append all cells to row
-  row.append(sn, time, vehicle, soc, diff, amount, cafe, total, paid, status, due, action);
+  paidInput.addEventListener("input", function() {
+    updateCalculations();
+  });
+  
+  row.append(sn, time, vehicle, soc, diff, amount, cafe, total, paid, status, due, deleteCol);
   tbody.appendChild(row);
   
-  // Focus on vehicle input if no data
   if (!data.vehicle) {
     setTimeout(() => vehicleInput.focus(), 50);
   }
   
-  // Initial calculations
-  updateCalculations();
-  autoSave();
-  
-  // Scroll to bottom
-  tbody.parentElement.scrollTop = tbody.parentElement.scrollHeight;
-  
-  // Lock row if status is paid
-  if (data.status === "paid") {
-    lockRow(row);
-    statusSelect.style.backgroundImage = "none";
+  if (data.total && !data.cafe) {
+    updateCafeFromTotal();
+  } else if (data.cafe && !data.total) {
+    updateTotalFromCafe();
+  } else if (data.amount && (!data.total || !data.cafe)) {
+    updateTotalFromAmount();
+  } else {
+    updateCalculations();
   }
   
-  // Add due-row class if saved data has due amount
+  // Add vehicle to database
+  if (data.vehicle && data.vehicle.trim()) {
+    const vehicleStr = data.vehicle.trim();
+    const parts = vehicleStr.split(' ');
+    if (parts.length >= 2) {
+      const numbers = parts[parts.length - 1];
+      if (/^\d{4}$/.test(numbers)) {
+        vehicleDatabase.set(numbers, vehicleStr);
+      }
+    }
+  }
+  
+  autoSave();
+  tbody.parentElement.scrollTop = tbody.parentElement.scrollHeight;
+  
+  if (data.status === "paid") {
+    lockRow(row);
+  }
+  
   if (data.due && parseFloat(data.due) > 0) {
     row.classList.add("due-row");
   }
@@ -1491,12 +2718,20 @@ function addRow(data = {}) {
   return row;
 }
 
-// Data Management Functions
 function getDataForSave() {
   const rows = document.querySelectorAll("#logbook tbody tr");
   const data = Array.from(rows).map(row => {
     const inputs = row.querySelectorAll("input");
-    const select = row.querySelector("select");
+    const paidButton = row.querySelector(".paid-button");
+    const dueButton = row.querySelector(".due-button");
+    
+    let status = "";
+    if (paidButton.classList.contains("active")) {
+      status = "paid";
+    } else if (dueButton.classList.contains("active")) {
+      status = "due";
+    }
+    
     return {
       time: inputs[0]?.value || '',
       vehicle: inputs[1]?.value || '',
@@ -1506,7 +2741,7 @@ function getDataForSave() {
       cafe: inputs[5]?.value || '',
       total: inputs[6]?.value || '',
       paid: inputs[7]?.value || '',
-      status: select?.value || '',
+      status: status,
       due: inputs[8]?.value || ''
     };
   });
@@ -1518,9 +2753,8 @@ function updateTotals() {
   document.querySelectorAll("#logbook tbody tr").forEach(row => {
     const inputs = row.querySelectorAll("input");
     charge += evaluateValue(inputs[4]?.value || 0);
-    const total = evaluateValue(inputs[6]?.value || 0);
-    cafe += (total - evaluateValue(inputs[4]?.value || 0));
-    all += total;
+    cafe += evaluateValue(inputs[5]?.value || 0);
+    all += evaluateValue(inputs[6]?.value || 0);
     due += evaluateValue(inputs[8]?.value || 0);
   });
   
@@ -1530,10 +2764,9 @@ function updateTotals() {
   document.getElementById("dueTotal").textContent = due.toLocaleString();
 }
 
-// SILENT Firebase Functions - No UI indicators
+// Firebase Functions
 async function saveToFirebase() {
   if (!db) {
-    // Silent failure - just return false
     return false;
   }
 
@@ -1555,18 +2788,15 @@ async function saveToFirebase() {
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     }, { merge: true });
 
-    // Success - but don't show any notification
     return true;
   } catch (error) {
     console.error("Error saving to Firebase:", error);
-    // Silent error - don't show notification
     return false;
   }
 }
 
 async function loadFromFirebase(date = currentDate) {
   if (!db) {
-    // Silent failure - just load from local storage
     loadFromLocalStorage();
     return;
   }
@@ -1588,22 +2818,19 @@ async function loadFromFirebase(date = currentDate) {
       }
       
       updateTotals();
-      // Don't show notification for silent load
     } else {
-      // No data found, start fresh without notification
       if (document.querySelectorAll("#logbook tbody tr").length === 0) {
         addRow();
       }
     }
   } catch (error) {
     console.error("Error loading from Firebase:", error);
-    // Silent fallback to local storage
     loadFromLocalStorage();
   }
 }
 
 function loadFromLocalStorage() {
-  const data = localStorage.getItem("logbookData");
+  const data = localStorage.getItem(`logbook_${currentDate}`);
   if (data) {
     try {
       const entries = JSON.parse(data);
@@ -1614,7 +2841,6 @@ function loadFromLocalStorage() {
         addRow();
       }
       updateTotals();
-      // Don't show notification for local load
     } catch (error) {
       console.error("Error loading from local storage:", error);
       addRow();
@@ -1624,62 +2850,113 @@ function loadFromLocalStorage() {
   }
 }
 
-// Modified autoSave to use Firebase silently
 let staticSaveCounter = 0;
-function autoSave() {
+async function autoSave(forceCloudSave = false) {
   const data = getDataForSave();
   
-  // Always save to local storage (visible indicator)
-  localStorage.setItem("logbookData", JSON.stringify(data));
+  // Save to local storage with date key
   localStorage.setItem(`logbook_${currentDate}`, JSON.stringify(data));
   
-  // Show local save indicator
+  // Update vehicle database
+  data.forEach(entry => {
+    if (entry.vehicle && entry.vehicle.trim()) {
+      const vehicle = entry.vehicle.trim();
+      const parts = vehicle.split(' ');
+      if (parts.length >= 2) {
+        const numbers = parts[parts.length - 1];
+        if (/^\d{4}$/.test(numbers)) {
+          vehicleDatabase.set(numbers, vehicle);
+        }
+      }
+    }
+  });
+  
   const indicator = document.getElementById("saveIndicator");
   indicator.classList.add("visible");
   setTimeout(() => indicator.classList.remove("visible"), 2000);
   
-  // Silent Firebase save (every 5th auto-save or when explicitly triggered)
+  // Save to Firebase if connected
   staticSaveCounter = (staticSaveCounter || 0) + 1;
-  if (staticSaveCounter % 5 === 0 && db) {
-    // Fire and forget - don't await, don't show errors
-    saveToFirebase().catch(error => {
-      // Log error but don't show to user
-      console.error("Silent auto-save to Firebase failed:", error);
-    });
+  if ((staticSaveCounter % 5 === 0 || forceCloudSave) && db && isFirebaseConnected) {
+    try {
+      await saveToFirebase();
+    } catch (error) {
+      console.error("Auto-save to Firebase failed:", error);
+    }
   }
+}
+
+// Mobile Chrome optimizations
+function setupMobileOptimizations() {
+  // Prevent zoom on input focus in mobile
+  const inputs = document.querySelectorAll('input, select, textarea');
+  inputs.forEach(input => {
+    input.addEventListener('focus', () => {
+      // Force font size to prevent zoom
+      const style = window.getComputedStyle(input);
+      if (parseFloat(style.fontSize) < 16) {
+        input.style.fontSize = '16px';
+      }
+    });
+    
+    input.addEventListener('blur', () => {
+      // Reset font size after blur
+      input.style.fontSize = '';
+    });
+  });
+  
+  // Improve touch handling
+  document.addEventListener('touchstart', function(e) {
+    // Prevent double-tap zoom
+    if (e.touches.length > 1) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+  
+  // Prevent context menu on long press
+  document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    return false;
+  });
 }
 
 // Initialize the application
 window.onload = async function() {
-  updateDateTime();
-  setInterval(updateDateTime, 1000);
+  // Initialize date/time
+  updateDateTimeDisplay();
+  setInterval(updateDateTimeDisplay, 1000);
   
-  // Silent Firebase connection test
+  // Setup daily reset timer
+  scheduleDailyReset();
+  
+  // Load vehicle database
+  loadVehicleDatabase();
+  
+  // Check Firebase connection
   if (db) {
     try {
-      // Silent test connection
       await db.collection("test").doc("test").get();
       isFirebaseConnected = true;
-      // Don't show connection notification
     } catch (error) {
       console.log("Firebase test failed, using local storage:", error);
       isFirebaseConnected = false;
     }
   }
   
-  // Load data silently
+  // Load data for current business day
   if (isFirebaseConnected) {
-    await loadFromFirebase();
+    await loadFromFirebase(currentDate);
   } else {
     loadFromLocalStorage();
   }
   
+  // Set up dark mode
   if (localStorage.getItem("darkMode") === "true") {
     document.body.classList.add("dark-mode");
     document.getElementById("darkModeBtn").textContent = "☀️ Light";
   }
   
-  // Event Listeners
+  // Event listeners
   document.getElementById("darkModeBtn").addEventListener("click", function() {
     document.body.classList.toggle("dark-mode");
     const isDark = document.body.classList.contains("dark-mode");
@@ -1687,54 +2964,49 @@ window.onload = async function() {
     localStorage.setItem("darkMode", isDark);
   });
   
-  document.getElementById("printBtn").addEventListener("click", () => {
-    window.print();
+  // Excel Export Button
+  document.getElementById("excelBtn").addEventListener("click", exportToExcel);
+  
+  document.getElementById("contributorsBtn").addEventListener("click", showContributorsModal);
+  
+  document.getElementById("contributorsCloseBtn").addEventListener("click", hideContributorsModal);
+  
+  // Close contributors modal when clicking outside
+  document.getElementById("contributorsModal").addEventListener("click", function(e) {
+    if (e.target === this) {
+      hideContributorsModal();
+    }
   });
   
-  // Report Button - Now opens modal
-  document.getElementById("reportBtn").addEventListener("click", openReportModal);
+  document.getElementById("reportBtn").addEventListener("click", showReportModal);
   
-  // Report Modal Buttons
-  document.getElementById("dailyReportBtn").addEventListener("click", function() {
-    closeReportModal();
-    generateDailyReport();
-  });
-  
-  document.getElementById("weeklyReportBtn").addEventListener("click", function() {
-    closeReportModal();
-    generateWeeklyReport();
-  });
-  
-  document.getElementById("monthlyReportBtn").addEventListener("click", function() {
-    closeReportModal();
-    generateMonthlyReport();
-  });
-  
-  document.getElementById("customReportBtn").addEventListener("click", function() {
-    closeReportModal();
-    generateCustomReport();
-  });
-  
-  document.getElementById("exportCSVBtn").addEventListener("click", function() {
-    closeReportModal();
-    exportToCSV();
-  });
-  
-  document.getElementById("exportPDFBtn").addEventListener("click", function() {
-    closeReportModal();
-    exportToPDF();
-  });
-  
-  document.getElementById("closeReportBtn").addEventListener("click", closeReportModal);
+  document.getElementById("reportCloseBtn").addEventListener("click", hideReportModal);
   
   // Close modal when clicking outside
   document.getElementById("reportModal").addEventListener("click", function(e) {
     if (e.target === this) {
-      closeReportModal();
+      hideReportModal();
     }
   });
   
-  // Sync button - now triggers silent save and shows notification
+  // Report period button clicks
+  document.querySelectorAll(".report-period-btn").forEach(btn => {
+    btn.addEventListener("click", function() {
+      const period = this.getAttribute("data-period");
+      if (period === "daily") {
+        loadDailyReport();
+      } else if (period === "weekly") {
+        loadWeeklyReport();
+      } else if (period === "monthly") {
+        loadMonthlyReport();
+      }
+    });
+  });
+  
+  document.getElementById("printBtn").addEventListener("click", () => {
+    window.print();
+  });
+  
   document.getElementById("syncBtn").addEventListener("click", async function() {
     if (isFirebaseConnected) {
       showLoading("Syncing with Cloud...");
@@ -1757,38 +3029,6 @@ window.onload = async function() {
     }
   });
   
-  // Load from Cloud button - shows notification for explicit action
-  document.getElementById("loadFromCloudBtn").addEventListener("click", async function() {
-    if (isFirebaseConnected) {
-      showLoading("Loading from Cloud...");
-      await loadFromFirebase();
-      hideLoading();
-      showNotification("Data loaded from Cloud!");
-    } else {
-      showNotification("Firebase not connected.", "danger");
-    }
-  });
-  
-  // Clear All button
-  document.getElementById("clearAllBtn").addEventListener("click", async function() {
-    if (confirm("Clear ALL data for today? This will also clear from Cloud.")) {
-      if (isFirebaseConnected && db) {
-        try {
-          // Silent delete from Firebase
-          await db.collection("logbook").doc(currentDate).delete();
-        } catch (error) {
-          console.error("Error clearing from Firebase:", error);
-        }
-      }
-      localStorage.removeItem("logbookData");
-      document.querySelector("#logbook tbody").innerHTML = "";
-      addRow();
-      updateTotals();
-      showNotification("All data cleared!");
-    }
-  });
-  
-  // Save All button - now triggers silent save and shows notification
   document.getElementById("saveAllBtn").addEventListener("click", async function() {
     if (isFirebaseConnected) {
       showLoading("Saving to Cloud...");
@@ -1810,12 +3050,14 @@ window.onload = async function() {
     }
   });
   
-  // Set up silent auto-save interval
-  setInterval(autoSave, 30000);
+  // Setup mobile optimizations
+  setupMobileOptimizations();
+  
+  // Auto-save every 30 seconds
+  setInterval(() => autoSave(), 30000);
   updateTotals();
 };
 
-// Initialize with one row if empty
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     if (document.querySelectorAll("#logbook tbody tr").length === 0) {
