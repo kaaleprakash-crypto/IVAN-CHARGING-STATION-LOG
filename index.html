@@ -197,6 +197,67 @@ tr:hover .delete-button{opacity:1;visibility:visible}
 .vehicle-cell {
     position: relative;
 }
+/* Dropdown menu styles */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+.dropdown-toggle {
+    padding: 6px 8px;
+    min-width: 40px;
+}
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 6px 20px var(--shadow);
+    min-width: 180px;
+    z-index: 1001;
+    padding: 6px 0;
+    margin-top: 5px;
+}
+.dropdown-menu.show {
+    display: block;
+    animation: fadeIn 0.2s;
+}
+.dropdown-item {
+    display: block;
+    padding: 10px 15px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    text-transform: none;
+    letter-spacing: normal;
+}
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+.dropdown-item:hover {
+    background: var(--primary);
+    color: #000;
+}
+.dropdown-item.danger {
+    color: var(--danger);
+}
+.dropdown-item.danger:hover {
+    background: var(--danger);
+    color: white;
+}
+.dropdown-item.success {
+    color: var(--success);
+}
+.dropdown-item.success:hover {
+    background: var(--success);
+    color: white;
+}
 /* Mobile Chrome optimizations */
 @media (max-width: 768px) {
     body {
@@ -362,6 +423,16 @@ tr:hover .delete-button{opacity:1;visibility:visible}
         input, select, textarea {
             font-size: 16px !important
         }
+    }
+    /* Dropdown adjustments for mobile */
+    .dropdown-menu {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 250px;
+        top: 50%;
+        transform: translate(-50%, -50%);
     }
 }
 @media (max-width: 480px) {
@@ -646,6 +717,10 @@ tr:hover .delete-button{opacity:1;visibility:visible}
     tr.hide-in-print {
         display: none !important;
     }
+    /* Hide dropdown menu in print */
+    .dropdown, .dropdown-menu {
+        display: none !important;
+    }
 }
 @keyframes fadeIn {
     from {
@@ -671,9 +746,17 @@ tr:hover .delete-button{opacity:1;visibility:visible}
 </div>
 <div class="top-controls no-print">
     <button id="darkModeBtn" class="btn btn-primary btn-sm">🌙 Dark</button>
-    <button id="csvBtn" class="btn btn-excel btn-sm">📊 CSV</button> <!-- Changed from Excel to CSV -->
+    <button id="csvBtn" class="btn btn-excel btn-sm">📊 CSV</button>
     <button id="reportBtn" class="btn btn-purple btn-sm">📈 Report</button>
     <button id="printBtn" class="btn btn-info btn-sm">🖨️ Print</button>
+    <div class="dropdown">
+        <button id="dropdownMenuButton" class="btn btn-info btn-sm dropdown-toggle">⋯</button>
+        <div class="dropdown-menu" id="dropdownMenu">
+            <a href="#" class="dropdown-item success" id="finalizeSaveBtn">💾 Finalize & Save to Cloud</a>
+            <a href="#" class="dropdown-item" id="forceSyncBtn">🔄 Force Sync Now</a>
+            <a href="#" class="dropdown-item" id="viewCloudDataBtn">☁️ View Cloud Data</a>
+        </div>
+    </div>
     <button id="syncBtn" class="btn btn-success btn-sm">🔄 Sync</button>
 </div></div>
 <div class="datetime-display"><div class="datetime-card"><div class="datetime-label">Date</div><div class="datetime-value" id="englishDateDisplay"></div></div>
@@ -788,10 +871,11 @@ try {
 }
 
 // Application State
-let currentDate = getCurrentDate(); // Changed: Use simple current date without business day logic
+let currentDate = getCurrentDate(); // Get current date with 5:00 AM cutoff
 let isFirebaseConnected = false;
 let nextDayTimer = null;
-let vehicleDatabase = new Map(); // Changed to Map to store vehicle name + number
+let vehicleDatabase = new Map();
+let isFinalized = false; // Track if data has been finalized
 
 // Load vehicle database from saved data
 function loadVehicleDatabase() {
@@ -859,28 +943,42 @@ function findVehicleByExactNumber(numberStr) {
   return null;
 }
 
-// FIXED: Use simple current date without business day logic
+// FIXED: Get current date with 5:00 AM cutoff (data till 5:00 AM belongs to previous day)
 function getCurrentDate() {
   const now = new Date();
-  // Return date in YYYY-MM-DD format
+  const currentHour = now.getHours();
+  
+  // If current time is between 00:00 and 05:00, use previous day's date
+  if (currentHour < 5) {
+    const previousDay = new Date(now);
+    previousDay.setDate(previousDay.getDate() - 1);
+    return previousDay.toISOString().split('T')[0];
+  }
+  
+  // Otherwise use today's date
   return now.toISOString().split('T')[0];
 }
 
-// FIXED: Calculate next midnight (12:00 AM)
-function getNextMidnight() {
+// FIXED: Calculate next 5:00 AM for daily reset
+function getNextResetTime() {
   const now = new Date();
-  const nextMidnight = new Date(now);
+  const nextReset = new Date(now);
   
-  // Set to next midnight (00:00)
-  nextMidnight.setHours(24, 0, 0, 0);
+  // Set to next 5:00 AM
+  nextReset.setHours(5, 0, 0, 0);
   
-  return nextMidnight;
+  // If it's already past 5:00 AM today, set to 5:00 AM tomorrow
+  if (now.getHours() >= 5) {
+    nextReset.setDate(nextReset.getDate() + 1);
+  }
+  
+  return nextReset;
 }
 
-// FIXED: Schedule daily reset at midnight (12:00 AM)
+// FIXED: Schedule daily reset at 5:00 AM
 function scheduleDailyReset() {
-  const nextMidnight = getNextMidnight();
-  const timeUntilNextMidnight = nextMidnight.getTime() - Date.now();
+  const nextReset = getNextResetTime();
+  const timeUntilNextReset = nextReset.getTime() - Date.now();
   
   // Clear existing timer
   if (nextDayTimer) {
@@ -894,25 +992,25 @@ function scheduleDailyReset() {
     
     // Schedule next reset
     scheduleDailyReset();
-  }, timeUntilNextMidnight);
+  }, timeUntilNextReset);
   
-  console.log(`Next table reset scheduled at: ${nextMidnight.toString()}`);
-  console.log(`Time until reset: ${Math.round(timeUntilNextMidnight/1000/60)} minutes`);
+  console.log(`Next table reset scheduled at: ${nextReset.toString()}`);
+  console.log(`Time until reset: ${Math.round(timeUntilNextReset/1000/60)} minutes`);
 }
 
-// FIXED: Reset table for new calendar day (simpler logic)
+// FIXED: Reset table for new day at 5:00 AM
 async function resetTableForNewDay() {
   // Show notification before reset
-  showNotification(`Day ending. Saving data for ${currentDate}...`, "info");
+  const oldDate = currentDate;
+  showNotification(`Day ending. Finalizing data for ${oldDate}...`, "info");
   
-  // Save current day's data before clearing
-  await autoSave(true);
+  // Finalize current day's data before clearing
+  await finalizeDayData();
   
   // Clear the table
   document.querySelector("#logbook tbody").innerHTML = "";
   
-  // Update current date to new day
-  const oldDate = currentDate;
+  // Update current date to new day (after 5:00 AM)
   currentDate = getCurrentDate();
   
   // Add new empty row
@@ -928,15 +1026,52 @@ async function resetTableForNewDay() {
     loadFromLocalStorage();
   }
   
-  showNotification(`New day started (${currentDate}). Previous day (${oldDate}) data saved.`, "success");
+  showNotification(`New day started (${currentDate}). Previous day (${oldDate}) data finalized.`, "success");
   
   // Update date display
   updateDateTimeDisplay();
 }
 
-// NEW: Clear table function
+// NEW: Function to finalize day data (save to cloud with final flag)
+async function finalizeDayData() {
+  if (!db || !isFirebaseConnected) {
+    console.log("Cannot finalize: Firebase not connected");
+    return false;
+  }
+  
+  try {
+    const data = getDataForSave();
+    const summary = {
+      charge: document.getElementById("chargeTotal").textContent,
+      cafe: document.getElementById("cafeTotal").textContent,
+      total: document.getElementById("allTotal").textContent,
+      due: document.getElementById("dueTotal").textContent,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      lastUpdated: new Date().toISOString(),
+      finalized: true,
+      finalizedAt: new Date().toISOString()
+    };
+
+    await db.collection("logbook").doc(currentDate).set({
+      entries: data,
+      summary: summary,
+      date: currentDate,
+      finalized: true,
+      finalizedAt: new Date().toISOString(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    console.log(`Day ${currentDate} finalized in cloud`);
+    return true;
+  } catch (error) {
+    console.error("Error finalizing day data:", error);
+    return false;
+  }
+}
+
+// NEW: Clear table function (clears only local table, not cloud)
 async function clearTable() {
-  if (!confirm("Are you sure you want to clear all data from today's table? This action cannot be undone!")) {
+  if (!confirm("Are you sure you want to clear all data from today's table? This action will NOT delete data from the cloud!")) {
     return;
   }
   
@@ -957,10 +1092,70 @@ async function clearTable() {
   // Update totals
   updateTotals();
   
-  // Save the cleared state
-  await autoSave(true);
+  // Save the cleared state locally only (not to cloud)
+  const data = getDataForSave();
+  localStorage.setItem(`logbook_${currentDate}`, JSON.stringify(data));
   
-  showNotification("Table cleared successfully", "success");
+  showNotification("Table cleared locally. Cloud data remains unchanged.", "success");
+}
+
+// NEW: Finalize and save to cloud function (for manual finalization)
+async function finalizeAndSwitchToNextDay() {
+  if (!db || !isFirebaseConnected) {
+    showNotification("Cannot finalize: Firebase not connected", "danger");
+    return;
+  }
+  
+  // Confirm finalization
+  if (!confirm(`Are you sure you want to FINALIZE and save data for ${currentDate} to cloud?\n\nThis will:\n1. Save current data to cloud as FINAL\n2. Lock the data from editing\n3. Switch to next day's table\n\nThis action cannot be undone!`)) {
+    return;
+  }
+  
+  showLoading("Finalizing and saving to cloud...");
+  
+  try {
+    // Save current data to cloud with finalized flag
+    const success = await finalizeDayData();
+    
+    if (success) {
+      // Clear the table for next day
+      document.querySelector("#logbook tbody").innerHTML = "";
+      
+      // Calculate next day (after current date)
+      const nextDay = new Date(currentDate);
+      nextDay.setDate(nextDay.getDate() + 1);
+      currentDate = nextDay.toISOString().split('T')[0];
+      
+      // Add new empty row
+      addRow();
+      
+      // Update totals
+      updateTotals();
+      
+      // Load any existing data for new day
+      await loadFromFirebase(currentDate);
+      
+      // Update date display
+      updateDateTimeDisplay();
+      
+      hideLoading();
+      showNotification(`Data finalized and saved to cloud for ${getPreviousDay()}. Switched to ${currentDate}.`, "success");
+    } else {
+      hideLoading();
+      showNotification("Failed to finalize data", "danger");
+    }
+  } catch (error) {
+    hideLoading();
+    console.error("Error finalizing and switching day:", error);
+    showNotification("Error finalizing data", "danger");
+  }
+}
+
+// Helper function to get previous day (for display purposes)
+function getPreviousDay() {
+  const prevDay = new Date(currentDate);
+  prevDay.setDate(prevDay.getDate() - 1);
+  return prevDay.toISOString().split('T')[0];
 }
 
 // Date/Time Functions
@@ -2983,13 +3178,110 @@ function setupMobileOptimizations() {
   });
 }
 
+// NEW: Dropdown menu functionality
+function setupDropdownMenu() {
+  const dropdownToggle = document.getElementById('dropdownMenuButton');
+  const dropdownMenu = document.getElementById('dropdownMenu');
+  
+  // Toggle dropdown on click
+  dropdownToggle.addEventListener('click', function(e) {
+    e.stopPropagation();
+    dropdownMenu.classList.toggle('show');
+  });
+  
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function() {
+    dropdownMenu.classList.remove('show');
+  });
+  
+  // Close dropdown when clicking inside (except on links)
+  dropdownMenu.addEventListener('click', function(e) {
+    if (e.target.tagName === 'A') {
+      dropdownMenu.classList.remove('show');
+    }
+  });
+  
+  // Finalize and save button
+  document.getElementById('finalizeSaveBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    finalizeAndSwitchToNextDay();
+  });
+  
+  // Force sync button
+  document.getElementById('forceSyncBtn').addEventListener('click', async function(e) {
+    e.preventDefault();
+    if (db && isFirebaseConnected) {
+      showLoading("Force syncing with Cloud...");
+      try {
+        const success = await saveToFirebase();
+        hideLoading();
+        if (success) {
+          showNotification("Data force synced to Cloud successfully!");
+        } else {
+          showNotification("Failed to sync with Cloud", "danger");
+        }
+      } catch (error) {
+        hideLoading();
+        showNotification("Error syncing with Cloud", "danger");
+      }
+    } else {
+      showNotification("Firebase not connected.", "danger");
+    }
+  });
+  
+  // View cloud data button
+  document.getElementById('viewCloudDataBtn').addEventListener('click', async function(e) {
+    e.preventDefault();
+    if (!db || !isFirebaseConnected) {
+      showNotification("Cloud connection required", "danger");
+      return;
+    }
+    
+    showLoading("Loading cloud data...");
+    try {
+      const docRef = db.collection("logbook").doc(currentDate);
+      const doc = await docRef.get();
+      
+      hideLoading();
+      
+      if (doc.exists) {
+        const data = doc.data();
+        const finalized = data.finalized || false;
+        const entries = data.entries || [];
+        const summary = data.summary || {};
+        
+        let message = `Cloud Data for ${currentDate}:\n\n`;
+        message += `Total Entries: ${entries.length}\n`;
+        message += `Charge Revenue: Rs. ${summary.charge || 0}\n`;
+        message += `Cafe Revenue: Rs. ${summary.cafe || 0}\n`;
+        message += `Total Revenue: Rs. ${summary.total || 0}\n`;
+        message += `Due Amount: Rs. ${summary.due || 0}\n`;
+        message += `Status: ${finalized ? 'FINALIZED' : 'NOT FINALIZED'}\n`;
+        
+        if (finalized && data.finalizedAt) {
+          const finalizedDate = new Date(data.finalizedAt);
+          message += `Finalized At: ${finalizedDate.toLocaleString()}`;
+        }
+        
+        alert(message);
+      } else {
+        showNotification(`No cloud data found for ${currentDate}`, "info");
+      }
+    } catch (error) {
+      hideLoading();
+      console.error("Error loading cloud data:", error);
+      showNotification("Error loading cloud data", "danger");
+    }
+  });
+}
+
 // Initialize the application
 window.onload = async function() {
   // Initialize date/time
   updateDateTimeDisplay();
   setInterval(updateDateTimeDisplay, 1000);
   
-  // Setup daily reset timer
+  // Setup daily reset timer (now at 5:00 AM)
   scheduleDailyReset();
   
   // Load vehicle database
@@ -3006,7 +3298,7 @@ window.onload = async function() {
     }
   }
   
-  // Load data for current day
+  // Load data for current day (with 5:00 AM cutoff)
   if (isFirebaseConnected) {
     await loadFromFirebase(currentDate);
   } else {
@@ -3030,7 +3322,7 @@ window.onload = async function() {
   // CSV Export Button (replaced Excel)
   document.getElementById("csvBtn").addEventListener("click", exportToCSV);
   
-  // NEW: Clear Table Button
+  // NEW: Clear Table Button (clears only local data, not cloud)
   document.getElementById("clearTableBtn").addEventListener("click", clearTable);
   
   document.getElementById("contributorsBtn").addEventListener("click", showContributorsModal);
@@ -3114,6 +3406,9 @@ window.onload = async function() {
       showNotification("Saved to local storage (Cloud not connected)", "info");
     }
   });
+  
+  // Setup dropdown menu
+  setupDropdownMenu();
   
   // Setup mobile optimizations
   setupMobileOptimizations();
