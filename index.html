@@ -667,6 +667,7 @@ tr:hover .delete-button{opacity:1;visibility:visible}
 <div class="header"><h1>⚡ Ivan Charging Station</h1>
 <div class="top-left-controls no-print">
     <button id="contributorsBtn" class="btn btn-gold btn-sm">🏆 Top 10</button>
+    <button id="clearTableBtn" class="btn btn-danger btn-sm">🗑️ Clear</button>
 </div>
 <div class="top-controls no-print">
     <button id="darkModeBtn" class="btn btn-primary btn-sm">🌙 Dark</button>
@@ -787,7 +788,7 @@ try {
 }
 
 // Application State
-let currentDate = getBusinessDayDate(); // Use business day (5:00 AM to 5:00 AM)
+let currentDate = getCurrentDate(); // Changed: Use simple current date without business day logic
 let isFirebaseConnected = false;
 let nextDayTimer = null;
 let vehicleDatabase = new Map(); // Changed to Map to store vehicle name + number
@@ -858,42 +859,28 @@ function findVehicleByExactNumber(numberStr) {
   return null;
 }
 
-// Business day calculation (5:00 AM to next day 5:00 AM)
-function getBusinessDayDate(date = new Date()) {
-  const now = new Date(date);
-  const currentHour = now.getHours();
-  const currentMinute = now.getMinutes();
-  
-  // If current time is before 5:00 AM, use yesterday's date as business day
-  // This means 5:00 AM to 4:59 AM next day is considered one business day
-  if (currentHour < 5 || (currentHour === 5 && currentMinute < 0)) {
-    now.setDate(now.getDate() - 1);
-  }
-  
+// FIXED: Use simple current date without business day logic
+function getCurrentDate() {
+  const now = new Date();
   // Return date in YYYY-MM-DD format
   return now.toISOString().split('T')[0];
 }
 
-// Calculate next 5:00 AM
-function getNext5AM() {
+// FIXED: Calculate next midnight (12:00 AM)
+function getNextMidnight() {
   const now = new Date();
-  const next5AM = new Date(now);
+  const nextMidnight = new Date(now);
   
-  // Set to next 5:00 AM
-  next5AM.setHours(5, 0, 0, 0);
+  // Set to next midnight (00:00)
+  nextMidnight.setHours(24, 0, 0, 0);
   
-  // If we're already past 5:00 AM today, set to tomorrow's 5:00 AM
-  if (now.getHours() >= 5) {
-    next5AM.setDate(next5AM.getDate() + 1);
-  }
-  
-  return next5AM;
+  return nextMidnight;
 }
 
-// Schedule daily reset at 5:00 AM
+// FIXED: Schedule daily reset at midnight (12:00 AM)
 function scheduleDailyReset() {
-  const next5AM = getNext5AM();
-  const timeUntilNext5AM = next5AM.getTime() - Date.now();
+  const nextMidnight = getNextMidnight();
+  const timeUntilNextMidnight = nextMidnight.getTime() - Date.now();
   
   // Clear existing timer
   if (nextDayTimer) {
@@ -902,21 +889,21 @@ function scheduleDailyReset() {
   
   // Set new timer
   nextDayTimer = setTimeout(() => {
-    // Reset the table for new business day
+    // Reset the table for new day
     resetTableForNewDay();
     
     // Schedule next reset
     scheduleDailyReset();
-  }, timeUntilNext5AM);
+  }, timeUntilNextMidnight);
   
-  console.log(`Next table reset scheduled at: ${next5AM.toString()}`);
-  console.log(`Time until reset: ${Math.round(timeUntilNext5AM/1000/60)} minutes`);
+  console.log(`Next table reset scheduled at: ${nextMidnight.toString()}`);
+  console.log(`Time until reset: ${Math.round(timeUntilNextMidnight/1000/60)} minutes`);
 }
 
-// Reset table for new business day
+// FIXED: Reset table for new calendar day (simpler logic)
 async function resetTableForNewDay() {
   // Show notification before reset
-  showNotification(`Business day ending. Saving data for ${currentDate}...`, "info");
+  showNotification(`Day ending. Saving data for ${currentDate}...`, "info");
   
   // Save current day's data before clearing
   await autoSave(true);
@@ -924,9 +911,9 @@ async function resetTableForNewDay() {
   // Clear the table
   document.querySelector("#logbook tbody").innerHTML = "";
   
-  // Update current date to new business day
+  // Update current date to new day
   const oldDate = currentDate;
-  currentDate = getBusinessDayDate();
+  currentDate = getCurrentDate();
   
   // Add new empty row
   addRow();
@@ -941,10 +928,39 @@ async function resetTableForNewDay() {
     loadFromLocalStorage();
   }
   
-  showNotification(`New business day started (${currentDate}). Previous day (${oldDate}) data saved.`, "success");
+  showNotification(`New day started (${currentDate}). Previous day (${oldDate}) data saved.`, "success");
   
   // Update date display
   updateDateTimeDisplay();
+}
+
+// NEW: Clear table function
+async function clearTable() {
+  if (!confirm("Are you sure you want to clear all data from today's table? This action cannot be undone!")) {
+    return;
+  }
+  
+  const tbody = document.querySelector("#logbook tbody");
+  const rows = document.querySelectorAll("#logbook tbody tr");
+  
+  if (rows.length === 0) {
+    showNotification("Table is already empty", "info");
+    return;
+  }
+  
+  // Clear all rows
+  tbody.innerHTML = "";
+  
+  // Add one empty row
+  addRow();
+  
+  // Update totals
+  updateTotals();
+  
+  // Save the cleared state
+  await autoSave(true);
+  
+  showNotification("Table cleared successfully", "success");
 }
 
 // Date/Time Functions
@@ -1386,7 +1402,7 @@ function hideContributorsModal() {
   document.getElementById('contributorsModal').style.display = 'none';
 }
 
-// FIXED: Get all dates for the current month (including business day adjustments)
+// FIXED: Get all dates for the current month (simplified)
 function getMonthDates() {
   const now = new Date();
   const year = now.getFullYear();
@@ -1401,16 +1417,14 @@ function getMonthDates() {
   const current = new Date(firstDay);
   
   while (current <= lastDay) {
-    // Use business day calculation for each date
-    dates.push(getBusinessDayDate(new Date(current)));
+    dates.push(current.toISOString().split('T')[0]);
     current.setDate(current.getDate() + 1);
   }
   
-  // Remove duplicates (same business day might appear multiple times)
-  return [...new Set(dates)];
+  return dates;
 }
 
-// FIXED: Get dates for the last 7 days
+// FIXED: Get dates for the last 7 days (simplified)
 function getLast7DaysDates() {
   const dates = [];
   const today = new Date();
@@ -1418,10 +1432,10 @@ function getLast7DaysDates() {
   for (let i = 6; i >= 0; i--) {
     const date = new Date(today);
     date.setDate(date.getDate() - i);
-    dates.push(getBusinessDayDate(date));
+    dates.push(date.toISOString().split('T')[0]);
   }
   
-  return [...new Set(dates)];
+  return dates;
 }
 
 // FIXED: Load top contributors with proper date aggregation AND CORRECT TOTAL CALCULATION (Amount + Cafe)
@@ -1536,7 +1550,7 @@ async function loadTopContributors() {
   }
 }
 
-// FIXED: Load daily report - now shows all data for the current business day
+// FIXED: Load daily report - now shows all data for the current day
 async function loadDailyReport() {
   const tbody = document.getElementById('reportTableBody');
   tbody.innerHTML = '<tr><td colspan="5" class="report-loading">Loading daily report...</td></tr>';
@@ -1547,8 +1561,8 @@ async function loadDailyReport() {
   }
   
   try {
-    // Get today's business day data
-    const today = getBusinessDayDate();
+    // Get today's data
+    const today = getCurrentDate();
     const docRef = db.collection("logbook").doc(today);
     const doc = await docRef.get();
     
@@ -2992,7 +3006,7 @@ window.onload = async function() {
     }
   }
   
-  // Load data for current business day
+  // Load data for current day
   if (isFirebaseConnected) {
     await loadFromFirebase(currentDate);
   } else {
@@ -3015,6 +3029,9 @@ window.onload = async function() {
   
   // CSV Export Button (replaced Excel)
   document.getElementById("csvBtn").addEventListener("click", exportToCSV);
+  
+  // NEW: Clear Table Button
+  document.getElementById("clearTableBtn").addEventListener("click", clearTable);
   
   document.getElementById("contributorsBtn").addEventListener("click", showContributorsModal);
   
