@@ -7,8 +7,6 @@
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-<!-- SheetJS for Excel export -->
-<script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 <style>
 :root{--primary:#f1c40f;--success:#27ae60;--danger:#e74c3c;--info:#3498db;--purple:#9b59b6;--dark:#2c3e50;--light:#ecf0f1;--text:#333;--bg:#f8f9fa;--card-bg:#fff;--border:#ddd;--shadow:rgba(0,0,0,0.08)}
 .dark-mode{--primary:#f39c12;--success:#2ecc71;--danger:#e74c3c;--info:#2980b9;--purple:#8e44ad;--dark:#1a252f;--light:#34495e;--text:#ecf0f1;--bg:#2c3e50;--card-bg:#34495e;--border:#4a6278;--shadow:rgba(0,0,0,0.2)}
@@ -644,6 +642,10 @@ tr:hover .delete-button{opacity:1;visibility:visible}
     .vehicle-suggestions-popup {
         display: none !important
     }
+    /* Hide blank last rows in print */
+    tr.hide-in-print {
+        display: none !important;
+    }
 }
 @keyframes fadeIn {
     from {
@@ -668,7 +670,7 @@ tr:hover .delete-button{opacity:1;visibility:visible}
 </div>
 <div class="top-controls no-print">
     <button id="darkModeBtn" class="btn btn-primary btn-sm">🌙 Dark</button>
-    <button id="excelBtn" class="btn btn-excel btn-sm">📊 Excel</button>
+    <button id="csvBtn" class="btn btn-excel btn-sm">📊 CSV</button> <!-- Changed from Excel to CSV -->
     <button id="reportBtn" class="btn btn-purple btn-sm">📈 Report</button>
     <button id="printBtn" class="btn btn-info btn-sm">🖨️ Print</button>
     <button id="syncBtn" class="btn btn-success btn-sm">🔄 Sync</button>
@@ -1138,6 +1140,17 @@ function isRowBlank(row) {
   return !vehicle && !amount && !total && !paid && !hasStatus;
 }
 
+// NEW: Check if row has no data in key fields (for export/print)
+function isRowEmptyForExport(row) {
+  const inputs = row.querySelectorAll("input");
+  const soc = inputs[2]?.value.trim();
+  const amount = evaluateValue(inputs[4]?.value || 0);
+  const cafe = evaluateValue(inputs[5]?.value || 0);
+  const total = evaluateValue(inputs[6]?.value || 0);
+  
+  return !soc && amount === 0 && cafe === 0 && total === 0;
+}
+
 function getFirstBlankRowBelow(currentRow) {
   const rows = document.querySelectorAll("#logbook tbody tr");
   const currentIndex = Array.from(rows).indexOf(currentRow);
@@ -1373,6 +1386,45 @@ function hideContributorsModal() {
   document.getElementById('contributorsModal').style.display = 'none';
 }
 
+// FIXED: Get all dates for the current month (including business day adjustments)
+function getMonthDates() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  
+  // Get first and last day of month
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  
+  // Generate all dates in the month
+  const dates = [];
+  const current = new Date(firstDay);
+  
+  while (current <= lastDay) {
+    // Use business day calculation for each date
+    dates.push(getBusinessDayDate(new Date(current)));
+    current.setDate(current.getDate() + 1);
+  }
+  
+  // Remove duplicates (same business day might appear multiple times)
+  return [...new Set(dates)];
+}
+
+// FIXED: Get dates for the last 7 days
+function getLast7DaysDates() {
+  const dates = [];
+  const today = new Date();
+  
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    dates.push(getBusinessDayDate(date));
+  }
+  
+  return [...new Set(dates)];
+}
+
+// FIXED: Load top contributors with proper date aggregation AND CORRECT TOTAL CALCULATION (Amount + Cafe)
 async function loadTopContributors() {
   const tbody = document.getElementById('contributorsTableBody');
   tbody.innerHTML = '<tr><td colspan="5" class="contributors-loading">Loading top contributors...</td></tr>';
@@ -1383,26 +1435,11 @@ async function loadTopContributors() {
   }
   
   try {
-    // Get current month dates
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-    
-    // Get first and last day of month
-    const firstDay = new Date(currentYear, currentMonth, 1);
-    const lastDay = new Date(currentYear, currentMonth + 1, 0);
-    
-    // Generate all dates in the month
-    const dates = [];
-    const current = new Date(firstDay);
-    
-    while (current <= lastDay) {
-      dates.push(getBusinessDayDate(new Date(current)));
-      current.setDate(current.getDate() + 1);
-    }
+    // Get all dates for current month
+    const monthDates = getMonthDates();
     
     // Fetch data for all dates
-    const promises = dates.map(date => db.collection("logbook").doc(date).get());
+    const promises = monthDates.map(date => db.collection("logbook").doc(date).get());
     const docs = await Promise.all(promises);
     
     // Process data to find top contributors
@@ -1417,21 +1454,28 @@ async function loadTopContributors() {
         
         entries.forEach(entry => {
           const vehicle = entry.vehicle ? entry.vehicle.trim() : '';
-          const amount = evaluateValue(entry.amount || 0);
+          // FIXED: Calculate total amount as Amount + Cafe
+          const chargeAmount = evaluateValue(entry.amount || 0);
+          const cafeAmount = evaluateValue(entry.cafe || 0);
+          const totalAmount = chargeAmount + cafeAmount;
           
-          if (vehicle && amount > 0) {
+          if (vehicle && totalAmount > 0) {
             totalTransactions++;
-            totalMonthRevenue += amount;
+            totalMonthRevenue += totalAmount;
             
             if (!contributorsMap.has(vehicle)) {
               contributorsMap.set(vehicle, {
                 totalAmount: 0,
-                transactionCount: 0
+                transactionCount: 0,
+                chargeAmount: 0, // Store charge amount separately
+                cafeAmount: 0    // Store cafe amount separately
               });
             }
             
             const contributor = contributorsMap.get(vehicle);
-            contributor.totalAmount += amount;
+            contributor.totalAmount += totalAmount;
+            contributor.chargeAmount += chargeAmount;
+            contributor.cafeAmount += cafeAmount;
             contributor.transactionCount++;
           }
         });
@@ -1443,6 +1487,8 @@ async function loadTopContributors() {
       vehicle,
       totalAmount: data.totalAmount,
       transactionCount: data.transactionCount,
+      chargeAmount: data.chargeAmount, // For reference if needed
+      cafeAmount: data.cafeAmount,     // For reference if needed
       dailyAverage: data.transactionCount > 0 ? (data.totalAmount / data.transactionCount).toFixed(2) : 0
     }));
     
@@ -1490,6 +1536,7 @@ async function loadTopContributors() {
   }
 }
 
+// FIXED: Load daily report - now shows all data for the current business day
 async function loadDailyReport() {
   const tbody = document.getElementById('reportTableBody');
   tbody.innerHTML = '<tr><td colspan="5" class="report-loading">Loading daily report...</td></tr>';
@@ -1545,6 +1592,7 @@ async function loadDailyReport() {
   }
 }
 
+// FIXED: Load weekly report with proper date aggregation
 async function loadWeeklyReport() {
   const tbody = document.getElementById('reportTableBody');
   tbody.innerHTML = '<tr><td colspan="5" class="report-loading">Loading weekly report...</td></tr>';
@@ -1556,17 +1604,10 @@ async function loadWeeklyReport() {
   
   try {
     // Get last 7 days including today
-    const dates = [];
-    const today = new Date();
-    
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
-      dates.push(getBusinessDayDate(date));
-    }
+    const weekDates = getLast7DaysDates();
     
     // Fetch data for all dates
-    const promises = dates.map(date => db.collection("logbook").doc(date).get());
+    const promises = weekDates.map(date => db.collection("logbook").doc(date).get());
     const docs = await Promise.all(promises);
     
     tbody.innerHTML = '';
@@ -1593,7 +1634,7 @@ async function loadWeeklyReport() {
         
         const row = document.createElement('tr');
         row.innerHTML = `
-          <td class="report-date-cell">${formatDateForDisplay(dates[index])}</td>
+          <td class="report-date-cell">${formatDateForDisplay(weekDates[index])}</td>
           <td>Rs. ${charge.toLocaleString()}</td>
           <td>Rs. ${cafe.toLocaleString()}</td>
           <td>Rs. ${total.toLocaleString()}</td>
@@ -1624,6 +1665,7 @@ async function loadWeeklyReport() {
   }
 }
 
+// FIXED: Load monthly report with proper date aggregation
 async function loadMonthlyReport() {
   const tbody = document.getElementById('reportTableBody');
   tbody.innerHTML = '<tr><td colspan="5" class="report-loading">Loading monthly report...</td></tr>';
@@ -1635,25 +1677,10 @@ async function loadMonthlyReport() {
   
   try {
     // Get all dates for current month
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-    
-    // Get first and last day of month
-    const firstDay = new Date(currentYear, currentMonth, 1);
-    const lastDay = new Date(currentYear, currentMonth + 1, 0);
-    
-    // Generate all dates in the month
-    const dates = [];
-    const current = new Date(firstDay);
-    
-    while (current <= lastDay) {
-      dates.push(getBusinessDayDate(new Date(current)));
-      current.setDate(current.getDate() + 1);
-    }
+    const monthDates = getMonthDates();
     
     // Fetch data for all dates
-    const promises = dates.map(date => db.collection("logbook").doc(date).get());
+    const promises = monthDates.map(date => db.collection("logbook").doc(date).get());
     const docs = await Promise.all(promises);
     
     tbody.innerHTML = '';
@@ -1680,7 +1707,7 @@ async function loadMonthlyReport() {
         
         const row = document.createElement('tr');
         row.innerHTML = `
-          <td class="report-date-cell">${formatDateForDisplay(dates[index])}</td>
+          <td class="report-date-cell">${formatDateForDisplay(monthDates[index])}</td>
           <td>Rs. ${charge.toLocaleString()}</td>
           <td>Rs. ${cafe.toLocaleString()}</td>
           <td>Rs. ${total.toLocaleString()}</td>
@@ -1711,28 +1738,32 @@ async function loadMonthlyReport() {
   }
 }
 
-// Excel Export Function
-function exportToExcel() {
+// CSV Export Function - REPLACED Excel export
+function exportToCSV() {
   try {
     // Get all data from the table
     const rows = document.querySelectorAll("#logbook tbody tr");
-    if (rows.length === 0) {
+    
+    // Filter out rows that are empty for export (no SOC, Amount, Cafe, Total)
+    const filteredRows = Array.from(rows).filter(row => !isRowEmptyForExport(row));
+    
+    if (filteredRows.length === 0) {
       showNotification("No data to export", "danger");
       return;
     }
     
-    // Prepare worksheet data
-    const wsData = [];
+    // Prepare CSV data
+    const csvData = [];
     
     // Add headers
     const headers = [
       "S.N.", "Time", "Vehicle", "% SOC", "Diff", 
       "Amount", "Cafe", "Total", "Paid", "Status", "Due"
     ];
-    wsData.push(headers);
+    csvData.push(headers);
     
     // Add data rows
-    rows.forEach(row => {
+    filteredRows.forEach(row => {
       const inputs = row.querySelectorAll("input");
       const paidButton = row.querySelector(".paid-button");
       const dueButton = row.querySelector(".due-button");
@@ -1757,67 +1788,85 @@ function exportToExcel() {
         status,
         inputs[8]?.value || ''
       ];
-      wsData.push(rowData);
+      csvData.push(rowData);
     });
     
     // Add summary row
-    wsData.push([]); // Empty row for separation
-    wsData.push(["SUMMARY", "", "", "", "", "", "", "", "", "", ""]);
+    csvData.push([]); // Empty row for separation
+    csvData.push(["SUMMARY", "", "", "", "", "", "", "", "", "", ""]);
     
     // Add summary data
-    const summaryData = [
-      ["", "", "", "", "", "", "", "", "", "", ""],
-      ["Charge Revenue", "", "", "", "", document.getElementById("chargeTotal").textContent, "", "", "", "", ""],
-      ["Cafe Revenue", "", "", "", "", "", document.getElementById("cafeTotal").textContent, "", "", "", ""],
-      ["Total Revenue", "", "", "", "", "", "", document.getElementById("allTotal").textContent, "", "", ""],
-      ["Due Amount", "", "", "", "", "", "", "", "", "", document.getElementById("dueTotal").textContent]
-    ];
-    
-    summaryData.forEach(row => wsData.push(row));
+    csvData.push(["Charge Revenue", "", "", "", "", document.getElementById("chargeTotal").textContent, "", "", "", "", ""]);
+    csvData.push(["Cafe Revenue", "", "", "", "", "", document.getElementById("cafeTotal").textContent, "", "", "", ""]);
+    csvData.push(["Total Revenue", "", "", "", "", "", "", document.getElementById("allTotal").textContent, "", "", ""]);
+    csvData.push(["Due Amount", "", "", "", "", "", "", "", "", "", document.getElementById("dueTotal").textContent]);
     
     // Add metadata
-    wsData.push([]); // Empty row for separation
-    wsData.push(["Export Date", new Date().toLocaleString(), "", "", "", "", "", "", "", "", ""]);
-    wsData.push(["Business Day", currentDate, "", "", "", "", "", "", "", "", ""]);
+    csvData.push([]); // Empty row for separation
+    csvData.push(["Export Date", new Date().toLocaleString(), "", "", "", "", "", "", "", "", ""]);
+    csvData.push(["Business Day", currentDate, "", "", "", "", "", "", "", "", ""]);
     
-    // Create worksheet
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    // Convert to CSV string
+    const csvString = csvData.map(row => 
+      row.map(cell => {
+        // Escape quotes and wrap in quotes if contains comma or quote
+        if (typeof cell === 'string' && (cell.includes(',') || cell.includes('"') || cell.includes('\n'))) {
+          return '"' + cell.replace(/"/g, '""') + '"';
+        }
+        return cell;
+      }).join(',')
+    ).join('\n');
     
-    // Set column widths
-    const wscols = [
-      {wch: 5},   // S.N.
-      {wch: 8},   // Time
-      {wch: 12},  // Vehicle
-      {wch: 8},   // % SOC
-      {wch: 6},   // Diff
-      {wch: 10},  // Amount
-      {wch: 8},   // Cafe
-      {wch: 10},  // Total
-      {wch: 10},  // Paid
-      {wch: 8},   // Status
-      {wch: 10}   // Due
-    ];
-    ws['!cols'] = wscols;
+    // Create Blob and download
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
     
-    // Create workbook
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Ivan Charging Station");
-    
-    // Generate filename with date
-    const today = new Date();
-    const dateStr = today.toISOString().split('T')[0];
-    const timeStr = today.toTimeString().split(' ')[0].replace(/:/g, '-');
-    const filename = `Ivan_Charging_Station_${dateStr}_${timeStr}.xlsx`;
-    
-    // Save to file
-    XLSX.writeFile(wb, filename);
+    // Generate filename with current date: charging_data_YYYY-MM-DD.csv
+    const filename = `charging_data_${currentDate}.csv`;
+    link.setAttribute("download", filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
     
     showNotification(`Data exported to ${filename}`, "success");
     
   } catch (error) {
-    console.error("Error exporting to Excel:", error);
-    showNotification("Error exporting to Excel", "danger");
+    console.error("Error exporting to CSV:", error);
+    showNotification("Error exporting to CSV", "danger");
   }
+}
+
+// NEW: Function to prepare table for printing (hides empty last rows)
+function prepareForPrint() {
+  const rows = document.querySelectorAll("#logbook tbody tr");
+  
+  // Remove hide-in-print class from all rows first
+  rows.forEach(row => row.classList.remove('hide-in-print'));
+  
+  // Check each row and hide empty ones for print
+  rows.forEach((row, index) => {
+    if (isRowEmptyForExport(row)) {
+      row.classList.add('hide-in-print');
+    }
+  });
+}
+
+// NEW: Custom print function
+function printTable() {
+  // Prepare table for printing (hide empty rows)
+  prepareForPrint();
+  
+  // Trigger browser print
+  window.print();
+  
+  // Remove hide-in-print class after a delay (in case print is cancelled)
+  setTimeout(() => {
+    const rows = document.querySelectorAll("#logbook tbody tr");
+    rows.forEach(row => row.classList.remove('hide-in-print'));
+  }, 1000);
 }
 
 function addRow(data = {}) {
@@ -2964,8 +3013,8 @@ window.onload = async function() {
     localStorage.setItem("darkMode", isDark);
   });
   
-  // Excel Export Button
-  document.getElementById("excelBtn").addEventListener("click", exportToExcel);
+  // CSV Export Button (replaced Excel)
+  document.getElementById("csvBtn").addEventListener("click", exportToCSV);
   
   document.getElementById("contributorsBtn").addEventListener("click", showContributorsModal);
   
@@ -3003,9 +3052,8 @@ window.onload = async function() {
     });
   });
   
-  document.getElementById("printBtn").addEventListener("click", () => {
-    window.print();
-  });
+  // Use custom print function that hides empty rows
+  document.getElementById("printBtn").addEventListener("click", printTable);
   
   document.getElementById("syncBtn").addEventListener("click", async function() {
     if (isFirebaseConnected) {
