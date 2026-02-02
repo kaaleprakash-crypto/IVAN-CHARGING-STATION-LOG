@@ -46,7 +46,7 @@ body{font-family:'Segoe UI','Roboto',sans-serif;background:var(--bg);color:var(-
 .summary-card:hover{transform:translateY(-3px)}
 .summary-label{font-size:0.75rem;font-weight:800;color:var(--info);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px}
 .summary-value{font-size:1.3rem;font-weight:800;color:var(--dark)}
-.dark-mode .summary-value{color:var(--light)}
+.dark-mode .summary-value{color:var(--text)}
 .rs-symbol{font-size:0.9rem;color:var(--success);font-weight:700;margin-right:3px}
 .summary-value.due-value{color:var(--danger)}
 /* Adjusted table container - added margin-top and increased header top position */
@@ -1081,22 +1081,37 @@ function checkVehicleForAutoSwitch(vehicleInput, row) {
   return false;
 }
 
-// Check if SOC has 6 digits format "XX-XXX" and auto-switch to Amount field
+// Check if SOC has number after hyphen greater than 10 or equals to 100, then auto-switch to Amount field
 function checkSOCForAutoSwitch(socInput, row) {
   const value = socInput.value.trim();
   
-  // Check if value matches the pattern: 2 digits, hyphen, 3 digits
-  if (/^\d{2}-\d{3}$/.test(value)) {
-    // Auto-switch to Amount field after a small delay
-    setTimeout(() => {
-      const amountInput = row.querySelector(".amount-input");
-      if (amountInput) {
-        amountInput.focus();
-        // Move cursor to the beginning of Amount field
-        amountInput.setSelectionRange(0, 0);
+  // Check if value contains a hyphen
+  if (value.includes('-')) {
+    const parts = value.split('-');
+    
+    if (parts.length === 2) {
+      const afterHyphen = parts[1];
+      
+      // Try to parse the number after hyphen (take only digits)
+      const numbers = afterHyphen.match(/\d+/);
+      if (numbers) {
+        const numberAfterHyphen = parseInt(numbers[0]);
+        
+        // If number after hyphen is greater than 10 or equals to 100, switch to Amount field
+        if (!isNaN(numberAfterHyphen) && (numberAfterHyphen > 10 || numberAfterHyphen === 100)) {
+          // Auto-switch to Amount field after a small delay
+          setTimeout(() => {
+            const amountInput = row.querySelector(".amount-input");
+            if (amountInput) {
+              amountInput.focus();
+              // Move cursor to the beginning of Amount field
+              amountInput.setSelectionRange(0, 0);
+            }
+          }, 50);
+          return true;
+        }
       }
-    }, 50);
-    return true;
+    }
   }
   
   return false;
@@ -1431,7 +1446,7 @@ async function loadTopContributors() {
     const contributorsMap = new Map(); // vehicle -> {totalAmount, transactionCount}
     let totalMonthRevenue = 0;
     let totalTransactions = 0;
-    
+  
     docs.forEach((doc, index) => {
       if (doc.exists) {
         const data = doc.data();
@@ -2136,14 +2151,16 @@ function addRow(data = {}) {
     return originalRemoveChild.apply(this, arguments);
   };
   
-  // % SOC - MODIFIED: Only allow 6 digits in format "XX-XXX" and auto-switch to amount field
+  // % SOC - MODIFIED: Auto-add hyphen after 2 numbers and make hyphen deletable
   const soc = document.createElement("td");
   const socContainer = document.createElement("div");
   socContainer.className = "soc-container";
   const socInput = document.createElement("input");
   socInput.className = "soc-input";
   socInput.value = data.percent || "";
-  socInput.maxLength = 6; // Limit to 6 characters (2 digits + hyphen + 3 digits)
+  
+  // Store previous value for comparison
+  let previousSOCValue = socInput.value;
   
   socInput.addEventListener("input", function() {
     let value = this.value;
@@ -2154,54 +2171,57 @@ function addRow(data = {}) {
     // Allow only digits and hyphen
     value = value.replace(/[^0-9\-]/g, '');
     
-    // If there's a hyphen, split and handle each part
-    if (value.includes('-')) {
-      const parts = value.split('-');
-      
-      // Limit first part to 2 digits
-      if (parts[0]) {
-        parts[0] = parts[0].slice(0, 2);
-      }
-      
-      // Limit second part to 3 digits
-      if (parts.length > 1 && parts[1]) {
-        parts[1] = parts[1].slice(0, 3);
-      }
-      
-      value = parts.join('-');
-    } else {
-      // No hyphen yet, auto-insert hyphen after 2 digits
-      if (value.length > 2) {
-        value = value.slice(0, 2) + '-' + value.slice(2);
-        // Limit second part to 3 digits
-        const parts = value.split('-');
-        if (parts.length > 1 && parts[1]) {
-          parts[1] = parts[1].slice(0, 3);
-          value = parts.join('-');
-        }
-      }
+    // Auto-add hyphen after 2 numbers
+    // Check if we have exactly 2 digits and no hyphen
+    if (value.length === 2 && !value.includes('-') && previousSOCValue.length < 2) {
+      value = value + '-';
+    }
+    
+    // Handle hyphen deletion with backspace
+    if (previousSOCValue.length === 3 && previousSOCValue.includes('-') && 
+        value.length === 2 && !value.includes('-')) {
+      // User deleted the hyphen, keep just the digits
+      value = value;
     }
     
     // Update the value
     this.value = value;
+    previousSOCValue = value;
     
-    // Restore cursor position
+    // Restore cursor position (adjust for hyphen addition/removal)
     if (cursorPos === 2 && value.length === 3 && value[2] === '-') {
       this.setSelectionRange(3, 3); // Move cursor after hyphen
+    } else if (cursorPos === 3 && previousSOCValue.length === 3 && 
+               previousSOCValue.includes('-') && value.length === 2) {
+      this.setSelectionRange(2, 2); // Move cursor to end when hyphen deleted
     } else {
-      this.setSelectionRange(value.length, value.length);
+      this.setSelectionRange(cursorPos, cursorPos);
     }
     
     shouldShowBlank(this.value) ? this.classList.add('empty-value') : this.classList.remove('empty-value');
     updateDiffColumn(this);
     
-    // Check if SOC matches the pattern "XX-XXX" and auto-switch to Amount field
+    // Check if SOC has number after hyphen greater than 10 or equals to 100 and auto-switch to Amount field
     checkSOCForAutoSwitch(this, row);
+  });
+  
+  // Handle backspace key specifically for hyphen deletion
+  socInput.addEventListener("keydown", e => {
+    if (e.key === "Backspace") {
+      const cursorPos = this.selectionStart;
+      const value = this.value;
+      
+      // If cursor is right after hyphen (position 3) and we press backspace
+      if (cursorPos === 3 && value.length === 3 && value[2] === '-') {
+        // Allow backspace to delete the hyphen
+        // The input event will handle the rest
+      }
+    }
   });
   
   socInput.addEventListener("keydown", e => {
     if (e.key === "Enter") {
-      // Check if SOC matches the pattern and auto-switch to Amount field
+      // Check if SOC has number after hyphen greater than 10 or equals to 100 and auto-switch to Amount field
       if (!checkSOCForAutoSwitch(socInput, row)) {
         moveToNextCell(socInput, row);
       }
@@ -2209,33 +2229,36 @@ function addRow(data = {}) {
   });
   
   socInput.addEventListener("blur", function() {
-    // Validate format on blur
-    const value = this.value;
+    // Format on blur: ensure proper hyphen placement
+    let value = this.value;
     
     // If value has digits but no hyphen, try to add hyphen in reasonable place
     if (value && !value.includes('-') && /^\d+$/.test(value)) {
       if (value.length <= 2) {
         // If 1-2 digits, leave as is (will show as start percentage)
-      } else if (value.length >= 3) {
-        // For 3+ digits, assume first 2 digits are start, rest are end
-        const firstPart = value.slice(0, 2);
-        const secondPart = value.slice(2, 5); // Max 3 digits
-        this.value = firstPart + '-' + secondPart;
+      } else if (value.length === 3) {
+        // For 3 digits, assume format like "20-100" -> "2-0100" or "20-10"
+        value = value.substring(0, 2) + '-' + value.substring(2);
+      } else if (value.length >= 4) {
+        // For 4+ digits, assume first 2 digits are start, rest are end
+        value = value.substring(0, 2) + '-' + value.substring(2);
       }
     }
     
     // Validate numbers
-    if (this.value.includes('-')) {
-      const parts = this.value.split('-');
+    if (value.includes('-')) {
+      const parts = value.split('-');
       if (parts[0]) {
         let num = parseInt(parts[0]);
         if (num > 100) {
           parts[0] = "100";
-          this.value = parts[0] + (parts[1] ? '-' + parts[1] : '');
+          value = parts[0] + (parts[1] ? '-' + parts[1] : '');
         }
       }
     }
     
+    this.value = value;
+    previousSOCValue = value;
     shouldShowBlank(this.value) ? this.classList.add('empty-value') : this.classList.remove('empty-value');
     updateDiffColumn(this);
   });
