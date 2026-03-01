@@ -114,15 +114,20 @@ tr:hover .delete-button{opacity:1;visibility:visible}
 .loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:none;justify-content:center;align-items:center;z-index:2000;color:white;font-size:1.2rem;flex-direction:column;gap:15px}
 .loading-spinner{width:40px;height:40px;border:4px solid #f3f3f3;border-top:4px solid var(--primary);border-radius:50%;animation:spin 1s linear infinite}
 @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-/* Report Modal Styles */
+/* Report Modal Styles - Enhanced */
 .report-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:none;justify-content:center;align-items:center;z-index:3000}
 .report-content{background:var(--card-bg);border-radius:12px;width:90%;max-width:800px;max-height:80vh;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.3);display:flex;flex-direction:column}
 .report-header{background:linear-gradient(45deg,var(--dark),var(--info));color:#fff;padding:15px 20px;display:flex;justify-content:space-between;align-items:center}
 .report-header h2{margin:0;font-size:1.4rem;font-weight:600}
 .report-close{background:none;border:none;color:#fff;font-size:1.8rem;cursor:pointer;line-height:1;padding:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center}
 .report-close:hover{color:var(--primary)}
-.report-periods{display:flex;gap:10px;padding:15px 20px;background:var(--bg);border-bottom:1px solid var(--border)}
+.report-periods{display:flex;gap:10px;padding:15px 20px;background:var(--bg);border-bottom:1px solid var(--border);flex-wrap:wrap}
 .report-period-btn{padding:8px 16px;font-size:0.85rem}
+/* Enhanced month selector */
+.month-selector-container{display:flex;align-items:center;gap:8px;margin-left:auto;background:var(--card-bg);padding:5px 10px;border-radius:8px;border:1px solid var(--border)}
+.month-selector-label{font-size:0.8rem;font-weight:600;color:var(--info);text-transform:uppercase}
+.month-selector{background:var(--primary);color:#000;border:none;padding:6px 12px;border-radius:6px;font-weight:700;font-size:0.85rem;cursor:pointer;min-width:140px;border:1px solid rgba(0,0,0,0.1)}
+.month-selector option{background:var(--card-bg);color:var(--text);padding:8px}
 .report-table-container{flex:1;overflow-y:auto;padding:15px}
 .report-table{width:100%;border-collapse:collapse}
 .report-table th{background:linear-gradient(45deg,var(--dark),var(--info));color:#fff;padding:10px;text-align:center;font-weight:600;font-size:0.85rem;position:sticky;top:0}
@@ -135,7 +140,7 @@ tr:hover .delete-button{opacity:1;visibility:visible}
 .report-date-cell{font-weight:600;color:var(--info)}
 .report-no-data{text-align:center;padding:40px;color:var(--text);font-style:italic}
 .report-loading{text-align:center;padding:40px;color:var(--info)}
-/* Contributors Modal Styles */
+/* Contributors Modal Styles - Enhanced */
 .contributors-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:none;justify-content:center;align-items:center;z-index:3000}
 .contributors-content{background:var(--card-bg);border-radius:12px;width:90%;max-width:900px;max-height:85vh;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.3);display:flex;flex-direction:column}
 .contributors-header{background:linear-gradient(45deg,var(--dark),#f39c12);color:#fff;padding:15px 20px;display:flex;justify-content:space-between;align-items:center}
@@ -162,6 +167,11 @@ tr:hover .delete-button{opacity:1;visibility:visible}
 .contributors-summary-item{text-align:center}
 .contributors-summary-label{font-size:0.8rem;color:var(--info);font-weight:600;margin-bottom:4px}
 .contributors-summary-value{font-size:1.2rem;font-weight:800;color:var(--success)}
+/* Enhanced contributor month selector */
+.contributor-selector-container{display:flex;align-items:center;gap:8px;margin-left:auto;background:var(--card-bg);padding:5px 10px;border-radius:8px;border:1px solid var(--border)}
+.contributor-selector-label{font-size:0.8rem;font-weight:600;color:var(--info);text-transform:uppercase}
+.contributor-month-selector{background:var(--primary);color:#000;border:none;padding:6px 12px;border-radius:6px;font-weight:700;font-size:0.85rem;cursor:pointer;min-width:140px;border:1px solid rgba(0,0,0,0.1)}
+.contributor-month-selector option{background:var(--card-bg);color:var(--text);padding:8px}
 /* Vehicle suggestions popup - UPDATED: Fixed positioning to appear above table */
 .vehicle-suggestions-popup {
     position: fixed;
@@ -378,6 +388,15 @@ tr:hover .delete-button{opacity:1;visibility:visible}
     .report-period-btn {
         width: 100%
     }
+    .month-selector-container {
+        margin-left: 0;
+        width: 100%;
+        justify-content: center;
+        margin-top: 10px
+    }
+    .month-selector {
+        width: 100%
+    }
     .report-table-container {
         padding: 10px
     }
@@ -409,6 +428,15 @@ tr:hover .delete-button{opacity:1;visibility:visible}
     }
     .contributors-summary-item {
         margin-bottom: 10px
+    }
+    .contributor-selector-container {
+        margin-left: 0;
+        width: 100%;
+        justify-content: center;
+        margin-top: 10px
+    }
+    .contributor-month-selector {
+        width: 100%
     }
     .vehicle-suggestions-popup {
         max-height: 120px;
@@ -778,13 +806,20 @@ tr:hover .delete-button{opacity:1;visibility:visible}
 <div id="reportModal" class="report-modal no-print">
     <div class="report-content">
         <div class="report-header">
-            <h2>📊 Revenue Report</h2>
+            <h2 id="reportTitle">📊 Revenue Report</h2>
             <button class="report-close" id="reportCloseBtn">×</button>
         </div>
         <div class="report-periods">
             <button class="btn btn-info report-period-btn" data-period="daily">Daily Report</button>
             <button class="btn btn-info report-period-btn" data-period="weekly">Weekly Report</button>
             <button class="btn btn-info report-period-btn" data-period="monthly">Monthly Report</button>
+            <div class="month-selector-container">
+                <span class="month-selector-label">📅 Month:</span>
+                <select id="monthSelector" class="month-selector">
+                    <option value="current">Current Month</option>
+                    <!-- Previous months will be added dynamically -->
+                </select>
+            </div>
         </div>
         <div class="report-table-container">
             <table class="report-table" id="reportTable">
@@ -824,6 +859,15 @@ tr:hover .delete-button{opacity:1;visibility:visible}
             <div class="contributors-summary-item">
                 <div class="contributors-summary-label">Month Revenue</div>
                 <div class="contributors-summary-value" id="monthRevenue">Rs. 0</div>
+            </div>
+        </div>
+        <div class="contributors-summary" style="border-top:1px solid var(--border);padding-top:10px;justify-content:flex-end;">
+            <div class="contributor-selector-container">
+                <span class="contributor-selector-label">📅 Month:</span>
+                <select id="contributorMonthSelector" class="contributor-month-selector">
+                    <option value="current">Current Month</option>
+                    <!-- Previous months will be added dynamically -->
+                </select>
             </div>
         </div>
         <div class="contributors-table-container">
@@ -1589,8 +1633,123 @@ function formatDateForDisplay(dateStr) {
   return dateStr;
 }
 
+// NEW: Populate month selector with previous months
+function populateMonthSelector() {
+  const monthSelector = document.getElementById('monthSelector');
+  const contributorSelector = document.getElementById('contributorMonthSelector');
+  
+  // Clear existing options except first
+  while (monthSelector.options.length > 1) {
+    monthSelector.remove(1);
+  }
+  while (contributorSelector.options.length > 1) {
+    contributorSelector.remove(1);
+  }
+  
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
+  
+  // Add previous months (up to 12 months back)
+  for (let i = 1; i <= 12; i++) {
+    const date = new Date(currentYear, currentMonth - i, 1);
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const monthName = englishMonths[month];
+    const value = `${year}-${String(month + 1).padStart(2, '0')}`;
+    
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = `${monthName} ${year}`;
+    monthSelector.appendChild(option);
+    
+    const contributorOption = document.createElement('option');
+    contributorOption.value = value;
+    contributorOption.textContent = `${monthName} ${year}`;
+    contributorSelector.appendChild(contributorOption);
+  }
+}
+
+// NEW: Load monthly report for selected month
+async function loadMonthlyReportForMonth(year, month) {
+  const tbody = document.getElementById('reportTableBody');
+  tbody.innerHTML = '<tr><td colspan="5" class="report-loading">Loading monthly report...</td></tr>';
+  
+  if (!db || !isFirebaseConnected) {
+    tbody.innerHTML = '<tr><td colspan="5" class="report-no-data">Cloud connection required for reports</td></tr>';
+    return;
+  }
+  
+  // Update title
+  const monthName = englishMonths[month];
+  document.getElementById('reportTitle').textContent = `📊 Revenue Report - ${monthName} ${year}`;
+  
+  try {
+    // Get all dates for the specified month
+    const monthDates = getMonthDates(year, month);
+    
+    // Fetch data for all dates
+    const promises = monthDates.map(date => db.collection("logbook").doc(date).get());
+    const docs = await Promise.all(promises);
+    
+    tbody.innerHTML = '';
+    let totalCharge = 0;
+    let totalCafe = 0;
+    let totalAll = 0;
+    let totalDue = 0;
+    let hasData = false;
+    
+    docs.forEach((doc, index) => {
+      if (doc.exists) {
+        hasData = true;
+        const data = doc.data();
+        const summary = data.summary || {};
+        const charge = summary.charge ? parseInt(summary.charge.replace(/,/g, '')) || 0 : 0;
+        const cafe = summary.cafe ? parseInt(summary.cafe.replace(/,/g, '')) || 0 : 0;
+        const total = summary.total ? parseInt(summary.total.replace(/,/g, '')) || 0 : 0;
+        const due = summary.due ? parseInt(summary.due.replace(/,/g, '')) || 0 : 0;
+        
+        totalCharge += charge;
+        totalCafe += cafe;
+        totalAll += total;
+        totalDue += due;
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="report-date-cell">${formatDateForDisplay(monthDates[index])}</td>
+          <td>Rs. ${charge.toLocaleString()}</td>
+          <td>Rs. ${cafe.toLocaleString()}</td>
+          <td>Rs. ${total.toLocaleString()}</td>
+          <td>Rs. ${due.toLocaleString()}</td>
+        `;
+        tbody.appendChild(row);
+      }
+    });
+    
+    if (hasData) {
+      // Add total row
+      const totalRow = document.createElement('tr');
+      totalRow.className = 'report-total-row';
+      totalRow.innerHTML = `
+        <td><strong>MONTHLY TOTAL</strong></td>
+        <td><strong>Rs. ${totalCharge.toLocaleString()}</strong></td>
+        <td><strong>Rs. ${totalCafe.toLocaleString()}</strong></td>
+        <td><strong>Rs. ${totalAll.toLocaleString()}</strong></td>
+        <td><strong>Rs. ${totalDue.toLocaleString()}</strong></td>
+      `;
+      tbody.appendChild(totalRow);
+    } else {
+      tbody.innerHTML = '<tr><td colspan="5" class="report-no-data">No data available for this month</td></tr>';
+    }
+  } catch (error) {
+    console.error("Error loading monthly report:", error);
+    tbody.innerHTML = '<tr><td colspan="5" class="report-no-data">Error loading report</td></tr>';
+  }
+}
+
 function showReportModal() {
   document.getElementById('reportModal').style.display = 'flex';
+  populateMonthSelector();
   // Load daily report by default
   loadDailyReport();
 }
@@ -1607,23 +1766,24 @@ function getCurrentMonthName() {
 
 function showContributorsModal() {
   document.getElementById('contributorsModal').style.display = 'flex';
-  // Update modal title with current month
-  const monthName = getCurrentMonthName();
-  document.getElementById('contributorsTitle').textContent = `🏆 Top Contributors - ${monthName}`;
-  // Load contributors data
-  loadTopContributors();
+  populateMonthSelector();
+  // Load top contributors for current month by default
+  const now = new Date();
+  loadTopContributors(now.getFullYear(), now.getMonth());
 }
 
 function hideContributorsModal() {
   document.getElementById('contributorsModal').style.display = 'none';
 }
 
-// FIXED: Get all dates for the current month (simplified)
-function getMonthDates() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
-  
+// FIXED: Get all dates for the current month (parameterized, defaults to current month)
+function getMonthDates(year, month) {
+  // If no arguments, use current month
+  if (year === undefined || month === undefined) {
+    const now = new Date();
+    year = now.getFullYear();
+    month = now.getMonth(); // 0‑based
+  }
   // Get first and last day of month
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
@@ -1633,10 +1793,10 @@ function getMonthDates() {
   const current = new Date(firstDay);
   
   while (current <= lastDay) {
-    const year = current.getFullYear();
-    const month = String(current.getMonth() + 1).padStart(2, '0');
-    const day = String(current.getDate()).padStart(2, '0');
-    dates.push(`${year}-${month}-${day}`);
+    const y = current.getFullYear();
+    const m = String(current.getMonth() + 1).padStart(2, '0');
+    const d = String(current.getDate()).padStart(2, '0');
+    dates.push(`${y}-${m}-${d}`);
     current.setDate(current.getDate() + 1);
   }
   
@@ -1660,8 +1820,8 @@ function getLast7DaysDates() {
   return dates;
 }
 
-// FIXED: Load top contributors with proper date aggregation AND CORRECT TOTAL CALCULATION (Amount + Cafe)
-async function loadTopContributors() {
+// FIXED: Load top contributors with automatic fallback to previous months
+async function loadTopContributors(targetYear = null, targetMonth = null, depth = 0) {
   const tbody = document.getElementById('contributorsTableBody');
   tbody.innerHTML = '<tr><td colspan="5" class="contributors-loading">Loading top contributors...</td></tr>';
   
@@ -1670,27 +1830,39 @@ async function loadTopContributors() {
     return;
   }
   
+  // Determine the month to load
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth(); // 0‑based
+  
+  const year = targetYear !== null ? targetYear : currentYear;
+  const month = targetMonth !== null ? targetMonth : currentMonth;
+  
+  // Update title
+  const monthName = englishMonths[month];
+  document.getElementById('contributorsTitle').textContent = `🏆 Top Contributors - ${monthName} ${year}`;
+  
   try {
-    // Get all dates for current month
-    const monthDates = getMonthDates();
+    const monthDates = getMonthDates(year, month);
     
-    // Fetch data for all dates
+    // Fetch data for all dates in that month
     const promises = monthDates.map(date => db.collection("logbook").doc(date).get());
     const docs = await Promise.all(promises);
     
     // Process data to find top contributors
-    const contributorsMap = new Map(); // vehicle -> {totalAmount, transactionCount}
+    const contributorsMap = new Map();
     let totalMonthRevenue = 0;
     let totalTransactions = 0;
+    let foundData = false;
   
-    docs.forEach((doc, index) => {
+    docs.forEach((doc) => {
       if (doc.exists) {
+        foundData = true;
         const data = doc.data();
         const entries = data.entries || [];
         
         entries.forEach(entry => {
           const vehicle = entry.vehicle ? entry.vehicle.trim() : '';
-          // FIXED: Calculate total amount as Amount + Cafe
           const chargeAmount = evaluateValue(entry.amount || 0);
           const cafeAmount = evaluateValue(entry.cafe || 0);
           const totalAmount = chargeAmount + cafeAmount;
@@ -1703,8 +1875,8 @@ async function loadTopContributors() {
               contributorsMap.set(vehicle, {
                 totalAmount: 0,
                 transactionCount: 0,
-                chargeAmount: 0, // Store charge amount separately
-                cafeAmount: 0    // Store cafe amount separately
+                chargeAmount: 0,
+                cafeAmount: 0
               });
             }
             
@@ -1718,20 +1890,31 @@ async function loadTopContributors() {
       }
     });
     
+    // If no data found and we haven't tried too many months (e.g., depth < 12), try previous month
+    if (!foundData && depth < 12) {
+      // Move to previous month
+      let prevYear = year;
+      let prevMonth = month - 1;
+      if (prevMonth < 0) {
+        prevMonth = 11;
+        prevYear = year - 1;
+      }
+      // Recursively load previous month
+      await loadTopContributors(prevYear, prevMonth, depth + 1);
+      return;
+    }
+    
     // Convert to array and sort by total amount (descending)
     const contributorsArray = Array.from(contributorsMap, ([vehicle, data]) => ({
       vehicle,
       totalAmount: data.totalAmount,
       transactionCount: data.transactionCount,
-      chargeAmount: data.chargeAmount, // For reference if needed
-      cafeAmount: data.cafeAmount,     // For reference if needed
+      chargeAmount: data.chargeAmount,
+      cafeAmount: data.cafeAmount,
       dailyAverage: data.transactionCount > 0 ? (data.totalAmount / data.transactionCount).toFixed(2) : 0
     }));
     
-    // Sort by total amount (highest first)
     contributorsArray.sort((a, b) => b.totalAmount - a.totalAmount);
-    
-    // Take top 10
     const topContributors = contributorsArray.slice(0, 10);
     
     // Update summary
@@ -1746,7 +1929,6 @@ async function loadTopContributors() {
       topContributors.forEach((contributor, index) => {
         const row = document.createElement('tr');
         
-        // Highlight top 5 with green color
         if (index < 5) {
           row.className = 'top-contributor';
         }
@@ -1764,7 +1946,7 @@ async function loadTopContributors() {
         tbody.appendChild(row);
       });
     } else {
-      tbody.innerHTML = '<tr><td colspan="5" class="contributors-no-data">No contributor data available for this month</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" class="contributors-no-data">No contributor data available for this period</td></tr>';
     }
   } catch (error) {
     console.error("Error loading top contributors:", error);
@@ -1781,6 +1963,9 @@ async function loadDailyReport() {
     tbody.innerHTML = '<tr><td colspan="5" class="report-no-data">Cloud connection required for reports</td></tr>';
     return;
   }
+  
+  // Update title
+  document.getElementById('reportTitle').textContent = '📊 Revenue Report - Daily';
   
   try {
     // Get today's data using currentDate
@@ -1837,6 +2022,9 @@ async function loadWeeklyReport() {
     tbody.innerHTML = '<tr><td colspan="5" class="report-no-data">Cloud connection required for reports</td></tr>';
     return;
   }
+  
+  // Update title
+  document.getElementById('reportTitle').textContent = '📊 Revenue Report - Weekly';
   
   try {
     // Get last 7 days including today
@@ -1903,75 +2091,9 @@ async function loadWeeklyReport() {
 
 // FIXED: Load monthly report with proper date aggregation
 async function loadMonthlyReport() {
-  const tbody = document.getElementById('reportTableBody');
-  tbody.innerHTML = '<tr><td colspan="5" class="report-loading">Loading monthly report...</td></tr>';
-  
-  if (!db || !isFirebaseConnected) {
-    tbody.innerHTML = '<tr><td colspan="5" class="report-no-data">Cloud connection required for reports</td></tr>';
-    return;
-  }
-  
-  try {
-    // Get all dates for current month
-    const monthDates = getMonthDates();
-    
-    // Fetch data for all dates
-    const promises = monthDates.map(date => db.collection("logbook").doc(date).get());
-    const docs = await Promise.all(promises);
-    
-    tbody.innerHTML = '';
-    let totalCharge = 0;
-    let totalCafe = 0;
-    let totalAll = 0;
-    let totalDue = 0;
-    let hasData = false;
-    
-    docs.forEach((doc, index) => {
-      if (doc.exists) {
-        hasData = true;
-        const data = doc.data();
-        const summary = data.summary || {};
-        const charge = summary.charge ? parseInt(summary.charge.replace(/,/g, '')) || 0 : 0;
-        const cafe = summary.cafe ? parseInt(summary.cafe.replace(/,/g, '')) || 0 : 0;
-        const total = summary.total ? parseInt(summary.total.replace(/,/g, '')) || 0 : 0;
-        const due = summary.due ? parseInt(summary.due.replace(/,/g, '')) || 0 : 0;
-        
-        totalCharge += charge;
-        totalCafe += cafe;
-        totalAll += total;
-        totalDue += due;
-        
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td class="report-date-cell">${formatDateForDisplay(monthDates[index])}</td>
-          <td>Rs. ${charge.toLocaleString()}</td>
-          <td>Rs. ${cafe.toLocaleString()}</td>
-          <td>Rs. ${total.toLocaleString()}</td>
-          <td>Rs. ${due.toLocaleString()}</td>
-        `;
-        tbody.appendChild(row);
-      }
-    });
-    
-    if (hasData) {
-      // Add total row
-      const totalRow = document.createElement('tr');
-      totalRow.className = 'report-total-row';
-      totalRow.innerHTML = `
-        <td><strong>MONTHLY TOTAL</strong></td>
-        <td><strong>Rs. ${totalCharge.toLocaleString()}</strong></td>
-        <td><strong>Rs. ${totalCafe.toLocaleString()}</strong></td>
-        <td><strong>Rs. ${totalAll.toLocaleString()}</strong></td>
-        <td><strong>Rs. ${totalDue.toLocaleString()}</strong></td>
-      `;
-      tbody.appendChild(totalRow);
-    } else {
-      tbody.innerHTML = '<tr><td colspan="5" class="report-no-data">No data available for this month</td></tr>';
-    }
-  } catch (error) {
-    console.error("Error loading monthly report:", error);
-    tbody.innerHTML = '<tr><td colspan="5" class="report-no-data">Error loading report</td></tr>';
-  }
+  // Use current month by default
+  const now = new Date();
+  await loadMonthlyReportForMonth(now.getFullYear(), now.getMonth());
 }
 
 // CSV Export Function - REPLACED Excel export
@@ -3391,6 +3513,30 @@ window.onload = async function() {
         loadMonthlyReport();
       }
     });
+  });
+  
+  // Month selector change for reports
+  document.getElementById('monthSelector').addEventListener('change', function() {
+    const value = this.value;
+    if (value === 'current') {
+      const now = new Date();
+      loadMonthlyReportForMonth(now.getFullYear(), now.getMonth());
+    } else {
+      const [year, month] = value.split('-').map(num => parseInt(num));
+      loadMonthlyReportForMonth(year, month - 1); // month is 1-based in value
+    }
+  });
+  
+  // Month selector change for contributors
+  document.getElementById('contributorMonthSelector').addEventListener('change', function() {
+    const value = this.value;
+    if (value === 'current') {
+      const now = new Date();
+      loadTopContributors(now.getFullYear(), now.getMonth());
+    } else {
+      const [year, month] = value.split('-').map(num => parseInt(num));
+      loadTopContributors(year, month - 1); // month is 1-based in value
+    }
   });
   
   // Use custom print function that hides empty rows
