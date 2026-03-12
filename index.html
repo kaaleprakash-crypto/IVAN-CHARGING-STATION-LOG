@@ -2397,11 +2397,10 @@ function addRow(data = {}) {
   });
   
   vehicleInput.addEventListener("blur", function() {
-    // --- AUTO-REPLACE ON BLUR (full number -> full name) ---
     const rawValue = this.value;
     const formattedValue = formatVehicleNumber(rawValue);
     
-    // Check if it's a 4-digit number and auto-replace with full name
+    // Auto-replace if exactly 4 digits
     const numbers = formattedValue.match(/\d{4}$/);
     if (numbers) {
       const fullName = getVehicleNameFromNumber(numbers[0]);
@@ -2427,12 +2426,11 @@ function addRow(data = {}) {
     showSuggestions(value);
   });
   
-  // --- KEYDOWN HANDLER with arrow navigation and Enter replacement ---
+  // KEYDOWN handler: Enter to replace, Arrow keys to navigate
   vehicleInput.addEventListener("keydown", function(e) {
     if (e.key === "Enter") {
-      e.preventDefault();  // prevent form submit if any
+      e.preventDefault(); // Prevent form submit
       
-      // --- AUTO-REPLACE ON ENTER (full number -> full name) ---
       const rawValue = this.value;
       const formattedValue = formatVehicleNumber(rawValue);
       
@@ -2455,19 +2453,12 @@ function addRow(data = {}) {
       if (!checkVehicleForAutoSwitch(vehicleInput, row)) {
         moveToNextCell(vehicleInput, row);
       }
-    } 
-    else if (e.key === "ArrowDown") {
-      // navigate suggestion items if visible? For simplicity, we'll just close suggestions.
-      // But better: if popup visible, we could cycle items. However we'll keep it simple.
-      // Option: if popup visible, move selection inside popup (not implemented). 
-      // We'll just close popup on arrow down and move to next cell.
+    } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      // Close popup and optionally move to next/prev? 
+      // We'll just close popup and allow default cursor movement.
       suggestionsPopup.style.display = 'none';
-      // Optionally move to next cell? We'll not, as user might want to navigate within input.
-    }
-    else if (e.key === "ArrowUp") {
-      suggestionsPopup.style.display = 'none';
-    }
-    else if (e.key === "Escape") {
+      // Let the browser move cursor within input
+    } else if (e.key === "Escape") {
       suggestionsPopup.style.display = 'none';
     }
   });
