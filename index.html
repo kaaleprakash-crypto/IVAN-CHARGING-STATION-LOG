@@ -1518,8 +1518,8 @@ function showDueVehicles() {
     }
   }
   
-  // Sort by due amount (highest first)
-  dueData.sort((a, b) => b.due - a.due);
+  // Sort by date (newest first) - FIXED: changed from amount sort to date sort
+  dueData.sort((a, b) => b.date.localeCompare(a.date));
   
   const tbody = document.getElementById('dueTableBody');
   tbody.innerHTML = '';
@@ -3350,11 +3350,22 @@ window.onload = async function() {
     testConnection();
   }
   
-  // Load data
-  if (db && isFirebaseConnected) {
-    await loadFromFirebase(currentDate);
+  // Load data: prioritize localStorage for current date - FIXED to prevent data loss on reload
+  const localData = localStorage.getItem(`logbook_${currentDate}`);
+  if (localData) {
+    loadFromLocalStorage(); // Load from local storage first
+    // Optionally sync with Firebase in background if connected
+    if (db && isFirebaseConnected) {
+      console.log("Local data loaded, Firebase sync can be done manually or on save");
+      // You could call loadFromFirebase and merge, but careful not to overwrite local changes.
+      // For now, skip.
+    }
   } else {
-    loadFromLocalStorage();
+    if (db && isFirebaseConnected) {
+      await loadFromFirebase(currentDate);
+    } else {
+      loadFromLocalStorage(); // will add empty row
+    }
   }
   
   // Set up dark mode
