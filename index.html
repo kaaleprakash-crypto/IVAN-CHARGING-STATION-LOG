@@ -37,6 +37,7 @@ body{font-family:'Segoe UI','Roboto',sans-serif;background:var(--bg);color:var(-
 .floating-save-btn{position:fixed;bottom:15px;right:15px;z-index:1000;box-shadow:0 4px 12px rgba(39,174,96,0.3)}
 .floating-save-btn .btn{padding:6px 12px;font-size:0.75rem;font-weight:700;border-radius:6px;min-height:36px}
 .main-controls{display:flex;justify-content:flex-start;gap:8px;margin:10px 0;flex-wrap:wrap}
+/* Adjusted summary cards to move them up */
 .summary-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin:8px 0}
 .summary-card{background:var(--card-bg);padding:12px;border-radius:10px;box-shadow:0 4px 12px var(--shadow);text-align:center;position:relative;overflow:hidden;transition:transform 0.2s}
 .summary-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:4px;background:linear-gradient(45deg,var(--primary),var(--success))}
@@ -48,13 +49,14 @@ body{font-family:'Segoe UI','Roboto',sans-serif;background:var(--bg);color:var(-
 .dark-mode .summary-value{color:var(--text)}
 .rs-symbol{font-size:0.9rem;color:var(--success);font-weight:700;margin-right:3px}
 .summary-value.due-value{color:var(--danger)}
+/* Adjusted table container - added margin-top and increased header top position */
 .table-container{background:var(--card-bg);border-radius:10px;box-shadow:0 4px 16px var(--shadow);padding:10px;margin:8px 0;overflow:hidden;max-height:50vh;overflow-y:auto;border:1px solid var(--border)}
 .table-container::-webkit-scrollbar{width:6px}
 .table-container::-webkit-scrollbar-track{background:var(--bg);border-radius:3px}
 .table-container::-webkit-scrollbar-thumb{background:var(--primary);border-radius:3px}
 .table-container::-webkit-scrollbar-thumb:hover{background:#e67e22}
-table{width:100%;border-collapse:collapse;min-width:900px;margin-top:10px}
-thead{position:sticky;top:10px;z-index:10}
+table{width:100%;border-collapse:collapse;min-width:900px;margin-top:10px} /* Added margin-top to table */
+thead{position:sticky;top:10px;z-index:10} /* Increased top from 0 to 10px to prevent overlap */
 th{background:linear-gradient(45deg,var(--dark),var(--info));color:#fff;padding:8px 6px;text-align:center;font-weight:600;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.3px;border:1px solid rgba(255,255,255,0.2);position:sticky;top:10px}
 th::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:2px;background:var(--primary)}
 td{padding:6px;text-align:center;border:1px solid var(--border);font-size:0.82rem;height:38px;vertical-align:middle}
@@ -70,18 +72,19 @@ tr:nth-child(even){background:rgba(0,0,0,0.02)}
 .dark-mode tr:nth-child(even){background:rgba(255,255,255,0.04)}
 tr.due-row:nth-child(even){background:rgba(231,76,60,0.15)!important}
 .dark-mode tr.due-row:nth-child(even){background:rgba(231,76,60,0.25)!important}
+/* Adjusted column widths - added delete column */
 th:nth-child(1),td:nth-child(1){width:50px}
 th:nth-child(2),td:nth-child(2){width:70px}
-th:nth-child(3),td:nth-child(3){width:130px}
-th:nth-child(4),td:nth-child(4){width:85px}
-th:nth-child(5),td:nth-child(5){width:65px}
-th:nth-child(6),td:nth-child(6){width:90px}
-th:nth-child(7),td:nth-child(7){width:85px}
-th:nth-child(8),td:nth-child(8){width:85px}
-th:nth-child(9),td:nth-child(9){width:85px}
-th:nth-child(10),td:nth-child(10){width:110px}
-th:nth-child(11),td:nth-child(11){width:80px}
-th:nth-child(12),td:nth-child(12){width:50px}
+th:nth-child(3),td:nth-child(3){width:130px} /* Increased for Vehicle */
+th:nth-child(4),td:nth-child(4){width:85px} /* % SOC */
+th:nth-child(5),td:nth-child(5){width:65px} /* Diff */
+th:nth-child(6),td:nth-child(6){width:90px} /* Amount */
+th:nth-child(7),td:nth-child(7){width:85px} /* Cafe */
+th:nth-child(8),td:nth-child(8){width:85px} /* Total */
+th:nth-child(9),td:nth-child(9){width:85px} /* Paid */
+th:nth-child(10),td:nth-child(10){width:110px} /* Status - made wider */
+th:nth-child(11),td:nth-child(11){width:80px} /* Due */
+th:nth-child(12),td:nth-child(12){width:50px} /* Delete */
 input{width:100%;padding:4px 6px;border:1.5px solid var(--border);border-radius:4px;background:var(--card-bg);color:var(--text);font-size:0.82rem;transition:all 0.2s;height:30px;display:block;box-sizing:border-box;text-align:center;font-weight:bold;color:#000!important;touch-action:manipulation}
 input:not([readonly]){cursor:text;caret-color:var(--primary)}
 .vehicle-input{text-transform:uppercase}
@@ -111,6 +114,7 @@ tr:hover .delete-button{opacity:1;visibility:visible}
 .loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:none;justify-content:center;align-items:center;z-index:2000;color:white;font-size:1.2rem;flex-direction:column;gap:15px}
 .loading-spinner{width:40px;height:40px;border:4px solid #f3f3f3;border-top:4px solid var(--primary);border-radius:50%;animation:spin 1s linear infinite}
 @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+/* Report Modal Styles - Enhanced */
 .report-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:none;justify-content:center;align-items:center;z-index:3000}
 .report-content{background:var(--card-bg);border-radius:12px;width:90%;max-width:800px;max-height:80vh;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.3);display:flex;flex-direction:column}
 .report-header{background:linear-gradient(45deg,var(--dark),var(--info));color:#fff;padding:15px 20px;display:flex;justify-content:space-between;align-items:center}
@@ -119,6 +123,7 @@ tr:hover .delete-button{opacity:1;visibility:visible}
 .report-close:hover{color:var(--primary)}
 .report-periods{display:flex;gap:10px;padding:15px 20px;background:var(--bg);border-bottom:1px solid var(--border);flex-wrap:wrap}
 .report-period-btn{padding:8px 16px;font-size:0.85rem}
+/* Enhanced month selector */
 .month-selector-container{display:flex;align-items:center;gap:8px;margin-left:auto;background:var(--card-bg);padding:5px 10px;border-radius:8px;border:1px solid var(--border)}
 .month-selector-label{font-size:0.8rem;font-weight:600;color:var(--info);text-transform:uppercase}
 .month-selector{background:var(--primary);color:#000;border:none;padding:6px 12px;border-radius:6px;font-weight:700;font-size:0.85rem;cursor:pointer;min-width:140px;border:1px solid rgba(0,0,0,0.1)}
@@ -135,6 +140,7 @@ tr:hover .delete-button{opacity:1;visibility:visible}
 .report-date-cell{font-weight:600;color:var(--info)}
 .report-no-data{text-align:center;padding:40px;color:var(--text);font-style:italic}
 .report-loading{text-align:center;padding:40px;color:var(--info)}
+/* Contributors Modal Styles - Enhanced */
 .contributors-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:none;justify-content:center;align-items:center;z-index:3000}
 .contributors-content{background:var(--card-bg);border-radius:12px;width:90%;max-width:900px;max-height:85vh;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.3);display:flex;flex-direction:column}
 .contributors-header{background:linear-gradient(45deg,var(--dark),#f39c12);color:#fff;padding:15px 20px;display:flex;justify-content:space-between;align-items:center}
@@ -143,7 +149,7 @@ tr:hover .delete-button{opacity:1;visibility:visible}
 .contributors-close:hover{color:var(--primary)}
 .contributors-table-container{flex:1;overflow-y:auto;padding:15px}
 .contributors-table{width:100%;border-collapse:collapse}
-.contributors-table th{background:linear-gradient(45deg,var(--dark),#f39c12);color:#fff;padding:10px;text-align:center;font-weight:600;font-size:0.85rem;position:sticky;top:0}
+.contributors-table th{background:linear-gradient(45deg,var(--dark),#f39c12);color:#fff;padding:10px;text-align:center;font-weight:600;font-size:0.85rem;position:sticky;top=0}
 .contributors-table td{padding:10px;text-align:center;border:1px solid var(--border);font-size:0.9rem}
 .contributors-table tr:nth-child(even){background:rgba(0,0,0,0.03)}
 .contributors-table tr:hover{background:rgba(52,152,219,0.08)}
@@ -161,10 +167,12 @@ tr:hover .delete-button{opacity:1;visibility:visible}
 .contributors-summary-item{text-align:center}
 .contributors-summary-label{font-size:0.8rem;color:var(--info);font-weight:600;margin-bottom:4px}
 .contributors-summary-value{font-size:1.2rem;font-weight:800;color:var(--success)}
+/* Enhanced contributor month selector */
 .contributor-selector-container{display:flex;align-items:center;gap:8px;margin-left:auto;background:var(--card-bg);padding:5px 10px;border-radius:8px;border:1px solid var(--border)}
 .contributor-selector-label{font-size:0.8rem;font-weight:600;color:var(--info);text-transform:uppercase}
 .contributor-month-selector{background:var(--primary);color:#000;border:none;padding:6px 12px;border-radius:6px;font-weight:700;font-size:0.85rem;cursor:pointer;min-width:140px;border:1px solid rgba(0,0,0,0.1)}
 .contributor-month-selector option{background:var(--card-bg);color:var(--text);padding:8px}
+/* Vehicle suggestions popup - UPDATED: Fixed positioning to appear above table */
 .vehicle-suggestions-popup {
     position: fixed;
     background: var(--card-bg);
@@ -195,9 +203,11 @@ tr:hover .delete-button{opacity:1;visibility:visible}
 .vehicle-suggestion-item:last-child {
     border-bottom: none;
 }
+/* Vehicle cell with relative positioning */
 .vehicle-cell {
     position: relative;
 }
+/* Dropdown menu styles */
 .dropdown {
     position: relative;
     display: inline-block;
@@ -215,7 +225,7 @@ tr:hover .delete-button{opacity:1;visibility:visible}
     border: 1px solid var(--border);
     border-radius: 8px;
     box-shadow: 0 6px 20px var(--shadow);
-    min-width: 200px;
+    min-width: 180px;
     z-index: 1001;
     padding: 6px 0;
     margin-top: 5px;
@@ -258,365 +268,501 @@ tr:hover .delete-button{opacity:1;visibility:visible}
     background: var(--success);
     color: white;
 }
-/* Due Vehicles Modal */
-.due-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.7);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 3000;
-}
-.due-content {
-    background: var(--card-bg);
-    border-radius: 12px;
-    width: 90%;
-    max-width: 800px;
-    max-height: 85vh;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    display: flex;
-    flex-direction: column;
-}
-.due-header {
-    background: linear-gradient(45deg, var(--dark), var(--danger));
-    color: #fff;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.due-header h2 {
-    margin: 0;
-    font-size: 1.4rem;
-    font-weight: 600;
-}
-.due-close {
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 1.8rem;
-    cursor: pointer;
-    line-height: 1;
-    padding: 0;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.due-close:hover {
-    color: var(--primary);
-}
-.due-table-container {
-    flex: 1;
-    overflow-y: auto;
-    padding: 15px;
-}
-.due-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-.due-table th {
-    background: linear-gradient(45deg, var(--dark), var(--danger));
-    color: #fff;
-    padding: 10px;
-    text-align: center;
-    font-weight: 600;
-    font-size: 0.85rem;
-    position: sticky;
-    top: 0;
-}
-.due-table td {
-    padding: 10px;
-    text-align: center;
-    border: 1px solid var(--border);
-    font-size: 0.9rem;
-}
-.due-table tr:nth-child(even) {
-    background: rgba(0,0,0,0.03);
-}
-.due-table tr:hover {
-    background: rgba(231,76,60,0.08);
-}
-.due-table .due-row-data {
-    background: rgba(231,76,60,0.05);
-}
-.due-paid-btn {
-    background: var(--success);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 5px 10px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-.due-paid-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-.due-summary {
-    display: flex;
-    justify-content: space-between;
-    padding: 15px 20px;
-    background: var(--bg);
-    border-bottom: 1px solid var(--border);
-    font-weight: 700;
-    color: var(--danger);
-}
-/* Vehicle Data Modal */
-.vehicle-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.7);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 3000;
-}
-.vehicle-content {
-    background: var(--card-bg);
-    border-radius: 12px;
-    width: 90%;
-    max-width: 900px;
-    max-height: 85vh;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    display: flex;
-    flex-direction: column;
-}
-.vehicle-header {
-    background: linear-gradient(45deg, var(--dark), var(--info));
-    color: #fff;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.vehicle-header h2 {
-    margin: 0;
-    font-size: 1.4rem;
-    font-weight: 600;
-}
-.vehicle-close {
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 1.8rem;
-    cursor: pointer;
-    line-height: 1;
-    padding: 0;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.vehicle-close:hover {
-    color: var(--primary);
-}
-.vehicle-table-container {
-    flex: 1;
-    overflow-y: auto;
-    padding: 15px;
-}
-.vehicle-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-.vehicle-table th {
-    background: linear-gradient(45deg, var(--dark), var(--info));
-    color: #fff;
-    padding: 10px;
-    text-align: center;
-    font-weight: 600;
-    font-size: 0.85rem;
-    position: sticky;
-    top: 0;
-}
-.vehicle-table td {
-    padding: 10px;
-    text-align: center;
-    border: 1px solid var(--border);
-    font-size: 0.9rem;
-}
-.vehicle-table tr:nth-child(even) {
-    background: rgba(0,0,0,0.03);
-}
-.vehicle-table tr:hover {
-    background: rgba(52,152,219,0.08);
-}
-.vehicle-search {
-    padding: 15px 20px;
-    background: var(--bg);
-    border-bottom: 1px solid var(--border);
-}
-.vehicle-search input {
-    width: 100%;
-    padding: 10px;
-    border: 2px solid var(--border);
-    border-radius: 6px;
-    font-size: 1rem;
-}
-.vehicle-summary {
-    display: flex;
-    justify-content: space-around;
-    padding: 15px 20px;
-    background: var(--bg);
-    border-bottom: 1px solid var(--border);
-    flex-wrap: wrap;
-    gap: 10px;
-}
-.vehicle-summary-item {
-    text-align: center;
-}
-.vehicle-summary-label {
-    font-size: 0.8rem;
-    color: var(--info);
-    font-weight: 600;
-    margin-bottom: 4px;
-}
-.vehicle-summary-value {
-    font-size: 1.2rem;
-    font-weight: 800;
-    color: var(--success);
-}
+/* Mobile Chrome optimizations */
 @media (max-width: 768px) {
-    body{padding:8px;font-size:12px;-webkit-text-size-adjust:none}
-    .header h1{font-size:1.4rem}
-    .datetime-display{flex-direction:column;align-items:center;gap:8px}
-    .datetime-card{width:100%;min-width:unset;padding:10px}
-    .summary-cards{grid-template-columns:repeat(2,1fr);gap:6px;margin:6px 0}
-    .summary-card{padding:10px}
-    .summary-label{font-size:0.7rem}
-    .summary-value{font-size:1.1rem}
-    .table-container{padding:8px;max-height:40vh;margin:6px 0}
-    table{margin-top:8px;min-width:100%}
-    thead{top:8px}
-    .top-controls{position:relative;top:0;right:0;justify-content:center;margin-bottom:10px}
-    .top-left-controls{position:relative;top:0;left:0;justify-content:center;margin-bottom:5px}
-    .btn{padding:5px 10px;font-size:0.75rem;min-height:36px}
-    th,td{padding:5px 4px}
-    th{font-size:0.7rem;position:sticky;top:8px}
-    td{font-size:0.75rem}
-    input{font-size:0.8rem;height:34px;padding:6px 8px}
-    .status-button{padding:3px 8px;font-size:0.7rem;min-height:30px}
-    .delete-button{width:32px;height:30px;font-size:0.9rem}
-    .floating-save-btn{bottom:15px;right:15px}
-    .floating-save-btn .btn{padding:6px 12px;font-size:0.75rem;min-height:36px}
-    .main-controls{justify-content:center}
-    .report-content{width:95%;max-height:90vh}
-    .report-header{padding:12px 15px}
-    .report-header h2{font-size:1.2rem}
-    .report-periods{flex-direction:column;padding:10px}
-    .report-period-btn{width:100%}
-    .month-selector-container{margin-left:0;width:100%;justify-content:center;margin-top:10px}
-    .month-selector{width:100%}
-    .report-table-container{padding:10px}
-    .report-table th,.report-table td{padding:8px 5px;font-size:0.8rem}
-    .contributors-content{width:95%;max-height:90vh}
-    .contributors-header{padding:12px 15px}
-    .contributors-header h2{font-size:1.2rem}
-    .contributors-table-container{padding:10px}
-    .contributors-table th,.contributors-table td{padding:8px 5px;font-size:0.8rem}
-    .contributors-summary{flex-direction:column;align-items:center;padding:10px}
-    .contributors-summary-item{margin-bottom:10px}
-    .contributor-selector-container{margin-left:0;width:100%;justify-content:center;margin-top:10px}
-    .contributor-month-selector{width:100%}
-    .vehicle-suggestions-popup{max-height:120px;font-size:0.75rem;width:180px}
-    input,select,textarea{font-size:16px!important}
-    @supports (-webkit-touch-callout:none){input,select,textarea{font-size:16px!important}}
-    .dropdown-menu{position:fixed;left:50%;transform:translateX(-50%);width:90%;max-width:250px;top:50%;transform:translate(-50%,-50%)}
-    .due-content{width:95%;max-height:90vh}
-    .due-header{padding:12px 15px}
-    .due-header h2{font-size:1.2rem}
-    .due-table-container{padding:10px}
-    .due-table th,.due-table td{padding:8px 5px;font-size:0.8rem}
-    .due-summary{flex-direction:column;align-items:center;gap:10px}
-    .vehicle-content{width:95%;max-height:90vh}
-    .vehicle-header{padding:12px 15px}
-    .vehicle-header h2{font-size:1.2rem}
-    .vehicle-table-container{padding:10px}
-    .vehicle-table th,.vehicle-table td{padding:8px 5px;font-size:0.8rem}
-    .vehicle-summary{flex-direction:column;align-items:center}
+    body {
+        padding: 8px;
+        font-size: 12px;
+        -webkit-text-size-adjust: none
+    }
+    .header h1 {
+        font-size: 1.4rem
+    }
+    .datetime-display {
+        flex-direction: column;
+        align-items: center;
+        gap: 8px
+    }
+    .datetime-card {
+        width: 100%;
+        min-width: unset;
+        padding: 10px
+    }
+    .summary-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+        margin: 6px 0
+    }
+    .summary-card {
+        padding: 10px
+    }
+    .summary-label {
+        font-size: 0.7rem
+    }
+    .summary-value {
+        font-size: 1.1rem
+    }
+    .table-container {
+        padding: 8px;
+        max-height: 40vh;
+        margin: 6px 0
+    }
+    table {
+        margin-top: 8px;
+        min-width: 100%
+    }
+    thead {
+        top: 8px
+    }
+    .top-controls {
+        position: relative;
+        top: 0;
+        right: 0;
+        justify-content: center;
+        margin-bottom: 10px
+    }
+    .top-left-controls {
+        position: relative;
+        top: 0;
+        left: 0;
+        justify-content: center;
+        margin-bottom: 5px
+    }
+    .btn {
+        padding: 5px 10px;
+        font-size: 0.75rem;
+        min-height: 36px
+    }
+    th, td {
+        padding: 5px 4px
+    }
+    th {
+        font-size: 0.7rem;
+        position: sticky;
+        top: 8px
+    }
+    td {
+        font-size: 0.75rem
+    }
+    input {
+        font-size: 0.8rem;
+        height: 34px;
+        padding: 6px 8px
+    }
+    .status-button {
+        padding: 3px 8px;
+        font-size: 0.7rem;
+        min-height: 30px
+    }
+    .delete-button {
+        width: 32px;
+        height: 30px;
+        font-size: 0.9rem
+    }
+    .floating-save-btn {
+        bottom: 15px;
+        right: 15px
+    }
+    .floating-save-btn .btn {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        min-height: 36px
+    }
+    .main-controls {
+        justify-content: center
+    }
+    .report-content {
+        width: 95%;
+        max-height: 90vh
+    }
+    .report-header {
+        padding: 12px 15px
+    }
+    .report-header h2 {
+        font-size: 1.2rem
+    }
+    .report-periods {
+        flex-direction: column;
+        padding: 10px
+    }
+    .report-period-btn {
+        width: 100%
+    }
+    .month-selector-container {
+        margin-left: 0;
+        width: 100%;
+        justify-content: center;
+        margin-top: 10px
+    }
+    .month-selector {
+        width: 100%
+    }
+    .report-table-container {
+        padding: 10px
+    }
+    .report-table th, .report-table td {
+        padding: 8px 5px;
+        font-size: 0.8rem
+    }
+    .contributors-content {
+        width: 95%;
+        max-height: 90vh
+    }
+    .contributors-header {
+        padding: 12px 15px
+    }
+    .contributors-header h2 {
+        font-size: 1.2rem
+    }
+    .contributors-table-container {
+        padding: 10px
+    }
+    .contributors-table th, .contributors-table td {
+        padding: 8px 5px;
+        font-size: 0.8rem
+    }
+    .contributors-summary {
+        flex-direction: column;
+        align-items: center;
+        padding: 10px
+    }
+    .contributors-summary-item {
+        margin-bottom: 10px
+    }
+    .contributor-selector-container {
+        margin-left: 0;
+        width: 100%;
+        justify-content: center;
+        margin-top: 10px
+    }
+    .contributor-month-selector {
+        width: 100%
+    }
+    .vehicle-suggestions-popup {
+        max-height: 120px;
+        font-size: 0.75rem;
+        width: 180px
+    }
+    /* Prevent zoom on input focus for mobile */
+    input, select, textarea {
+        font-size: 16px !important
+    }
+    @supports (-webkit-touch-callout: none) {
+        input, select, textarea {
+            font-size: 16px !important
+        }
+    }
+    /* Dropdown adjustments for mobile */
+    .dropdown-menu {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 250px;
+        top: 50%;
+        transform: translate(-50%, -50%);
+    }
 }
 @media (max-width: 480px) {
-    .summary-cards{grid-template-columns:1fr;gap:5px;margin:5px 0}
-    .summary-card{padding:8px}
-    .summary-label{font-size:0.65rem}
-    .summary-value{font-size:1rem}
-    .btn{padding:4px 8px;font-size:0.7rem;min-height:32px}
-    th,td{padding:4px 3px;font-size:0.75rem}
-    th{font-size:0.65rem}
-    input{font-size:0.8rem;height:32px;padding:5px 7px}
-    .status-button{padding:2px 6px;font-size:0.65rem;min-height:28px}
-    .delete-button{width:30px;height:28px;font-size:0.8rem}
-    .floating-save-btn{bottom:10px;right:10px}
-    .floating-save-btn .btn{padding:5px 10px;font-size:0.7rem;min-height:32px}
-    .report-table th,.report-table td{padding:6px 3px;font-size:0.75rem}
-    .contributors-table th,.contributors-table td{padding:6px 3px;font-size:0.75rem}
-    .vehicle-suggestions-popup{max-height:100px;width:160px}
+    .summary-cards {
+        grid-template-columns: 1fr;
+        gap: 5px;
+        margin: 5px 0
+    }
+    .summary-card {
+        padding: 8px
+    }
+    .summary-label {
+        font-size: 0.65rem
+    }
+    .summary-value {
+        font-size: 1rem
+    }
+    .btn {
+        padding: 4px 8px;
+        font-size: 0.7rem;
+        min-height: 32px
+    }
+    th, td {
+        padding: 4px 3px;
+        font-size: 0.75rem
+    }
+    th {
+        font-size: 0.65rem
+    }
+    input {
+        font-size: 0.8rem;
+        height: 32px;
+        padding: 5px 7px
+    }
+    .status-button {
+        padding: 2px 6px;
+        font-size: 0.65rem;
+        min-height: 28px
+    }
+    .delete-button {
+        width: 30px;
+        height: 28px;
+        font-size: 0.8rem
+    }
+    .floating-save-btn {
+        bottom: 10px;
+        right: 10px
+    }
+    .floating-save-btn .btn {
+        padding: 5px 10px;
+        font-size: 0.7rem;
+        min-height: 32px
+    }
+    .report-table th, .report-table td {
+        padding: 6px 3px;
+        font-size: 0.75rem
+    }
+    .contributors-table th, .contributors-table td {
+        padding: 6px 3px;
+        font-size: 0.75rem
+    }
+    .vehicle-suggestions-popup {
+        max-height: 100px;
+        width: 160px
+    }
 }
 @media print {
-    @page{margin:0.5in;size:A4 portrait}
-    body{background:white!important;color:black!important;padding:0!important;font-size:12pt!important;margin:0!important}
-    .container{max-width:100%!important;margin:0!important;padding:0!important}
-    .no-print{display:none!important}
-    .header{text-align:center!important;margin-bottom:20px!important;page-break-after:avoid!important;position:static!important}
-    .header h1{font-size:24pt!important;color:black!important;background:none!important;-webkit-text-fill-color:black!important;margin-bottom:10px!important}
-    .datetime-display{display:flex!important;justify-content:center!important;gap:20px!important;margin:20px 0!important;page-break-inside:avoid!important}
-    .datetime-card{border:1px solid #000!important;box-shadow:none!important;background:white!important;border-left:4px solid #3498db!important}
-    .datetime-card.slogan{border-left-color:#27ae60!important;background:linear-gradient(135deg,#fff 0%,rgba(39,174,96,0.08) 100%)!important}
-    .datetime-label{color:#3498db!important;font-size:9pt!important}
-    .datetime-value,.slogan-value{color:black!important;font-weight:bold!important}
-    .slogan-value{color:#27ae60!important}
-    .summary-cards{display:flex!important;flex-wrap:wrap!important;justify-content:center!important;gap:15px!important;margin:20px 0!important;page-break-inside:avoid!important}
-    .summary-card{border:1px solid #000!important;box-shadow:none!important;background:white!important;padding:10px!important;position:relative!important;overflow:hidden!important}
-    .summary-card::before{display:block!important;height:4px!important;background:linear-gradient(45deg,#f1c40f,#27ae60)!important}
-    .summary-card.charge::before,.summary-card.cafe::before,.summary-card.total::before{background:linear-gradient(45deg,#3498db,#2980b9)!important}
-    .summary-card.due::before{background:linear-gradient(45deg,#f39c12,#d35400)!important}
-    .summary-label{color:#3498db!important;font-size:9pt!important;font-weight:bold!important}
-    .summary-value{color:black!important;font-size:14pt!important;font-weight:bold!important}
-    .summary-value.due-value{color:#e74c3c!important}
-    .rs-symbol{color:#27ae60!important}
-    .table-container{box-shadow:none!important;border:1px solid #000!important;max-height:none!important;overflow:visible!important;padding:5px!important;background:white!important;page-break-inside:auto!important}
-    table{width:100%!important;border-collapse:collapse!important;page-break-inside:auto!important;margin-top:0!important}
-    thead{display:table-header-group!important;position:static!important;top:auto!important;z-index:auto!important}
-    th{background:linear-gradient(45deg,#2c3e50,#3498db)!important;color:#fff!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;font-size:8pt!important;padding:6px 4px!important;border:1px solid rgba(255,255,255,0.2)!important;position:static!important}
-    td{border:1px solid #ddd!important;font-size:8pt!important;padding:4px!important;color:black!important;font-weight:bold!important}
-    tr{page-break-inside:avoid!important;page-break-after:auto!important}
-    tr:nth-child(even){background:rgba(0,0,0,0.02)!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-    tr.locked-row{background:rgba(39,174,96,0.05)!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-    tr.due-row{background:rgba(231,76,60,0.1)!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-    td input{background:white!important;color:black!important;border:none!important;text-align:center!important;font-weight:bold!important}
-    input.empty-value{color:transparent!important}
-    .due-input{color:#e74c3c!important;font-weight:bold!important}
-    .diff-input{color:#27ae60!important;font-weight:bold!important;background:rgba(39,174,96,0.1)!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-    .status-button{background:#27ae60!important;color:white!important;border:1px solid #000!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-    .status-button.due-button{background:#e74c3c!important}
-    .delete-button{display:none!important}
-    th:nth-child(12),td:nth-child(12){display:none!important}
-    *{animation:none!important;transition:none!important}
-    .page-break{page-break-before:always}
-    .report-modal{display:none!important}
-    .contributors-modal{display:none!important}
-    .due-modal{display:none!important}
-    .vehicle-modal{display:none!important}
-    .vehicle-suggestions-popup{display:none!important}
-    tr.hide-in-print{display:none!important}
-    .dropdown,.dropdown-menu{display:none!important}
+    @page {
+        margin: 0.5in;
+        size: A4 portrait
+    }
+    body {
+        background: white !important;
+        color: black !important;
+        padding: 0 !important;
+        font-size: 12pt !important;
+        margin: 0 !important
+    }
+    .container {
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important
+    }
+    .no-print {
+        display: none !important
+    }
+    .header {
+        text-align: center !important;
+        margin-bottom: 20px !important;
+        page-break-after: avoid !important;
+        position: static !important
+    }
+    .header h1 {
+        font-size: 24pt !important;
+        color: black !important;
+        background: none !important;
+        -webkit-text-fill-color: black !important;
+        margin-bottom: 10px !important
+    }
+    .datetime-display {
+        display: flex !important;
+        justify-content: center !important;
+        gap: 20px !important;
+        margin: 20px 0 !important;
+        page-break-inside: avoid !important
+    }
+    .datetime-card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+        background: white !important;
+        border-left: 4px solid #3498db !important
+    }
+    .datetime-card.slogan {
+        border-left-color: #27ae60 !important;
+        background: linear-gradient(135deg, #fff 0%, rgba(39, 174, 96, 0.08) 100%) !important
+    }
+    .datetime-label {
+        color: #3498db !important;
+        font-size: 9pt !important
+    }
+    .datetime-value, .slogan-value {
+        color: black !important;
+        font-weight: bold !important
+    }
+    .slogan-value {
+        color: #27ae60 !important
+    }
+    .summary-cards {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 15px !important;
+        margin: 20px 0 !important;
+        page-break-inside: avoid !important
+    }
+    .summary-card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+        background: white !important;
+        padding: 10px !important;
+        position: relative !important;
+        overflow: hidden !important
+    }
+    .summary-card::before {
+        display: block !important;
+        height: 4px !important;
+        background: linear-gradient(45deg, #f1c40f, #27ae60) !important
+    }
+    .summary-card.charge::before, .summary-card.cafe::before, .summary-card.total::before {
+        background: linear-gradient(45deg, #3498db, #2980b9) !important
+    }
+    .summary-card.due::before {
+        background: linear-gradient(45deg, #f39c12, #d35400) !important
+    }
+    .summary-label {
+        color: #3498db !important;
+        font-size: 9pt !important;
+        font-weight: bold !important
+    }
+    .summary-value {
+        color: black !important;
+        font-size: 14pt !important;
+        font-weight: bold !important
+    }
+    .summary-value.due-value {
+        color: #e74c3c !important
+    }
+    .rs-symbol {
+        color: #27ae60 !important
+    }
+    .table-container {
+        box-shadow: none !important;
+        border: 1px solid #000 !important;
+        max-height: none !important;
+        overflow: visible !important;
+        padding: 5px !important;
+        background: white !important;
+        page-break-inside: auto !important
+    }
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        page-break-inside: auto !important;
+        margin-top: 0 !important
+    }
+    thead {
+        display: table-header-group !important;
+        position: static !important;
+        top: auto !important;
+        z-index: auto !important
+    }
+    th {
+        background: linear-gradient(45deg, #2c3e50, #3498db) !important;
+        color: #fff !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        font-size: 8pt !important;
+        padding: 6px 4px !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        position: static !important
+    }
+    td {
+        border: 1px solid #ddd !important;
+        font-size: 8pt !important;
+        padding: 4px !important;
+        color: black !important;
+        font-weight: bold !important
+    }
+    tr {
+        page-break-inside: avoid !important;
+        page-break-after: auto !important
+    }
+    tr:nth-child(even) {
+        background: rgba(0, 0, 0, 0.02) !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important
+    }
+    tr.locked-row {
+        background: rgba(39, 174, 96, 0.05) !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important
+    }
+    tr.due-row {
+        background: rgba(231, 76, 60, 0.1) !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important
+    }
+    td input {
+        background: white !important;
+        color: black !important;
+        border: none !important;
+        text-align: center !important;
+        font-weight: bold !important
+    }
+    input.empty-value {
+        color: transparent !important
+    }
+    .due-input {
+        color: #e74c3c !important;
+        font-weight: bold !important
+    }
+    .diff-input {
+        color: #27ae60 !important;
+        font-weight: bold !important;
+        background: rgba(39, 174, 96, 0.1) !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important
+    }
+    .status-button {
+        background: #27ae60 !important;
+        color: white !important;
+        border: 1px solid #000 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important
+    }
+    .status-button.due-button {
+        background: #e74c3c !important
+    }
+    .delete-button {
+        display: none !important
+    }
+    th:nth-child(12), td:nth-child(12) {
+        display: none !important
+    }
+    * {
+        animation: none !important;
+        transition: none !important
+    }
+    .page-break {
+        page-break-before: always
+    }
+    .report-modal {
+        display: none !important
+    }
+    .contributors-modal {
+        display: none !important
+    }
+    .vehicle-suggestions-popup {
+        display: none !important
+    }
+    /* Hide blank last rows in print */
+    tr.hide-in-print {
+        display: none !important;
+    }
+    /* Hide dropdown menu in print */
+    .dropdown, .dropdown-menu {
+        display: none !important;
+    }
 }
-@keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
-.fade-in{animation:fadeIn 0.3s ease forwards}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px)
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0)
+    }
+}
+.fade-in {
+    animation: fadeIn 0.3s ease forwards
+}
 </style>
 </head>
 <body>
@@ -634,9 +780,7 @@ tr:hover .delete-button{opacity:1;visibility:visible}
     <div class="dropdown">
         <button id="dropdownMenuButton" class="btn btn-info btn-sm dropdown-toggle">⋯</button>
         <div class="dropdown-menu" id="dropdownMenu">
-            <a href="#" class="dropdown-item danger" id="dueVehiclesBtn">⚠️ Due Vehicles</a>
-            <a href="#" class="dropdown-item success" id="vehicleDataBtn">🚗 Vehicle Data</a>
-            <a href="#" class="dropdown-item" id="finalizeSaveBtn">💾 Finalize & Save to Cloud</a>
+            <a href="#" class="dropdown-item success" id="finalizeSaveBtn">💾 Finalize & Save to Cloud</a>
             <a href="#" class="dropdown-item" id="forceSyncBtn">🔄 Force Sync Now</a>
             <a href="#" class="dropdown-item" id="viewCloudDataBtn">☁️ View Cloud Data</a>
         </div>
@@ -673,6 +817,7 @@ tr:hover .delete-button{opacity:1;visibility:visible}
                 <span class="month-selector-label">📅 Month:</span>
                 <select id="monthSelector" class="month-selector">
                     <option value="current">Current Month</option>
+                    <!-- Previous months will be added dynamically -->
                 </select>
             </div>
         </div>
@@ -688,6 +833,7 @@ tr:hover .delete-button{opacity:1;visibility:visible}
                     </tr>
                 </thead>
                 <tbody id="reportTableBody">
+                    <!-- Report data will be inserted here -->
                 </tbody>
             </table>
         </div>
@@ -720,6 +866,7 @@ tr:hover .delete-button{opacity:1;visibility:visible}
                 <span class="contributor-selector-label">📅 Month:</span>
                 <select id="contributorMonthSelector" class="contributor-month-selector">
                     <option value="current">Current Month</option>
+                    <!-- Previous months will be added dynamically -->
                 </select>
             </div>
         </div>
@@ -735,84 +882,10 @@ tr:hover .delete-button{opacity:1;visibility:visible}
                     </tr>
                 </thead>
                 <tbody id="contributorsTableBody">
+                    <!-- Contributors data will be inserted here -->
                 </tbody>
             </table>
-        </div>
-    </div>
 </div>
-
-<!-- Due Vehicles Modal -->
-<div id="dueModal" class="due-modal no-print">
-    <div class="due-content">
-        <div class="due-header">
-            <h2>⚠️ Due Vehicles</h2>
-            <button class="due-close" id="dueCloseBtn">×</button>
-        </div>
-        <div class="due-summary">
-            <span>Total Due Amount: <span id="totalDueAmount">Rs. 0</span></span>
-            <span>Total Vehicles: <span id="totalDueVehicles">0</span></span>
-        </div>
-        <div class="due-table-container">
-            <table class="due-table" id="dueTable">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Vehicle</th>
-                        <th>Total</th>
-                        <th>Paid</th>
-                        <th>Due</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="dueTableBody">
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<!-- Vehicle Data Modal -->
-<div id="vehicleModal" class="vehicle-modal no-print">
-    <div class="vehicle-content">
-        <div class="vehicle-header">
-            <h2>🚗 Vehicle Data</h2>
-            <button class="vehicle-close" id="vehicleCloseBtn">×</button>
-        </div>
-        <div class="vehicle-summary">
-            <div class="vehicle-summary-item">
-                <div class="vehicle-summary-label">Total Vehicles</div>
-                <div class="vehicle-summary-value" id="totalVehicles">0</div>
-            </div>
-            <div class="vehicle-summary-item">
-                <div class="vehicle-summary-label">Total Transactions</div>
-                <div class="vehicle-summary-value" id="totalVehicleTransactions">0</div>
-            </div>
-            <div class="vehicle-summary-item">
-                <div class="vehicle-summary-label">Total Revenue</div>
-                <div class="vehicle-summary-value" id="totalVehicleRevenue">Rs. 0</div>
-            </div>
-        </div>
-        <div class="vehicle-search">
-            <input type="text" id="vehicleSearch" placeholder="Search by vehicle name or number...">
-        </div>
-        <div class="vehicle-table-container">
-            <table class="vehicle-table" id="vehicleTable">
-                <thead>
-                    <tr>
-                        <th>Vehicle</th>
-                        <th>Date</th>
-                        <th>Amount</th>
-                        <th>Cafe</th>
-                        <th>Total</th>
-                        <th>Paid</th>
-                        <th>Due</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="vehicleTableBody">
-                </tbody>
-            </table>
-        </div>
     </div>
 </div>
 
@@ -830,51 +903,26 @@ const firebaseConfig = {
 
 // Initialize Firebase
 let db;
-let isFirebaseConnected = false;
-let firebaseRetryCount = 0;
-const maxRetries = 3;
-
 try {
   if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
   }
   db = firebase.firestore();
-  
-  // Enable offline persistence
-  db.enablePersistence({ synchronizeTabs: true })
-    .catch((err) => {
-      if (err.code === 'failed-precondition') {
-        console.log('Multiple tabs open, persistence enabled in single tab');
-      } else if (err.code === 'unimplemented') {
-        console.log('Browser doesn\'t support persistence');
-      }
-    });
-  
-  // Test connection
-  db.collection("test").doc("connection-test").get()
-    .then(() => {
-      isFirebaseConnected = true;
-      console.log("Firebase connected successfully");
-    })
-    .catch((error) => {
-      console.log("Firebase connection failed, using offline mode:", error);
-      isFirebaseConnected = false;
-    });
+  console.log("Firebase initialized successfully");
 } catch (error) {
   console.error("Firebase initialization error:", error);
-  isFirebaseConnected = false;
 }
 
 // Application State
-let currentDate = getCurrentDate();
+let currentDate = getCurrentDate(); // Get current date with 5:00 AM cutoff
+let isFirebaseConnected = false;
 let nextDayTimer = null;
-let vehicleDatabase = new Map(); // Maps 4-digit numbers to full vehicle names
-let allVehiclesData = []; // Stores all transactions for vehicle data modal
+let vehicleDatabase = new Map();
+let isFinalized = false; // Track if data has been finalized
 
 // Load vehicle database from saved data
 function loadVehicleDatabase() {
   vehicleDatabase.clear();
-  allVehiclesData = [];
   
   // Load from localStorage
   for (let i = 0; i < localStorage.length; i++) {
@@ -882,29 +930,18 @@ function loadVehicleDatabase() {
     if (key.startsWith('logbook_')) {
       try {
         const data = JSON.parse(localStorage.getItem(key));
-        const date = key.replace('logbook_', '');
         data.forEach(entry => {
           if (entry.vehicle && entry.vehicle.trim()) {
             const vehicle = entry.vehicle.trim();
+            // Extract the number part (last 4 digits after space)
             const parts = vehicle.split(' ');
             if (parts.length >= 2) {
               const numbers = parts[parts.length - 1];
+              // Store as number->full vehicle mapping
               if (/^\d{4}$/.test(numbers)) {
                 vehicleDatabase.set(numbers, vehicle);
               }
             }
-            
-            // Add to all vehicles data
-            allVehiclesData.push({
-              date: date,
-              vehicle: vehicle,
-              amount: entry.amount || '0',
-              cafe: entry.cafe || '0',
-              total: entry.total || '0',
-              paid: entry.paid || '0',
-              due: entry.due || '0',
-              status: entry.status || ''
-            });
           }
         });
       } catch (error) {
@@ -913,50 +950,51 @@ function loadVehicleDatabase() {
     }
   }
   
-  console.log("Vehicle database loaded:", vehicleDatabase.size, "vehicles");
-  console.log("Total transactions loaded:", allVehiclesData.length);
-}
-
-// Get full vehicle name from 4-digit number
-function getVehicleNameFromNumber(number) {
-  if (!number || !/^\d{4}$/.test(number)) return null;
-  return vehicleDatabase.get(number) || null;
-}
-
-// Format vehicle number to full name
-function formatVehicleToFullName(input) {
-  const value = input.trim();
-  
-  // Check if it's exactly 4 digits
-  if (/^\d{4}$/.test(value)) {
-    const fullName = getVehicleNameFromNumber(value);
-    if (fullName) {
-      return fullName;
-    }
-  }
-  
-  // Check if it's a partial number (3+ digits)
-  const numbers = value.match(/\d+/g);
-  if (numbers) {
-    const numberStr = numbers.join('');
-    if (numberStr.length >= 3) {
-      // Find matching vehicle
-      for (let [num, vehicle] of vehicleDatabase) {
-        if (num.includes(numberStr)) {
-          return vehicle;
+  // Also load from current table
+  document.querySelectorAll("#logbook tbody tr .vehicle-input").forEach(input => {
+    if (input.value && input.value.trim()) {
+      const vehicle = input.value.trim();
+      const parts = vehicle.split(' ');
+      if (parts.length >= 2) {
+        const numbers = parts[parts.length - 1];
+        if (/^\d{4}$/.test(numbers)) {
+          vehicleDatabase.set(numbers, vehicle);
         }
       }
     }
-  }
+  });
   
-  return value;
+  console.log("Vehicle database loaded:", vehicleDatabase.size, "vehicles");
 }
 
-// Get current date with 5:00 AM cutoff
+// Find vehicle by exact 4-digit number match
+function findVehicleByExactNumber(numberStr) {
+  if (!numberStr || !/^\d{4}$/.test(numberStr)) return null;
+  
+  // Look for exact match in the database
+  if (vehicleDatabase.has(numberStr)) {
+    return vehicleDatabase.get(numberStr);
+  }
+  
+  // Also check all vehicles for number match
+  for (let [num, vehicle] of vehicleDatabase) {
+    if (num === numberStr) {
+      return vehicle;
+    }
+  }
+  
+  return null;
+}
+
+// FIXED: Get current date with 5:00 AM cutoff - FIXED FOR CORRECT DATE
 function getCurrentDate() {
   const now = new Date();
   const currentHour = now.getHours();
+  const currentDate = now.getDate();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
   
+  // Create date string in YYYY-MM-DD format
   const formatDate = (date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -964,22 +1002,26 @@ function getCurrentDate() {
     return `${year}-${month}-${day}`;
   };
   
+  // If current time is between 00:00 and 05:00, use previous day's date
   if (currentHour < 5) {
     const previousDay = new Date(now);
     previousDay.setDate(previousDay.getDate() - 1);
     return formatDate(previousDay);
   }
   
+  // Otherwise use today's date
   return formatDate(now);
 }
 
-// Get next reset time
+// FIXED: Calculate next 5:00 AM for daily reset
 function getNextResetTime() {
   const now = new Date();
   const nextReset = new Date(now);
   
+  // Set to next 5:00 AM
   nextReset.setHours(5, 0, 0, 0);
   
+  // If it's already past 5:00 AM today, set to 5:00 AM tomorrow
   if (now.getHours() >= 5) {
     nextReset.setDate(nextReset.getDate() + 1);
   }
@@ -987,51 +1029,70 @@ function getNextResetTime() {
   return nextReset;
 }
 
-// Schedule daily reset
+// FIXED: Schedule daily reset at 5:00 AM
 function scheduleDailyReset() {
   const nextReset = getNextResetTime();
   const timeUntilNextReset = nextReset.getTime() - Date.now();
   
+  // Clear existing timer
   if (nextDayTimer) {
     clearTimeout(nextDayTimer);
   }
   
+  // Set new timer
   nextDayTimer = setTimeout(() => {
+    // Reset the table for new day
     resetTableForNewDay();
+    
+    // Schedule next reset
     scheduleDailyReset();
   }, timeUntilNextReset);
   
   console.log(`Next table reset scheduled at: ${nextReset.toString()}`);
+  console.log(`Time until reset: ${Math.round(timeUntilNextReset/1000/60)} minutes`);
 }
 
-// Reset table for new day
+// FIXED: Reset table for new day at 5:00 AM
 async function resetTableForNewDay() {
+  // Show notification before reset
   const oldDate = currentDate;
   showNotification(`Day ending. Finalizing data for ${oldDate}...`, "info");
   
+  // Finalize current day's data before clearing
   await finalizeDayData();
   
+  // Clear the table
   document.querySelector("#logbook tbody").innerHTML = "";
+  
+  // Update current date to new day (after 5:00 AM)
   currentDate = getCurrentDate();
+  
+  // Add new empty row
   addRow();
+  
+  // Update totals
   updateTotals();
   
+  // Load any existing data for new day
   if (isFirebaseConnected) {
     await loadFromFirebase(currentDate);
   } else {
     loadFromLocalStorage();
   }
   
-  showNotification(`New day started (${currentDate})`, "success");
+  showNotification(`New day started (${currentDate}). Previous day (${oldDate}) data finalized.`, "success");
+  
+  // Update date display
   updateDateTimeDisplay();
 }
 
-// Finalize day data
+// NEW: Function to finalize day data (save to cloud with final flag)
 async function finalizeDayData() {
-  if (!db) {
+  if (!db || !isFirebaseConnected) {
+    console.log("Cannot finalize: Firebase not connected");
     return false;
   }
-
+  
   try {
     const data = getDataForSave();
     const chargeTotal = document.getElementById("chargeTotal").textContent;
@@ -1067,7 +1128,7 @@ async function finalizeDayData() {
   }
 }
 
-// Clear table
+// NEW: Clear table function (clears only local table, not cloud)
 async function clearTable() {
   if (!confirm("Are you sure you want to clear all data from today's table? This action will NOT delete data from the cloud!")) {
     return;
@@ -1081,25 +1142,33 @@ async function clearTable() {
     return;
   }
   
+  // Clear all rows
   tbody.innerHTML = "";
+  
+  // Add one empty row
   addRow();
+  
+  // Update totals
   updateTotals();
   
+  // Save the cleared state locally only (not to cloud)
   const data = getDataForSave();
   localStorage.setItem(`logbook_${currentDate}`, JSON.stringify(data));
   
   showNotification("Table cleared locally. Cloud data remains unchanged.", "success");
 }
 
-// Finalize and switch to next day
+// NEW: Finalize and save to cloud function (for manual finalization) - UPDATED TO CLEAR TABLE
 async function finalizeAndSwitchToNextDay() {
-  if (!db) {
-    showNotification("Cannot finalize: Firebase not initialized", "danger");
+  if (!db || !isFirebaseConnected) {
+    showNotification("Cannot finalize: Firebase not connected", "danger");
     return;
   }
   
+  // Get the current date for finalization
   const dateToFinalize = currentDate;
   
+  // Confirm finalization
   if (!confirm(`Are you sure you want to FINALIZE and save data for ${dateToFinalize} to cloud?\n\nThis will:\n1. Save current data to cloud as FINAL\n2. Clear the table for new day\n3. Start fresh for next day\n\nThis action cannot be undone!`)) {
     return;
   }
@@ -1107,21 +1176,31 @@ async function finalizeAndSwitchToNextDay() {
   showLoading("Finalizing and saving to cloud...");
   
   try {
+    // Save current data to cloud with finalized flag
     const success = await finalizeDayData();
     
     if (success) {
+      // Clear the table for next day
       document.querySelector("#logbook tbody").innerHTML = "";
       
+      // Calculate next day (after current date)
       const nextDay = new Date(dateToFinalize);
       nextDay.setDate(nextDay.getDate() + 1);
       currentDate = nextDay.toISOString().split('T')[0];
       
+      // Add new empty row
       addRow();
+      
+      // Update totals
       updateTotals();
+      
+      // Clear local storage for the new day
       localStorage.removeItem(`logbook_${currentDate}`);
       
       hideLoading();
-      showNotification(`Data finalized and saved to cloud for ${dateToFinalize}.`, "success");
+      showNotification(`Data finalized and saved to cloud for ${dateToFinalize}. Table cleared for ${currentDate}.`, "success");
+      
+      // Update date display
       updateDateTimeDisplay();
     } else {
       hideLoading();
@@ -1132,6 +1211,16 @@ async function finalizeAndSwitchToNextDay() {
     console.error("Error finalizing and switching day:", error);
     showNotification("Error finalizing data", "danger");
   }
+}
+
+// Helper function to get previous day (for display purposes)
+function getPreviousDay() {
+  const prevDay = new Date(currentDate);
+  prevDay.setDate(prevDay.getDate() - 1);
+  const year = prevDay.getFullYear();
+  const month = String(prevDay.getMonth() + 1).padStart(2, '0');
+  const day = String(prevDay.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 // Date/Time Functions
@@ -1190,16 +1279,20 @@ function showNotification(message, type = "success") {
   }, 3000);
 }
 
-// Format vehicle number
+// Vehicle number formatting function with EV30 and EV32 as special vehicle names
 function formatVehicleNumber(value) {
+  // Remove all spaces and convert to uppercase
   let formatted = value.replace(/\s/g, '').toUpperCase();
   
+  // Check for EV30 or EV32 followed by numbers (vehicle names)
   const ev30Match = formatted.match(/^(EV30)(\d*)$/);
   const ev32Match = formatted.match(/^(EV32)(\d*)$/);
   
   if (ev30Match) {
     const vehicleName = ev30Match[1];
     const numbers = ev30Match[2];
+    
+    // If there are numbers after EV30, add a space after EV30
     if (numbers) {
       return vehicleName + ' ' + numbers;
     }
@@ -1209,38 +1302,51 @@ function formatVehicleNumber(value) {
   if (ev32Match) {
     const vehicleName = ev32Match[1];
     const numbers = ev32Match[2];
+    
+    // If there are numbers after EV32, add a space after EV32
     if (numbers) {
       return vehicleName + ' ' + numbers;
     }
     return vehicleName;
   }
   
+  // For other cases, use the original logic
+  // Regular expression to match letters followed by numbers
   const match = formatted.match(/^([A-Z]+)(\d*)$/);
   
   if (match) {
     const letters = match[1];
     const numbers = match[2];
+    
     if (numbers) {
+      // Add a space between letters and numbers for other vehicles
       return letters + ' ' + numbers;
     }
     return letters;
   }
   
+  // Return as is if pattern doesn't match
   return formatted;
 }
 
-// Check for auto-switch
+// Check if vehicle has 4 numbers and auto-switch to SOC field
 function checkVehicleForAutoSwitch(vehicleInput, row) {
   const value = vehicleInput.value.trim();
+  
+  // Check if we have a pattern like "ABC 1234" or "EV30 1234" or "EV32 1234"
   const parts = value.split(' ');
   
   if (parts.length === 2) {
     const numbers = parts[1];
+    
+    // Check if numbers part has exactly 4 digits
     if (/^\d{4}$/.test(numbers)) {
+      // Auto-switch to SOC field after a small delay
       setTimeout(() => {
         const socInput = row.querySelector(".soc-input");
         if (socInput) {
           socInput.focus();
+          // Move cursor to the beginning of SOC field
           socInput.setSelectionRange(0, 0);
         }
       }, 50);
@@ -1251,23 +1357,30 @@ function checkVehicleForAutoSwitch(vehicleInput, row) {
   return false;
 }
 
+// Check if SOC has number after hyphen greater than 10 or equals to 100, then auto-switch to Amount field
 function checkSOCForAutoSwitch(socInput, row) {
   const value = socInput.value.trim();
   
+  // Check if value contains a hyphen
   if (value.includes('-')) {
     const parts = value.split('-');
     
     if (parts.length === 2) {
       const afterHyphen = parts[1];
+      
+      // Try to parse the number after hyphen (take only digits)
       const numbers = afterHyphen.match(/\d+/);
       if (numbers) {
         const numberAfterHyphen = parseInt(numbers[0]);
         
+        // If number after hyphen is greater than 10 or equals to 100, switch to Amount field
         if (!isNaN(numberAfterHyphen) && (numberAfterHyphen > 10 || numberAfterHyphen === 100)) {
+          // Auto-switch to Amount field after a small delay
           setTimeout(() => {
             const amountInput = row.querySelector(".amount-input");
             if (amountInput) {
               amountInput.focus();
+              // Move cursor to the beginning of Amount field
               amountInput.setSelectionRange(0, 0);
             }
           }, 50);
@@ -1303,6 +1416,7 @@ function isRowBlank(row) {
   return !vehicle && !amount && !total && !paid && !hasStatus;
 }
 
+// NEW: Check if row has no data in key fields (for export/print)
 function isRowEmptyForExport(row) {
   const inputs = row.querySelectorAll("input");
   const soc = inputs[2]?.value.trim();
@@ -1342,13 +1456,17 @@ function moveToNextCell(currentInput, row) {
   const currentIndex = allElements.indexOf(currentInput);
   
   if (currentIndex < allElements.length - 1) {
+    // Move to next cell in same row
     allElements[currentIndex + 1].focus();
   } else {
+    // We're at the last cell - check for blank row below
     const blankRow = getFirstBlankRowBelow(row);
     if (blankRow) {
+      // Focus on the vehicle input of the blank row
       const vehicleInput = blankRow.querySelector(".vehicle-input");
       if (vehicleInput) setTimeout(() => vehicleInput.focus(), 50);
     }
+    // Don't add new row automatically - let the status button handle it
   }
 }
 
@@ -1396,20 +1514,25 @@ function calculateSOCDiff(socValue) {
 
 function formatSOCInput(value) {
   let x = value.replace(/[^a-zA-Z0-9\-]/g, '');
+  // Don't auto-add hyphen on every input - only when typing
   return x;
 }
 
 async function deleteRow(row) {
+  // Check if this is the first row
   const rows = document.querySelectorAll("#logbook tbody tr");
   const isFirstRow = rows.length > 0 && row === rows[0];
   
+  // Check if row has data
   const isBlank = isRowBlank(row);
   
+  // For non-first rows, check if row above is locked
   if (!isFirstRow && isRowAboveLocked(row)) {
     showNotification("Cannot delete row: Row above is locked!", "danger");
     return;
   }
   
+  // If row has data, ask for confirmation
   if (!isBlank) {
     const rowType = isFirstRow ? "first row" : "row";
     if (!confirm(`This ${rowType} contains data. Are you sure you want to ${isFirstRow ? "clear" : "delete"} it?`)) {
@@ -1418,34 +1541,41 @@ async function deleteRow(row) {
   }
   
   if (isFirstRow) {
+    // For first row, only clear the data (don't delete the row)
     if (row.classList.contains("locked-row")) {
       unlockRow(row);
     }
     
+    // Clear all data in the first row
     clearRowData(row);
     showNotification("First row data cleared (row preserved)");
   } else {
+    // For non-first rows, delete the row
     row.remove();
     updateSerialNumbers();
     showNotification("Row deleted");
   }
   
   updateTotals();
-  await autoSave(true);
+  await autoSave(true); // Force save to cloud
 }
 
+// Function to clear row data
 function clearRowData(row) {
   const inputs = row.querySelectorAll("input");
   
+  // Clear all inputs
   inputs.forEach(input => {
     if (!input.classList.contains('time-input')) {
       input.value = "";
       input.dispatchEvent(new Event('input'));
     } else {
+      // Keep time input as is (it will be auto-filled when vehicle is entered)
       input.value = "";
     }
   });
   
+  // Reset status buttons
   const paidButton = row.querySelector(".paid-button");
   const dueButton = row.querySelector(".due-button");
   if (paidButton && dueButton) {
@@ -1455,10 +1585,16 @@ function clearRowData(row) {
     dueButton.classList.remove("active");
   }
   
+  // Unlock the row
   unlockRow(row);
+  
+  // Remove due-row class
   row.classList.remove("due-row");
+  
+  // Update totals
   updateTotals();
   
+  // Focus on vehicle input for easy entry
   const vehicleInput = row.querySelector(".vehicle-input");
   if (vehicleInput) {
     setTimeout(() => vehicleInput.focus(), 50);
@@ -1468,251 +1604,28 @@ function clearRowData(row) {
 function checkAndAddRowIfNeeded(row, forceAdd = false) {
   const blankRow = getFirstBlankRowBelow(row);
   if (!blankRow || forceAdd) {
+    // No blank row below, add a new one
     const newRow = addRow();
     const vehicleInput = newRow.querySelector(".vehicle-input");
     if (vehicleInput) setTimeout(() => vehicleInput.focus(), 50);
   } else {
+    // Focus on the vehicle input of the blank row
     const vehicleInput = blankRow.querySelector(".vehicle-input");
     if (vehicleInput) setTimeout(() => vehicleInput.focus(), 50);
   }
 }
 
 function setTimeOnVehicleEntry(vehicleInput, timeInput) {
+  // Set time only if vehicle has value and time is empty
   if (vehicleInput.value.trim() && !timeInput.value) {
     timeInput.value = new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', hour12: true});
     timeInput.dispatchEvent(new Event('input'));
   }
 }
 
-// Due Vehicles Functions
-function showDueVehicles() {
-  const dueData = [];
-  let totalDue = 0;
-  
-  // Collect all due vehicles from all dates
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key.startsWith('logbook_')) {
-      try {
-        const date = key.replace('logbook_', '');
-        const data = JSON.parse(localStorage.getItem(key));
-        
-        data.forEach(entry => {
-          const due = evaluateValue(entry.due || 0);
-          if (due > 0) {
-            dueData.push({
-              date: date,
-              vehicle: entry.vehicle || 'Unknown',
-              total: evaluateValue(entry.total || 0),
-              paid: evaluateValue(entry.paid || 0),
-              due: due,
-              originalData: entry,
-              docKey: key
-            });
-            totalDue += due;
-          }
-        });
-      } catch (error) {
-        console.error("Error loading due data:", error);
-      }
-    }
-  }
-  
-  // Sort by date (newest first) - FIXED: changed from amount sort to date sort
-  dueData.sort((a, b) => b.date.localeCompare(a.date));
-  
-  const tbody = document.getElementById('dueTableBody');
-  tbody.innerHTML = '';
-  
-  if (dueData.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" class="due-no-data">No due vehicles found</td></tr>';
-  } else {
-    dueData.forEach((item, index) => {
-      const row = document.createElement('tr');
-      row.className = 'due-row-data';
-      
-      const paidBtn = document.createElement('button');
-      paidBtn.className = 'due-paid-btn';
-      paidBtn.textContent = 'Mark Paid';
-      paidBtn.onclick = async function() {
-        if (confirm(`Mark this transaction as paid for ${item.vehicle} on ${item.date}?`)) {
-          await markDueAsPaid(item);
-        }
-      };
-      
-      row.innerHTML = `
-        <td>${item.date}</td>
-        <td>${item.vehicle}</td>
-        <td>Rs. ${item.total.toLocaleString()}</td>
-        <td>Rs. ${item.paid.toLocaleString()}</td>
-        <td>Rs. ${item.due.toLocaleString()}</td>
-        <td></td>
-      `;
-      
-      row.querySelector('td:last-child').appendChild(paidBtn);
-      tbody.appendChild(row);
-    });
-  }
-  
-  document.getElementById('totalDueAmount').textContent = `Rs. ${totalDue.toLocaleString()}`;
-  document.getElementById('totalDueVehicles').textContent = dueData.length;
-  document.getElementById('dueModal').style.display = 'flex';
-}
-
-async function markDueAsPaid(item) {
-  try {
-    // Update in localStorage
-    const data = JSON.parse(localStorage.getItem(item.docKey));
-    const entryIndex = data.findIndex(e => 
-      e.vehicle === item.originalData.vehicle && 
-      e.total === item.originalData.total && 
-      e.due === item.originalData.due
-    );
-    
-    if (entryIndex !== -1) {
-      // Mark as paid by setting paid = total and due = 0
-      data[entryIndex].paid = data[entryIndex].total;
-      data[entryIndex].due = '0';
-      data[entryIndex].status = 'paid';
-      
-      localStorage.setItem(item.docKey, JSON.stringify(data));
-      
-      // Update in Firebase if connected
-      if (db && isFirebaseConnected) {
-        try {
-          const docRef = db.collection("logbook").doc(item.date);
-          const doc = await docRef.get();
-          
-          if (doc.exists) {
-            const firebaseData = doc.data();
-            const firebaseEntries = firebaseData.entries || [];
-            
-            const fbEntryIndex = firebaseEntries.findIndex(e => 
-              e.vehicle === item.originalData.vehicle && 
-              e.total === item.originalData.total
-            );
-            
-            if (fbEntryIndex !== -1) {
-              firebaseEntries[fbEntryIndex].paid = item.originalData.total;
-              firebaseEntries[fbEntryIndex].due = '0';
-              firebaseEntries[fbEntryIndex].status = 'paid';
-              
-              await docRef.set({
-                entries: firebaseEntries,
-                date: item.date,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-              }, { merge: true });
-            }
-          }
-        } catch (error) {
-          console.error("Error updating Firebase:", error);
-        }
-      }
-      
-      showNotification(`Marked as paid: ${item.vehicle}`, "success");
-      
-      // Refresh due vehicles list
-      showDueVehicles();
-      
-      // If current date matches, refresh the table
-      if (item.date === currentDate) {
-        loadFromLocalStorage();
-      }
-    }
-  } catch (error) {
-    console.error("Error marking as paid:", error);
-    showNotification("Error updating record", "danger");
-  }
-}
-
-// Vehicle Data Functions
-function showVehicleData() {
-  // Reload vehicle data
-  allVehiclesData = [];
-  
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key.startsWith('logbook_')) {
-      try {
-        const date = key.replace('logbook_', '');
-        const data = JSON.parse(localStorage.getItem(key));
-        
-        data.forEach(entry => {
-          if (entry.vehicle && entry.vehicle.trim()) {
-            allVehiclesData.push({
-              date: date,
-              vehicle: entry.vehicle.trim(),
-              amount: evaluateValue(entry.amount || 0),
-              cafe: evaluateValue(entry.cafe || 0),
-              total: evaluateValue(entry.total || 0),
-              paid: evaluateValue(entry.paid || 0),
-              due: evaluateValue(entry.due || 0),
-              status: entry.status || ''
-            });
-          }
-        });
-      } catch (error) {
-        console.error("Error loading vehicle data:", error);
-      }
-    }
-  }
-  
-  // Sort by date (newest first)
-  allVehiclesData.sort((a, b) => b.date.localeCompare(a.date));
-  
-  // Update summary
-  const uniqueVehicles = new Set(allVehiclesData.map(v => v.vehicle)).size;
-  document.getElementById('totalVehicles').textContent = uniqueVehicles;
-  document.getElementById('totalVehicleTransactions').textContent = allVehiclesData.length;
-  
-  const totalRevenue = allVehiclesData.reduce((sum, v) => sum + v.total, 0);
-  document.getElementById('totalVehicleRevenue').textContent = `Rs. ${totalRevenue.toLocaleString()}`;
-  
-  // Populate table
-  filterVehicleData('');
-  
-  document.getElementById('vehicleModal').style.display = 'flex';
-}
-
-function filterVehicleData(searchTerm) {
-  const tbody = document.getElementById('vehicleTableBody');
-  tbody.innerHTML = '';
-  
-  const filtered = searchTerm ? 
-    allVehiclesData.filter(v => 
-      v.vehicle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      v.vehicle.includes(searchTerm)
-    ) : 
-    allVehiclesData;
-  
-  if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" class="vehicle-no-data">No vehicle data found</td></tr>';
-  } else {
-    filtered.slice(0, 100).forEach(item => {
-      const row = document.createElement('tr');
-      
-      let statusClass = '';
-      if (item.status === 'paid') statusClass = 'status-paid';
-      else if (item.status === 'due') statusClass = 'status-due';
-      
-      row.innerHTML = `
-        <td>${item.vehicle}</td>
-        <td>${item.date}</td>
-        <td>Rs. ${item.amount.toLocaleString()}</td>
-        <td>Rs. ${item.cafe.toLocaleString()}</td>
-        <td>Rs. ${item.total.toLocaleString()}</td>
-        <td>Rs. ${item.paid.toLocaleString()}</td>
-        <td>Rs. ${item.due.toLocaleString()}</td>
-        <td class="${statusClass}">${item.status || 'pending'}</td>
-      `;
-      
-      tbody.appendChild(row);
-    });
-  }
-}
-
 // Report Functions
 function formatDateForDisplay(dateStr) {
+  // Convert YYYY-MM-DD to DD/MM/YYYY
   const parts = dateStr.split('-');
   if (parts.length === 3) {
     return `${parts[2]}/${parts[1]}/${parts[0]}`;
@@ -1720,10 +1633,12 @@ function formatDateForDisplay(dateStr) {
   return dateStr;
 }
 
+// NEW: Populate month selector with previous months
 function populateMonthSelector() {
   const monthSelector = document.getElementById('monthSelector');
   const contributorSelector = document.getElementById('contributorMonthSelector');
   
+  // Clear existing options except first
   while (monthSelector.options.length > 1) {
     monthSelector.remove(1);
   }
@@ -1735,6 +1650,7 @@ function populateMonthSelector() {
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth();
   
+  // Add previous months (up to 12 months back)
   for (let i = 1; i <= 12; i++) {
     const date = new Date(currentYear, currentMonth - i, 1);
     const year = date.getFullYear();
@@ -1754,21 +1670,25 @@ function populateMonthSelector() {
   }
 }
 
+// NEW: Load monthly report for selected month
 async function loadMonthlyReportForMonth(year, month) {
   const tbody = document.getElementById('reportTableBody');
   tbody.innerHTML = '<tr><td colspan="5" class="report-loading">Loading monthly report...</td></tr>';
   
-  if (!db) {
+  if (!db || !isFirebaseConnected) {
     tbody.innerHTML = '<tr><td colspan="5" class="report-no-data">Cloud connection required for reports</td></tr>';
     return;
   }
   
+  // Update title
   const monthName = englishMonths[month];
   document.getElementById('reportTitle').textContent = `📊 Revenue Report - ${monthName} ${year}`;
   
   try {
+    // Get all dates for the specified month
     const monthDates = getMonthDates(year, month);
     
+    // Fetch data for all dates
     const promises = monthDates.map(date => db.collection("logbook").doc(date).get());
     const docs = await Promise.all(promises);
     
@@ -1807,6 +1727,7 @@ async function loadMonthlyReportForMonth(year, month) {
     });
     
     if (hasData) {
+      // Add total row
       const totalRow = document.createElement('tr');
       totalRow.className = 'report-total-row';
       totalRow.innerHTML = `
@@ -1829,6 +1750,7 @@ async function loadMonthlyReportForMonth(year, month) {
 function showReportModal() {
   document.getElementById('reportModal').style.display = 'flex';
   populateMonthSelector();
+  // Load daily report by default
   loadDailyReport();
 }
 
@@ -1837,9 +1759,15 @@ function hideReportModal() {
 }
 
 // Top Contributors Functions
+function getCurrentMonthName() {
+  const now = new Date();
+  return englishMonths[now.getMonth()];
+}
+
 function showContributorsModal() {
   document.getElementById('contributorsModal').style.display = 'flex';
   populateMonthSelector();
+  // Load top contributors for current month by default
   const now = new Date();
   loadTopContributors(now.getFullYear(), now.getMonth());
 }
@@ -1848,16 +1776,19 @@ function hideContributorsModal() {
   document.getElementById('contributorsModal').style.display = 'none';
 }
 
+// FIXED: Get all dates for the current month (parameterized, defaults to current month)
 function getMonthDates(year, month) {
+  // If no arguments, use current month
   if (year === undefined || month === undefined) {
     const now = new Date();
     year = now.getFullYear();
-    month = now.getMonth();
+    month = now.getMonth(); // 0‑based
   }
-  
+  // Get first and last day of month
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
   
+  // Generate all dates in the month
   const dates = [];
   const current = new Date(firstDay);
   
@@ -1872,6 +1803,7 @@ function getMonthDates(year, month) {
   return dates;
 }
 
+// FIXED: Get dates for the last 7 days (simplified)
 function getLast7DaysDates() {
   const dates = [];
   const today = new Date();
@@ -1888,31 +1820,36 @@ function getLast7DaysDates() {
   return dates;
 }
 
+// FIXED: Load top contributors with automatic fallback to previous months
 async function loadTopContributors(targetYear = null, targetMonth = null, depth = 0) {
   const tbody = document.getElementById('contributorsTableBody');
   tbody.innerHTML = '<tr><td colspan="5" class="contributors-loading">Loading top contributors...</td></tr>';
   
-  if (!db) {
+  if (!db || !isFirebaseConnected) {
     tbody.innerHTML = '<tr><td colspan="5" class="contributors-no-data">Cloud connection required for top contributors</td></tr>';
     return;
   }
   
+  // Determine the month to load
   const now = new Date();
   const currentYear = now.getFullYear();
-  const currentMonth = now.getMonth();
+  const currentMonth = now.getMonth(); // 0‑based
   
   const year = targetYear !== null ? targetYear : currentYear;
   const month = targetMonth !== null ? targetMonth : currentMonth;
   
+  // Update title
   const monthName = englishMonths[month];
   document.getElementById('contributorsTitle').textContent = `🏆 Top Contributors - ${monthName} ${year}`;
   
   try {
     const monthDates = getMonthDates(year, month);
     
+    // Fetch data for all dates in that month
     const promises = monthDates.map(date => db.collection("logbook").doc(date).get());
     const docs = await Promise.all(promises);
     
+    // Process data to find top contributors
     const contributorsMap = new Map();
     let totalMonthRevenue = 0;
     let totalTransactions = 0;
@@ -1953,17 +1890,21 @@ async function loadTopContributors(targetYear = null, targetMonth = null, depth 
       }
     });
     
+    // If no data found and we haven't tried too many months (e.g., depth < 12), try previous month
     if (!foundData && depth < 12) {
+      // Move to previous month
       let prevYear = year;
       let prevMonth = month - 1;
       if (prevMonth < 0) {
         prevMonth = 11;
         prevYear = year - 1;
       }
+      // Recursively load previous month
       await loadTopContributors(prevYear, prevMonth, depth + 1);
       return;
     }
     
+    // Convert to array and sort by total amount (descending)
     const contributorsArray = Array.from(contributorsMap, ([vehicle, data]) => ({
       vehicle,
       totalAmount: data.totalAmount,
@@ -1976,10 +1917,12 @@ async function loadTopContributors(targetYear = null, targetMonth = null, depth 
     contributorsArray.sort((a, b) => b.totalAmount - a.totalAmount);
     const topContributors = contributorsArray.slice(0, 10);
     
+    // Update summary
     document.getElementById('totalContributors').textContent = topContributors.length;
     document.getElementById('totalTransactions').textContent = totalTransactions;
     document.getElementById('monthRevenue').textContent = `Rs. ${totalMonthRevenue.toLocaleString()}`;
     
+    // Clear and populate table
     tbody.innerHTML = '';
     
     if (topContributors.length > 0) {
@@ -2011,18 +1954,21 @@ async function loadTopContributors(targetYear = null, targetMonth = null, depth 
   }
 }
 
+// FIXED: Load daily report - now shows all data for the current day
 async function loadDailyReport() {
   const tbody = document.getElementById('reportTableBody');
   tbody.innerHTML = '<tr><td colspan="5" class="report-loading">Loading daily report...</td></tr>';
   
-  if (!db) {
+  if (!db || !isFirebaseConnected) {
     tbody.innerHTML = '<tr><td colspan="5" class="report-no-data">Cloud connection required for reports</td></tr>';
     return;
   }
   
+  // Update title
   document.getElementById('reportTitle').textContent = '📊 Revenue Report - Daily';
   
   try {
+    // Get today's data using currentDate
     const today = currentDate;
     const docRef = db.collection("logbook").doc(today);
     const doc = await docRef.get();
@@ -2047,6 +1993,7 @@ async function loadDailyReport() {
       `;
       tbody.appendChild(row);
       
+      // Add total row (same as the only row for daily)
       const totalRow = document.createElement('tr');
       totalRow.className = 'report-total-row';
       totalRow.innerHTML = `
@@ -2066,20 +2013,24 @@ async function loadDailyReport() {
   }
 }
 
+// FIXED: Load weekly report with proper date aggregation
 async function loadWeeklyReport() {
   const tbody = document.getElementById('reportTableBody');
   tbody.innerHTML = '<tr><td colspan="5" class="report-loading">Loading weekly report...</td></tr>';
   
-  if (!db) {
+  if (!db || !isFirebaseConnected) {
     tbody.innerHTML = '<tr><td colspan="5" class="report-no-data">Cloud connection required for reports</td></tr>';
     return;
   }
   
+  // Update title
   document.getElementById('reportTitle').textContent = '📊 Revenue Report - Weekly';
   
   try {
+    // Get last 7 days including today
     const weekDates = getLast7DaysDates();
     
+    // Fetch data for all dates
     const promises = weekDates.map(date => db.collection("logbook").doc(date).get());
     const docs = await Promise.all(promises);
     
@@ -2118,6 +2069,7 @@ async function loadWeeklyReport() {
     });
     
     if (hasData) {
+      // Add total row
       const totalRow = document.createElement('tr');
       totalRow.className = 'report-total-row';
       totalRow.innerHTML = `
@@ -2137,16 +2089,20 @@ async function loadWeeklyReport() {
   }
 }
 
+// FIXED: Load monthly report with proper date aggregation
 async function loadMonthlyReport() {
+  // Use current month by default
   const now = new Date();
   await loadMonthlyReportForMonth(now.getFullYear(), now.getMonth());
 }
 
-// CSV Export Function
+// CSV Export Function - REPLACED Excel export
 function exportToCSV() {
   try {
+    // Get all data from the table
     const rows = document.querySelectorAll("#logbook tbody tr");
     
+    // Filter out rows that are empty for export (no SOC, Amount, Cafe, Total)
     const filteredRows = Array.from(rows).filter(row => !isRowEmptyForExport(row));
     
     if (filteredRows.length === 0) {
@@ -2154,14 +2110,17 @@ function exportToCSV() {
       return;
     }
     
+    // Prepare CSV data
     const csvData = [];
     
+    // Add headers
     const headers = [
       "S.N.", "Time", "Vehicle", "% SOC", "Diff", 
       "Amount", "Cafe", "Total", "Paid", "Status", "Due"
     ];
     csvData.push(headers);
     
+    // Add data rows
     filteredRows.forEach(row => {
       const inputs = row.querySelectorAll("input");
       const paidButton = row.querySelector(".paid-button");
@@ -2190,20 +2149,25 @@ function exportToCSV() {
       csvData.push(rowData);
     });
     
-    csvData.push([]);
+    // Add summary row
+    csvData.push([]); // Empty row for separation
     csvData.push(["SUMMARY", "", "", "", "", "", "", "", "", "", ""]);
     
+    // Add summary data
     csvData.push(["Charge Revenue", "", "", "", "", document.getElementById("chargeTotal").textContent, "", "", "", "", ""]);
     csvData.push(["Cafe Revenue", "", "", "", "", "", document.getElementById("cafeTotal").textContent, "", "", "", ""]);
     csvData.push(["Total Revenue", "", "", "", "", "", "", document.getElementById("allTotal").textContent, "", "", ""]);
     csvData.push(["Due Amount", "", "", "", "", "", "", "", "", "", document.getElementById("dueTotal").textContent]);
     
-    csvData.push([]);
+    // Add metadata
+    csvData.push([]); // Empty row for separation
     csvData.push(["Export Date", new Date().toLocaleString(), "", "", "", "", "", "", "", "", ""]);
     csvData.push(["Business Day", currentDate, "", "", "", "", "", "", "", "", ""]);
     
+    // Convert to CSV string
     const csvString = csvData.map(row => 
       row.map(cell => {
+        // Escape quotes and wrap in quotes if contains comma or quote
         if (typeof cell === 'string' && (cell.includes(',') || cell.includes('"') || cell.includes('\n'))) {
           return '"' + cell.replace(/"/g, '""') + '"';
         }
@@ -2211,11 +2175,13 @@ function exportToCSV() {
       }).join(',')
     ).join('\n');
     
+    // Create Blob and download
     const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
     link.setAttribute("href", url);
     
+    // Generate filename with current date: charging_data_YYYY-MM-DD.csv
     const filename = `charging_data_${currentDate}.csv`;
     link.setAttribute("download", filename);
     link.style.visibility = 'hidden';
@@ -2231,12 +2197,14 @@ function exportToCSV() {
   }
 }
 
-// Prepare for print
+// NEW: Function to prepare table for printing (hides empty last rows)
 function prepareForPrint() {
   const rows = document.querySelectorAll("#logbook tbody tr");
   
+  // Remove hide-in-print class from all rows first
   rows.forEach(row => row.classList.remove('hide-in-print'));
   
+  // Check each row and hide empty ones for print
   rows.forEach((row, index) => {
     if (isRowEmptyForExport(row)) {
       row.classList.add('hide-in-print');
@@ -2244,34 +2212,42 @@ function prepareForPrint() {
   });
 }
 
+// NEW: Custom print function
 function printTable() {
+  // Prepare table for printing (hide empty rows)
   prepareForPrint();
+  
+  // Trigger browser print
   window.print();
   
+  // Remove hide-in-print class after a delay (in case print is cancelled)
   setTimeout(() => {
     const rows = document.querySelectorAll("#logbook tbody tr");
     rows.forEach(row => row.classList.remove('hide-in-print'));
   }, 1000);
 }
 
-// Add row function
 function addRow(data = {}) {
   const tbody = document.querySelector("#logbook tbody");
   const row = document.createElement("tr");
   row.className = "fade-in";
   
+  // Check if this is the first row
   const isFirstRow = tbody.children.length === 0;
   
+  // S.N.
   const sn = document.createElement("td");
   sn.textContent = tbody.children.length + 1;
   
+  // Time - Set only when vehicle is entered
   const time = document.createElement("td");
   const timeInput = document.createElement("input");
-  timeInput.value = data.time || "";
+  timeInput.value = data.time || ""; // Start with empty time
   timeInput.readOnly = true;
   timeInput.className = "time-input";
   time.appendChild(timeInput);
   
+  // Vehicle - UPDATED: Fixed suggestions positioning
   const vehicle = document.createElement("td");
   vehicle.className = "vehicle-cell";
   
@@ -2279,10 +2255,12 @@ function addRow(data = {}) {
   vehicleInput.value = data.vehicle || "";
   vehicleInput.className = "vehicle-input";
   
+  // Create suggestions popup (positioned fixed to appear above everything)
   const suggestionsPopup = document.createElement("div");
   suggestionsPopup.className = "vehicle-suggestions-popup";
-  document.body.appendChild(suggestionsPopup);
+  document.body.appendChild(suggestionsPopup); // Append to body, not vehicle cell
   
+  // Function to position and show suggestions
   function showSuggestions(searchText) {
     suggestionsPopup.innerHTML = '';
     
@@ -2291,12 +2269,14 @@ function addRow(data = {}) {
       return;
     }
     
+    // Only show suggestions if 3 or more consecutive numbers are found
     const numbers = searchText.match(/\d+/g);
     if (!numbers || numbers.join('').length < 3) {
       suggestionsPopup.style.display = 'none';
       return;
     }
     
+    // Find vehicles that contain these numbers
     const suggestions = [];
     const searchNumberString = numbers.join('');
     
@@ -2311,6 +2291,7 @@ function addRow(data = {}) {
       return;
     }
     
+    // Limit to 5 suggestions for better display
     const limitedSuggestions = suggestions.slice(0, 5);
     
     limitedSuggestions.forEach(vehicle => {
@@ -2318,15 +2299,21 @@ function addRow(data = {}) {
       suggestionItem.className = "vehicle-suggestion-item";
       suggestionItem.textContent = vehicle;
       suggestionItem.addEventListener("click", function() {
+        // REPLACE THE ENTIRE INPUT WITH THE FULL VEHICLE NAME AND NUMBER
+        // Set flag to avoid formatting interference
         isAutoFilling = true;
+        
+        // Replace the typed number with the full suggested vehicle name and number
         vehicleInput.value = vehicle;
         vehicleInput.dispatchEvent(new Event('input'));
         suggestionsPopup.style.display = 'none';
         
+        // Auto-switch to SOC field if vehicle has 4 numbers
         setTimeout(() => {
           checkVehicleForAutoSwitch(vehicleInput, row);
         }, 50);
         
+        // Add to vehicle database
         if (vehicle.trim()) {
           const parts = vehicle.split(' ');
           if (parts.length >= 2) {
@@ -2340,25 +2327,32 @@ function addRow(data = {}) {
       suggestionsPopup.appendChild(suggestionItem);
     });
     
+    // Position the popup above the input
     const rect = vehicleInput.getBoundingClientRect();
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
     
+    // Calculate position: above the input, centered horizontally
     const popupTop = rect.top + scrollTop - suggestionsPopup.offsetHeight - 5;
     const popupLeft = rect.left + scrollLeft + (rect.width / 2) - (suggestionsPopup.offsetWidth / 2);
     
+    // Ensure popup stays within viewport
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
     
     let finalLeft = popupLeft;
     let finalTop = popupTop;
     
+    // Adjust if too far left
     if (finalLeft < 10) finalLeft = 10;
+    // Adjust if too far right
     if (finalLeft + suggestionsPopup.offsetWidth > viewportWidth - 10) {
       finalLeft = viewportWidth - suggestionsPopup.offsetWidth - 10;
     }
     
+    // Adjust if too high (above viewport)
     if (finalTop < 10) {
+      // Position below input instead
       finalTop = rect.top + scrollTop + rect.height + 5;
     }
     
@@ -2367,25 +2361,37 @@ function addRow(data = {}) {
     suggestionsPopup.style.display = 'block';
   }
   
+  // Track if we're currently auto-filling
   let isAutoFilling = false;
   
+  // Format vehicle number on input
   vehicleInput.addEventListener("input", function() {
+    // If we're auto-filling, don't process
     if (isAutoFilling) {
       isAutoFilling = false;
       return;
     }
     
+    // First convert to uppercase
     let value = this.value.toUpperCase();
+    
+    // Store cursor position
     const cursorPos = this.selectionStart;
     
+    // Don't auto-format while typing - let user type full vehicle number
+    // Only format when input is complete (on blur or when user presses space)
     this.value = value;
+    
+    // Restore cursor position
     this.setSelectionRange(cursorPos, cursorPos);
     
+    // Set time when vehicle is entered
     if (this.value.trim() && !timeInput.value) {
       timeInput.value = new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', hour12: true});
       timeInput.dispatchEvent(new Event('input'));
     }
     
+    // Show suggestions if 3 or more consecutive numbers are typed
     const numbers = value.match(/\d+/g);
     if (numbers && numbers.join('').length >= 3) {
       showSuggestions(value);
@@ -2393,29 +2399,44 @@ function addRow(data = {}) {
       suggestionsPopup.style.display = 'none';
     }
     
+    // Check if vehicle has 4 numbers and auto-switch to SOC field
     checkVehicleForAutoSwitch(this, row);
   });
   
   vehicleInput.addEventListener("blur", function() {
-    const rawValue = this.value;
-    const formattedValue = formatVehicleNumber(rawValue);
+    // Final formatting on blur
+    this.value = formatVehicleNumber(this.value);
     
-    // Auto-replace if exactly 4 digits
-    const numbers = formattedValue.match(/\d{4}$/);
-    if (numbers) {
-      const fullName = getVehicleNameFromNumber(numbers[0]);
-      if (fullName) {
+    // Check if user typed exactly 4 digits that match a saved vehicle
+    const value = this.value.trim();
+    
+    // Check for exact 4-digit number match
+    if (/^\d{4}$/.test(value)) {
+      const matchedVehicle = findVehicleByExactNumber(value);
+      if (matchedVehicle) {
         isAutoFilling = true;
-        this.value = fullName;
-      } else {
-        this.value = formattedValue;
+        this.value = matchedVehicle;
+        this.dispatchEvent(new Event('input'));
       }
-    } else {
-      this.value = formattedValue;
     }
     
+    // Check for exact match in database
+    const formattedValue = this.value.trim();
+    if (formattedValue) {
+      // Check if this is a full vehicle name with number
+      const parts = formattedValue.split(' ');
+      if (parts.length >= 2) {
+        const numbers = parts[parts.length - 1];
+        if (/^\d{4}$/.test(numbers)) {
+          vehicleDatabase.set(numbers, formattedValue);
+        }
+      }
+    }
+    
+    // Set time on blur if vehicle has value and time is empty
     setTimeOnVehicleEntry(this, timeInput);
     
+    // Hide suggestions on blur (with delay to allow click)
     setTimeout(() => {
       suggestionsPopup.style.display = 'none';
     }, 200);
@@ -2426,43 +2447,50 @@ function addRow(data = {}) {
     showSuggestions(value);
   });
   
-  // KEYDOWN handler: Enter to replace, Arrow keys to navigate
-  vehicleInput.addEventListener("keydown", function(e) {
+  vehicleInput.addEventListener("keydown", e => {
     if (e.key === "Enter") {
-      e.preventDefault(); // Prevent form submit
+      // Format on Enter
+      this.value = formatVehicleNumber(this.value);
       
-      const rawValue = this.value;
-      const formattedValue = formatVehicleNumber(rawValue);
+      // Check for exact 4-digit number match
+      const value = this.value.trim();
       
-      const numbers = formattedValue.match(/\d{4}$/);
-      if (numbers) {
-        const fullName = getVehicleNameFromNumber(numbers[0]);
-        if (fullName) {
+      // Check for exact 4-digit number match
+      if (/^\d{4}$/.test(value)) {
+        const matchedVehicle = findVehicleByExactNumber(value);
+        if (matchedVehicle) {
           isAutoFilling = true;
-          this.value = fullName;
-        } else {
-          this.value = formattedValue;
+          this.value = matchedVehicle;
+          this.dispatchEvent(new Event('input'));
         }
-      } else {
-        this.value = formattedValue;
       }
       
+      // Check for exact match
+      const formattedValue = this.value.trim();
+      if (formattedValue) {
+        // Check if this is a full vehicle name with number
+        const parts = formattedValue.split(' ');
+        if (parts.length >= 2) {
+          const numbers = parts[parts.length - 1];
+          if (/^\d{4}$/.test(numbers)) {
+            vehicleDatabase.set(numbers, formattedValue);
+          }
+        }
+      }
+      
+      // Hide suggestions
       suggestionsPopup.style.display = 'none';
       
-      // Move to next cell (SOC)
+      // Check if vehicle has 4 numbers and auto-switch to SOC field
       if (!checkVehicleForAutoSwitch(vehicleInput, row)) {
         moveToNextCell(vehicleInput, row);
       }
-    } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-      // Close popup and optionally move to next/prev? 
-      // We'll just close popup and allow default cursor movement.
-      suggestionsPopup.style.display = 'none';
-      // Let the browser move cursor within input
     } else if (e.key === "Escape") {
       suggestionsPopup.style.display = 'none';
     }
   });
   
+  // Clear time if vehicle is cleared
   vehicleInput.addEventListener("change", function() {
     if (!this.value.trim() && timeInput.value) {
       timeInput.value = "";
@@ -2472,6 +2500,7 @@ function addRow(data = {}) {
   
   vehicle.appendChild(vehicleInput);
   
+  // Clean up suggestions popup when row is removed
   const originalRemoveChild = row.remove;
   row.remove = function() {
     if (suggestionsPopup && suggestionsPopup.parentNode) {
@@ -2480,6 +2509,7 @@ function addRow(data = {}) {
     return originalRemoveChild.apply(this, arguments);
   };
   
+  // % SOC - MODIFIED: Auto-add hyphen after 2 numbers and make hyphen deletable
   const soc = document.createElement("td");
   const socContainer = document.createElement("div");
   socContainer.className = "soc-container";
@@ -2487,31 +2517,41 @@ function addRow(data = {}) {
   socInput.className = "soc-input";
   socInput.value = data.percent || "";
   
+  // Store previous value for comparison
   let previousSOCValue = socInput.value;
   
   socInput.addEventListener("input", function() {
     let value = this.value;
+    
+    // Store cursor position
     const cursorPos = this.selectionStart;
     
+    // Allow only digits and hyphen
     value = value.replace(/[^0-9\-]/g, '');
     
+    // Auto-add hyphen after 2 numbers
+    // Check if we have exactly 2 digits and no hyphen
     if (value.length === 2 && !value.includes('-') && previousSOCValue.length < 2) {
       value = value + '-';
     }
     
+    // Handle hyphen deletion with backspace
     if (previousSOCValue.length === 3 && previousSOCValue.includes('-') && 
         value.length === 2 && !value.includes('-')) {
+      // User deleted the hyphen, keep just the digits
       value = value;
     }
     
+    // Update the value
     this.value = value;
     previousSOCValue = value;
     
+    // Restore cursor position (adjust for hyphen addition/removal)
     if (cursorPos === 2 && value.length === 3 && value[2] === '-') {
-      this.setSelectionRange(3, 3);
+      this.setSelectionRange(3, 3); // Move cursor after hyphen
     } else if (cursorPos === 3 && previousSOCValue.length === 3 && 
                previousSOCValue.includes('-') && value.length === 2) {
-      this.setSelectionRange(2, 2);
+      this.setSelectionRange(2, 2); // Move cursor to end when hyphen deleted
     } else {
       this.setSelectionRange(cursorPos, cursorPos);
     }
@@ -2519,21 +2559,27 @@ function addRow(data = {}) {
     shouldShowBlank(this.value) ? this.classList.add('empty-value') : this.classList.remove('empty-value');
     updateDiffColumn(this);
     
+    // Check if SOC has number after hyphen greater than 10 or equals to 100 and auto-switch to Amount field
     checkSOCForAutoSwitch(this, row);
   });
   
+  // Handle backspace key specifically for hyphen deletion
   socInput.addEventListener("keydown", e => {
     if (e.key === "Backspace") {
       const cursorPos = this.selectionStart;
       const value = this.value;
       
+      // If cursor is right after hyphen (position 3) and we press backspace
       if (cursorPos === 3 && value.length === 3 && value[2] === '-') {
+        // Allow backspace to delete the hyphen
+        // The input event will handle the rest
       }
     }
   });
   
   socInput.addEventListener("keydown", e => {
     if (e.key === "Enter") {
+      // Check if SOC has number after hyphen greater than 10 or equals to 100 and auto-switch to Amount field
       if (!checkSOCForAutoSwitch(socInput, row)) {
         moveToNextCell(socInput, row);
       }
@@ -2541,17 +2587,23 @@ function addRow(data = {}) {
   });
   
   socInput.addEventListener("blur", function() {
+    // Format on blur: ensure proper hyphen placement
     let value = this.value;
     
+    // If value has digits but no hyphen, try to add hyphen in reasonable place
     if (value && !value.includes('-') && /^\d+$/.test(value)) {
       if (value.length <= 2) {
+        // If 1-2 digits, leave as is (will show as start percentage)
       } else if (value.length === 3) {
+        // For 3 digits, assume format like "20-100" -> "2-0100" or "20-10"
         value = value.substring(0, 2) + '-' + value.substring(2);
       } else if (value.length >= 4) {
+        // For 4+ digits, assume first 2 digits are start, rest are end
         value = value.substring(0, 2) + '-' + value.substring(2);
       }
     }
     
+    // Validate numbers
     if (value.includes('-')) {
       const parts = value.split('-');
       if (parts[0]) {
@@ -2573,6 +2625,7 @@ function addRow(data = {}) {
   socContainer.appendChild(socInput);
   soc.appendChild(socContainer);
   
+  // Diff column
   const diff = document.createElement("td");
   const diffInput = document.createElement("input");
   diffInput.value = calculateSOCDiff(socInput.value) || "";
@@ -2581,9 +2634,9 @@ function addRow(data = {}) {
   shouldShowBlank(diffInput.value) ? diffInput.classList.add('empty-value') : diffInput.classList.remove('empty-value');
   diff.appendChild(diffInput);
   
+  // Amount
   const amount = document.createElement("td");
   const amountInput = document.createElement("input");
-  amountInput.className = "amount-input";
   amountInput.value = data.amount || "";
   amountInput.addEventListener("input", function() {
     this.value = this.value.replace(/[^\d\+\-\*\/\.]/g, '');
@@ -2596,6 +2649,7 @@ function addRow(data = {}) {
   shouldShowBlank(amountInput.value) ? amountInput.classList.add('empty-value') : amountInput.classList.remove('empty-value');
   amount.appendChild(amountInput);
   
+  // Cafe - EDITABLE
   const cafe = document.createElement("td");
   const cafeInput = document.createElement("input");
   cafeInput.value = data.cafe || "";
@@ -2610,6 +2664,7 @@ function addRow(data = {}) {
   shouldShowBlank(cafeInput.value) ? cafeInput.classList.add('empty-value') : cafeInput.classList.remove('empty-value');
   cafe.appendChild(cafeInput);
   
+  // Total - EDITABLE
   const total = document.createElement("td");
   const totalInput = document.createElement("input");
   totalInput.value = data.total || "";
@@ -2624,48 +2679,62 @@ function addRow(data = {}) {
   shouldShowBlank(totalInput.value) ? totalInput.classList.add('empty-value') : totalInput.classList.remove('empty-value');
   total.appendChild(totalInput);
   
+  // Paid - MODIFIED: Implement both functions
   const paid = document.createElement("td");
   const paidInput = document.createElement("input");
   paidInput.value = data.paid || "";
   
+  // Store previous paid value to detect changes
   let previousPaidValue = paidInput.value;
   
   paidInput.addEventListener("input", function() {
     this.value = this.value.replace(/[^\d\+\-\*\/\.]/g, '');
     shouldShowBlank(this.value) ? this.classList.add('empty-value') : this.classList.remove('empty-value');
     
+    // Check if paid = total and update calculations
     const totalVal = evaluateValue(totalInput.value);
     const paidVal = evaluateValue(this.value);
     
     if (totalVal > 0 && paidVal === totalVal) {
+      // FEATURE 1: Auto-add new row only if there is no blank row below
+      // But don't do it while typing - only on blur or Enter
     }
     
     previousPaidValue = this.value;
     updateCalculations();
   });
   
+  // FEATURE 2: Add new row when Enter key is pressed from inside the paid field
   paidInput.addEventListener("keydown", e => {
     if (e.key === "Enter") {
+      // Always add new row when Enter is pressed in paid field, regardless of status
       const blankRow = getFirstBlankRowBelow(row);
       if (!blankRow) {
+        // No blank row below, add a new one
         const newRow = addRow();
         const vehicleInput = newRow.querySelector(".vehicle-input");
         if (vehicleInput) setTimeout(() => vehicleInput.focus(), 50);
       } else {
+        // Focus on the blank row's vehicle input
         const vehicleInput = blankRow.querySelector(".vehicle-input");
         if (vehicleInput) setTimeout(() => vehicleInput.focus(), 50);
       }
     }
   });
   
+  // FEATURE 1: Auto-add new row when paid = total and user leaves the field (blur)
+  // Only if there is no blank row below
   paidInput.addEventListener("blur", function() {
     const totalVal = evaluateValue(totalInput.value);
     const paidVal = evaluateValue(paidInput.value);
     
+    // Check if paid = total and status is paid
     const paidButton = row.querySelector(".paid-button");
     if (totalVal > 0 && paidVal === totalVal && paidButton.classList.contains("active")) {
+      // Check if there's a blank row below
       const blankRow = getFirstBlankRowBelow(row);
       if (!blankRow) {
+        // No blank row below, add a new one after a short delay
         setTimeout(() => {
           const newRow = addRow();
           const vehicleInput = newRow.querySelector(".vehicle-input");
@@ -2680,6 +2749,7 @@ function addRow(data = {}) {
   shouldShowBlank(paidInput.value) ? paidInput.classList.add('empty-value') : paidInput.classList.remove('empty-value');
   paid.appendChild(paidInput);
   
+  // Status - BUTTONS (both visible initially, then only selected one)
   const status = document.createElement("td");
   const statusButtonsContainer = document.createElement("div");
   statusButtonsContainer.className = "status-buttons";
@@ -2694,6 +2764,7 @@ function addRow(data = {}) {
   dueButton.textContent = "Due";
   dueButton.dataset.status = "due";
   
+  // Set initial active button based on data
   let isSingleButtonMode = false;
   
   if (data.status === "paid") {
@@ -2704,12 +2775,15 @@ function addRow(data = {}) {
     dueButton.classList.add("active");
     paidButton.style.display = "none";
     isSingleButtonMode = true;
+    // Add title for double click requirement
     dueButton.title = "Double-click to change status";
   } else {
+    // Both buttons visible
     paidButton.classList.remove("active");
     dueButton.classList.remove("active");
   }
   
+  // Function to show both buttons
   function showBothButtons() {
     paidButton.style.display = "block";
     dueButton.style.display = "block";
@@ -2720,15 +2794,19 @@ function addRow(data = {}) {
     dueButton.title = "";
   }
   
+  // Function to show only selected button with validation
   function showSingleButton(selectedButton) {
     const totalVal = evaluateValue(totalInput.value);
     const paidVal = evaluateValue(paidInput.value);
     
+    // If total > paid and user selects paid button, auto-fill paid with total
     if (selectedButton === paidButton && totalVal > paidVal) {
       paidInput.value = totalInput.value;
       paidInput.dispatchEvent(new Event('input'));
+      // Update paidVal after setting
       const newPaidVal = evaluateValue(paidInput.value);
       
+      // Now check if total = paid
       if (totalVal === newPaidVal) {
         paidButton.style.display = "block";
         paidButton.classList.add("active");
@@ -2737,9 +2815,12 @@ function addRow(data = {}) {
         
         lockRow(row);
         
+        // Auto-add new row when paid = total (only if no blank row below)
         if (totalVal === newPaidVal && totalVal > 0) {
+          // Check if there's a blank row below
           const blankRow = getFirstBlankRowBelow(row);
           if (!blankRow) {
+            // No blank row below, add a new one after a short delay
             setTimeout(() => {
               const newRow = addRow();
               const vehicleInput = newRow.querySelector(".vehicle-input");
@@ -2753,11 +2834,13 @@ function addRow(data = {}) {
       }
     }
     
+    // Validation: if total = paid, cannot change to due
     if (selectedButton === dueButton && totalVal === paidVal && totalVal > 0) {
       showNotification("Cannot set to Due when Total = Paid", "danger");
       return;
     }
     
+    // Validation: if total > paid, cannot change to paid (but we already handled this above)
     if (selectedButton === paidButton && totalVal > paidVal) {
       showNotification("Cannot set to Paid when Total > Paid", "danger");
       return;
@@ -2769,6 +2852,7 @@ function addRow(data = {}) {
       dueButton.style.display = "none";
       dueButton.classList.remove("active");
       
+      // Set paid amount to total if not already set
       if (!paidInput.value || paidInput.value === "0") {
         paidInput.value = totalInput.value;
         paidInput.dispatchEvent(new Event('input'));
@@ -2776,9 +2860,12 @@ function addRow(data = {}) {
       
       lockRow(row);
       
+      // Auto-add new row when paid = total (only if no blank row below)
       if (totalVal === paidVal && totalVal > 0) {
+        // Check if there's a blank row below
         const blankRow = getFirstBlankRowBelow(row);
         if (!blankRow) {
+          // No blank row below, add a new one after a short delay
           setTimeout(() => {
             const newRow = addRow();
             const vehicleInput = newRow.querySelector(".vehicle-input");
@@ -2794,31 +2881,36 @@ function addRow(data = {}) {
       paidButton.classList.remove("active");
       
       unlockRow(row);
+      // Add title for double click requirement when status is due
       dueButton.title = "Double-click to change status";
       isSingleButtonMode = true;
     }
     autoSave();
   }
   
+  // Due button requires double click to change when active
   let dueButtonClickCount = 0;
   let dueButtonClickTimer = null;
   
   dueButton.addEventListener("click", function() {
     if (isSingleButtonMode && dueButton.classList.contains("active")) {
+      // If due is active, require double click
       dueButtonClickCount++;
       
       if (dueButtonClickCount === 1) {
         dueButtonClickTimer = setTimeout(() => {
           dueButtonClickCount = 0;
         }, 500);
-        return;
+        return; // Wait for second click
       }
       
       clearTimeout(dueButtonClickTimer);
       dueButtonClickCount = 0;
     }
     
+    // Normal behavior for non-active due button
     if (isSingleButtonMode) {
+      // If already in single button mode, clicking the active button shows both again
       if (dueButton.classList.contains("active")) {
         showBothButtons();
       } else {
@@ -2831,6 +2923,7 @@ function addRow(data = {}) {
   
   paidButton.addEventListener("click", function() {
     if (isSingleButtonMode) {
+      // If already in single button mode, clicking the active button shows both again
       if (paidButton.classList.contains("active")) {
         showBothButtons();
       } else {
@@ -2845,6 +2938,7 @@ function addRow(data = {}) {
   statusButtonsContainer.appendChild(dueButton);
   status.appendChild(statusButtonsContainer);
   
+  // Due
   const due = document.createElement("td");
   const dueInput = document.createElement("input");
   dueInput.value = data.due || "";
@@ -2853,11 +2947,13 @@ function addRow(data = {}) {
   shouldShowBlank(dueInput.value) ? dueInput.classList.add('empty-value') : dueInput.classList.remove('empty-value');
   due.appendChild(dueInput);
   
+  // Delete button column (X button is NEVER disabled)
   const deleteCol = document.createElement("td");
   const deleteButton = document.createElement("button");
   deleteButton.className = "delete-button no-print";
   deleteButton.textContent = "×";
   
+  // Set different title for first row
   if (isFirstRow) {
     deleteButton.title = "Clear first row data (cannot delete first row)";
   } else {
@@ -2869,12 +2965,15 @@ function addRow(data = {}) {
   });
   deleteCol.appendChild(deleteButton);
   
+  // Double-click to unlock and show both buttons with permission
   row.addEventListener("dblclick", function() {
     if (this.classList.contains("locked-row")) {
+      // Ask for permission before unlocking
       if (confirm("Do you want to unlock and edit this row?")) {
         unlockRow(this);
         showBothButtons();
         showNotification("Row unlocked for editing", "info");
+        // Focus on the paid field for editing
         const paidInput = this.querySelector('td:nth-child(9) input');
         if (paidInput) {
           setTimeout(() => paidInput.focus(), 50);
@@ -2925,6 +3024,7 @@ function addRow(data = {}) {
     if (dueVal > 0) {
       row.classList.add("due-row");
       dueInput.classList.remove('empty-value');
+      // Auto-set status to due if due amount > 0
       if (isSingleButtonMode && paidButton.classList.contains("active")) {
         showBothButtons();
       }
@@ -2941,10 +3041,14 @@ function addRow(data = {}) {
     
     if (totalVal > 0) {
       if (paidVal >= totalVal) {
+        // Auto-set status to paid if paid >= total
         if (!isSingleButtonMode || (isSingleButtonMode && !paidButton.classList.contains("active"))) {
           showSingleButton(paidButton);
         }
         row.classList.remove("due-row");
+        
+        // Auto-add new row when paid = total (only if no blank row below)
+        // This is already handled in the paid button click and paid input blur
       }
     }
     
@@ -2995,6 +3099,7 @@ function addRow(data = {}) {
     updateCalculations();
   }
   
+  // Add vehicle to database
   if (data.vehicle && data.vehicle.trim()) {
     const vehicleStr = data.vehicle.trim();
     const parts = vehicleStr.split(' ');
@@ -3020,7 +3125,6 @@ function addRow(data = {}) {
   return row;
 }
 
-// Get data for save
 function getDataForSave() {
   const rows = document.querySelectorAll("#logbook tbody tr");
   const data = Array.from(rows).map(row => {
@@ -3051,7 +3155,6 @@ function getDataForSave() {
   return data;
 }
 
-// Update totals
 function updateTotals() {
   let charge = 0, cafe = 0, all = 0, due = 0;
   document.querySelectorAll("#logbook tbody tr").forEach(row => {
@@ -3163,8 +3266,10 @@ let staticSaveCounter = 0;
 async function autoSave(forceCloudSave = false) {
   const data = getDataForSave();
   
+  // Save to local storage with date key
   localStorage.setItem(`logbook_${currentDate}`, JSON.stringify(data));
   
+  // Update vehicle database
   data.forEach(entry => {
     if (entry.vehicle && entry.vehicle.trim()) {
       const vehicle = entry.vehicle.trim();
@@ -3182,6 +3287,7 @@ async function autoSave(forceCloudSave = false) {
   indicator.classList.add("visible");
   setTimeout(() => indicator.classList.remove("visible"), 2000);
   
+  // Save to Firebase if connected
   staticSaveCounter = (staticSaveCounter || 0) + 1;
   if ((staticSaveCounter % 5 === 0 || forceCloudSave) && db && isFirebaseConnected) {
     try {
@@ -3192,11 +3298,13 @@ async function autoSave(forceCloudSave = false) {
   }
 }
 
-// Setup mobile optimizations
+// Mobile Chrome optimizations
 function setupMobileOptimizations() {
+  // Prevent zoom on input focus in mobile
   const inputs = document.querySelectorAll('input, select, textarea');
   inputs.forEach(input => {
     input.addEventListener('focus', () => {
+      // Force font size to prevent zoom
       const style = window.getComputedStyle(input);
       if (parseFloat(style.fontSize) < 16) {
         input.style.fontSize = '16px';
@@ -3204,60 +3312,59 @@ function setupMobileOptimizations() {
     });
     
     input.addEventListener('blur', () => {
+      // Reset font size after blur
       input.style.fontSize = '';
     });
   });
   
+  // Improve touch handling
   document.addEventListener('touchstart', function(e) {
+    // Prevent double-tap zoom
     if (e.touches.length > 1) {
       e.preventDefault();
     }
   }, { passive: false });
   
+  // Prevent context menu on long press
   document.addEventListener('contextmenu', function(e) {
     e.preventDefault();
     return false;
   });
 }
 
-// Setup dropdown menu
+// NEW: Dropdown menu functionality
 function setupDropdownMenu() {
   const dropdownToggle = document.getElementById('dropdownMenuButton');
   const dropdownMenu = document.getElementById('dropdownMenu');
   
+  // Toggle dropdown on click
   dropdownToggle.addEventListener('click', function(e) {
     e.stopPropagation();
     dropdownMenu.classList.toggle('show');
   });
   
+  // Close dropdown when clicking outside
   document.addEventListener('click', function() {
     dropdownMenu.classList.remove('show');
   });
   
+  // Close dropdown when clicking inside (except on links)
   dropdownMenu.addEventListener('click', function(e) {
     if (e.target.tagName === 'A') {
       dropdownMenu.classList.remove('show');
     }
   });
   
-  document.getElementById('dueVehiclesBtn').addEventListener('click', function(e) {
-    e.preventDefault();
-    showDueVehicles();
-  });
-  
-  document.getElementById('vehicleDataBtn').addEventListener('click', function(e) {
-    e.preventDefault();
-    showVehicleData();
-  });
-  
+  // Finalize and save button
   document.getElementById('finalizeSaveBtn').addEventListener('click', function(e) {
     e.preventDefault();
     finalizeAndSwitchToNextDay();
   });
   
+  // Force sync button
   document.getElementById('forceSyncBtn').addEventListener('click', async function(e) {
     e.preventDefault();
-    if (db) {
+    if (db && isFirebaseConnected) {
       showLoading("Force syncing with Cloud...");
       try {
         const success = await saveToFirebase();
@@ -3272,13 +3379,14 @@ function setupDropdownMenu() {
         showNotification("Error syncing with Cloud", "danger");
       }
     } else {
-      showNotification("Firebase not initialized.", "danger");
+      showNotification("Firebase not connected.", "danger");
     }
   });
   
+  // View cloud data button
   document.getElementById('viewCloudDataBtn').addEventListener('click', async function(e) {
     e.preventDefault();
-    if (!db) {
+    if (!db || !isFirebaseConnected) {
       showNotification("Cloud connection required", "danger");
       return;
     }
@@ -3323,49 +3431,32 @@ function setupDropdownMenu() {
 
 // Initialize the application
 window.onload = async function() {
+  // Initialize date/time
   updateDateTimeDisplay();
   setInterval(updateDateTimeDisplay, 1000);
   
+  // Setup daily reset timer (now at 5:00 AM)
   scheduleDailyReset();
+  
+  // Load vehicle database
   loadVehicleDatabase();
   
-  // Test Firebase connection with retry
+  // Check Firebase connection
   if (db) {
-    const testConnection = async (retryCount = 0) => {
-      try {
-        await db.collection("test").doc("connection-test").get();
-        isFirebaseConnected = true;
-        console.log("Firebase connected successfully");
-      } catch (error) {
-        console.log(`Firebase connection attempt ${retryCount + 1} failed:`, error);
-        if (retryCount < maxRetries) {
-          setTimeout(() => testConnection(retryCount + 1), 2000);
-        } else {
-          console.log("Firebase connection failed after max retries, using offline mode");
-          isFirebaseConnected = false;
-        }
-      }
-    };
-    
-    testConnection();
+    try {
+      await db.collection("test").doc("test").get();
+      isFirebaseConnected = true;
+    } catch (error) {
+      console.log("Firebase test failed, using local storage:", error);
+      isFirebaseConnected = false;
+    }
   }
   
-  // Load data: prioritize localStorage for current date - FIXED to prevent data loss on reload
-  const localData = localStorage.getItem(`logbook_${currentDate}`);
-  if (localData) {
-    loadFromLocalStorage(); // Load from local storage first
-    // Optionally sync with Firebase in background if connected
-    if (db && isFirebaseConnected) {
-      console.log("Local data loaded, Firebase sync can be done manually or on save");
-      // You could call loadFromFirebase and merge, but careful not to overwrite local changes.
-      // For now, skip.
-    }
+  // Load data for current day (with 5:00 AM cutoff)
+  if (isFirebaseConnected) {
+    await loadFromFirebase(currentDate);
   } else {
-    if (db && isFirebaseConnected) {
-      await loadFromFirebase(currentDate);
-    } else {
-      loadFromLocalStorage(); // will add empty row
-    }
+    loadFromLocalStorage();
   }
   
   // Set up dark mode
@@ -3382,50 +3473,35 @@ window.onload = async function() {
     localStorage.setItem("darkMode", isDark);
   });
   
+  // CSV Export Button (replaced Excel)
   document.getElementById("csvBtn").addEventListener("click", exportToCSV);
+  
+  // NEW: Clear Table Button (clears only local data, not cloud)
   document.getElementById("clearTableBtn").addEventListener("click", clearTable);
+  
   document.getElementById("contributorsBtn").addEventListener("click", showContributorsModal);
+  
   document.getElementById("contributorsCloseBtn").addEventListener("click", hideContributorsModal);
   
+  // Close contributors modal when clicking outside
   document.getElementById("contributorsModal").addEventListener("click", function(e) {
     if (e.target === this) {
       hideContributorsModal();
     }
   });
   
-  document.getElementById("dueCloseBtn").addEventListener("click", function() {
-    document.getElementById('dueModal').style.display = 'none';
-  });
-  
-  document.getElementById("dueModal").addEventListener("click", function(e) {
-    if (e.target === this) {
-      this.style.display = 'none';
-    }
-  });
-  
-  document.getElementById("vehicleCloseBtn").addEventListener("click", function() {
-    document.getElementById('vehicleModal').style.display = 'none';
-  });
-  
-  document.getElementById("vehicleModal").addEventListener("click", function(e) {
-    if (e.target === this) {
-      this.style.display = 'none';
-    }
-  });
-  
-  document.getElementById("vehicleSearch").addEventListener("input", function(e) {
-    filterVehicleData(e.target.value);
-  });
-  
   document.getElementById("reportBtn").addEventListener("click", showReportModal);
+  
   document.getElementById("reportCloseBtn").addEventListener("click", hideReportModal);
   
+  // Close modal when clicking outside
   document.getElementById("reportModal").addEventListener("click", function(e) {
     if (e.target === this) {
       hideReportModal();
     }
   });
   
+  // Report period button clicks
   document.querySelectorAll(".report-period-btn").forEach(btn => {
     btn.addEventListener("click", function() {
       const period = this.getAttribute("data-period");
@@ -3439,6 +3515,7 @@ window.onload = async function() {
     });
   });
   
+  // Month selector change for reports
   document.getElementById('monthSelector').addEventListener('change', function() {
     const value = this.value;
     if (value === 'current') {
@@ -3446,10 +3523,11 @@ window.onload = async function() {
       loadMonthlyReportForMonth(now.getFullYear(), now.getMonth());
     } else {
       const [year, month] = value.split('-').map(num => parseInt(num));
-      loadMonthlyReportForMonth(year, month - 1);
+      loadMonthlyReportForMonth(year, month - 1); // month is 1-based in value
     }
   });
   
+  // Month selector change for contributors
   document.getElementById('contributorMonthSelector').addEventListener('change', function() {
     const value = this.value;
     if (value === 'current') {
@@ -3457,11 +3535,14 @@ window.onload = async function() {
       loadTopContributors(now.getFullYear(), now.getMonth());
     } else {
       const [year, month] = value.split('-').map(num => parseInt(num));
-      loadTopContributors(year, month - 1);
+      loadTopContributors(year, month - 1); // month is 1-based in value
     }
   });
   
+  // Use custom print function that hides empty rows
   document.getElementById("printBtn").addEventListener("click", printTable);
+  
+  // REMOVED: Sync button event listener (button removed from HTML)
   
   document.getElementById("saveAllBtn").addEventListener("click", async function() {
     if (isFirebaseConnected) {
@@ -3484,9 +3565,13 @@ window.onload = async function() {
     }
   });
   
+  // Setup dropdown menu
   setupDropdownMenu();
+  
+  // Setup mobile optimizations
   setupMobileOptimizations();
   
+  // Auto-save every 30 seconds
   setInterval(() => autoSave(), 30000);
   updateTotals();
 };
