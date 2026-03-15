@@ -216,10 +216,11 @@ tr:hover .delete-button{opacity:1;visibility:visible}
 .contact-search{display:flex;gap:8px;padding:10px 15px;background:var(--bg);border-bottom:1px solid var(--border)}
 .contact-search input{flex:1;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--card-bg);color:var(--text);font-size:0.9rem}
 .contact-search .btn{padding:8px 12px;min-height:auto}
-.contact-table-container{flex:1;overflow-y:auto;padding:15px}
+.contact-table-container{flex:1;overflow-y:auto;padding:15px;position:relative;min-height:200px}
+.contact-loading{display:flex;justify-content:center;align-items:center;height:100px;color:var(--info);gap:10px}
 .contact-table{width:100%;border-collapse:collapse}
 .contact-table th{background:linear-gradient(45deg,var(--dark),var(--success));color:#fff;padding:10px;text-align:center;font-weight:600;font-size:0.85rem;position:sticky;top:0}
-.contact-table td{padding:10px;text-align:center;border:1px solid var(--border);font-size:0.9rem}
+.contact-table td{padding:10px;text-align:center;border:1px solid var(--border);font-size:0.9rem;cursor:pointer}
 .contact-table tr:nth-child(even){background:rgba(0,0,0,0.03)}
 .contact-table tr:hover{background:rgba(39,174,96,0.08)}
 .contact-delete-btn{background:var(--danger);color:white;border:none;border-radius:4px;padding:5px 10px;font-size:0.8rem;cursor:pointer;font-weight:600}
@@ -572,7 +573,7 @@ tr:hover .delete-button{opacity:1;visibility:visible}
             <h2>📇 Contacts Directory</h2>
             <button class="contact-close" id="contactCloseBtn">×</button>
         </div>
-        <!-- Form to add new contact -->
+        <!-- Form to add/edit contact -->
         <div class="contact-form">
             <input type="text" id="contactName" placeholder="Full Name" autocomplete="off">
             <input type="text" id="contactVehicle" placeholder="Vehicle (e.g. EV30 1234)" autocomplete="off">
@@ -587,6 +588,7 @@ tr:hover .delete-button{opacity:1;visibility:visible}
         </div>
         <!-- Contacts table -->
         <div class="contact-table-container">
+            <div id="contactLoading" class="contact-loading" style="display: none;"><div class="loading-spinner" style="width:20px;height:20px;"></div> Loading contacts...</div>
             <table class="contact-table" id="contactTable">
                 <thead><tr><th>S.N.</th><th>Name</th><th>Vehicle</th><th>Route</th><th>Contact Number</th><th>Action</th></tr></thead>
                 <tbody id="contactTableBody"></tbody>
@@ -630,8 +632,9 @@ let isFinalized = false;
 // Global variable to store full history data for filtering
 let fullHistoryData = [];
 
-// ---------- NEW CONTACTS ARRAY ----------
-let contacts = []; // each contact: { name, vehicle, route, number }
+// ---------- CONTACTS ----------
+let contacts = [];                     // local array for display
+let editingContactId = null;           // Firestore doc id when editing
 
 // Load vehicle database from saved data
 function loadVehicleDatabase() {
@@ -1894,17 +1897,120 @@ function renderHistoryTable(data) {
   }
 }
 
-// ---------- NEW CONTACT FUNCTIONS ----------
-function loadContacts() {
-  const saved = localStorage.getItem('contacts');
-  if (saved) {
-    try { contacts = JSON.parse(saved); } catch { contacts = []; }
-  } else contacts = [];
-  renderContactsTable(contacts);
+// ---------- CONTACT FUNCTIONS (CLOUD + LOCAL) ----------
+async function loadContactsFromCloud() {
+  if (!db || !isFirebaseConnected) {
+    // fallback to localStorage
+    const saved = localStorage.getItem('contacts');
+    contacts = saved ? JSON.parse(saved) : [];
+    renderContactsTable(contacts);
+    return;
+  }
+  showContactLoading(true);
+  try {
+    const snapshot = await db.collection("contacts").get();
+    contacts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    // sort by name for consistency
+    contacts.sort((a,b) => a.name.localeCompare(b.name));
+    renderContactsTable(contacts);
+    // also save to localStorage as backup
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+  } catch (error) {
+    console.error("Error loading contacts from cloud:", error);
+    showNotification("Error loading contacts from cloud, using local backup", "danger");
+    const saved = localStorage.getItem('contacts');
+    contacts = saved ? JSON.parse(saved) : [];
+    renderContactsTable(contacts);
+  } finally {
+    showContactLoading(false);
+  }
 }
 
-function saveContacts() {
-  localStorage.setItem('contacts', JSON.stringify(contacts));
+async function saveContactToCloud(contact) {
+  if (!db || !isFirebaseConnected) {
+    // offline: save to localStorage only
+    contacts.push(contact);
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+    renderContactsTable(contacts);
+    showNotification("Contact saved locally (cloud not connected)", "info");
+    return;
+  }
+  try {
+    const docRef = await db.collection("contacts").add(contact);
+    contact.id = docRef.id;
+    contacts.push(contact);
+    contacts.sort((a,b) => a.name.localeCompare(b.name));
+    renderContactsTable(contacts);
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+    showNotification("Contact added to cloud", "success");
+  } catch (error) {
+    console.error("Error saving contact to cloud:", error);
+    showNotification("Error saving contact, saved locally", "danger");
+    contacts.push(contact);
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+    renderContactsTable(contacts);
+  }
+}
+
+async function updateContactInCloud(id, updatedContact) {
+  if (!db || !isFirebaseConnected) {
+    // offline: update in localStorage
+    const index = contacts.findIndex(c => c.id === id);
+    if (index !== -1) {
+      contacts[index] = { ...updatedContact, id };
+      localStorage.setItem('contacts', JSON.stringify(contacts));
+      renderContactsTable(contacts);
+      showNotification("Contact updated locally", "info");
+    }
+    return;
+  }
+  try {
+    await db.collection("contacts").doc(id).set(updatedContact);
+    const index = contacts.findIndex(c => c.id === id);
+    if (index !== -1) {
+      contacts[index] = { id, ...updatedContact };
+    } else {
+      contacts.push({ id, ...updatedContact });
+    }
+    contacts.sort((a,b) => a.name.localeCompare(b.name));
+    renderContactsTable(contacts);
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+    showNotification("Contact updated in cloud", "success");
+  } catch (error) {
+    console.error("Error updating contact in cloud:", error);
+    showNotification("Error updating contact, saved locally", "danger");
+    const index = contacts.findIndex(c => c.id === id);
+    if (index !== -1) {
+      contacts[index] = { ...updatedContact, id };
+      localStorage.setItem('contacts', JSON.stringify(contacts));
+      renderContactsTable(contacts);
+    }
+  }
+}
+
+async function deleteContactFromCloud(id) {
+  if (!db || !isFirebaseConnected) {
+    // offline: remove from localStorage
+    contacts = contacts.filter(c => c.id !== id);
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+    renderContactsTable(contacts);
+    showNotification("Contact deleted locally", "info");
+    return;
+  }
+  try {
+    await db.collection("contacts").doc(id).delete();
+    contacts = contacts.filter(c => c.id !== id);
+    renderContactsTable(contacts);
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+    showNotification("Contact deleted from cloud", "success");
+  } catch (error) {
+    console.error("Error deleting contact from cloud:", error);
+    showNotification("Error deleting contact", "danger");
+  }
+}
+
+function showContactLoading(show) {
+  document.getElementById('contactLoading').style.display = show ? 'flex' : 'none';
 }
 
 function renderContactsTable(filteredContacts) {
@@ -1915,35 +2021,40 @@ function renderContactsTable(filteredContacts) {
   } else {
     filteredContacts.forEach((c, idx) => {
       const row = document.createElement('tr');
-      row.innerHTML = `<td>${idx+1}</td><td>${escapeHtml(c.name)}</td><td>${escapeHtml(c.vehicle)}</td><td>${escapeHtml(c.route)}</td><td>${escapeHtml(c.number)}</td><td><button class="contact-delete-btn" data-index="${idx}">Delete</button></td>`;
+      row.setAttribute('data-id', c.id);
+      row.innerHTML = `<td>${idx+1}</td><td>${escapeHtml(c.name)}</td><td>${escapeHtml(c.vehicle)}</td><td>${escapeHtml(c.route)}</td><td>${escapeHtml(c.number)}</td><td><button class="contact-delete-btn" data-id="${c.id}">Delete</button></td>`;
       tbody.appendChild(row);
     });
     // attach delete events
     document.querySelectorAll('.contact-delete-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        const index = parseInt(this.dataset.index);
+      btn.addEventListener('click', async function(e) {
+        e.stopPropagation();
+        const id = this.dataset.id;
         if (confirm('Delete this contact?')) {
-          contacts.splice(index, 1);
-          saveContacts();
+          await deleteContactFromCloud(id);
           // re-filter based on current search
-          const searchTerm = document.getElementById('contactSearchInput').value.toLowerCase().trim();
-          if (searchTerm === '') renderContactsTable(contacts);
-          else {
-            const filtered = contacts.filter(c => 
-              c.name.toLowerCase().includes(searchTerm) ||
-              c.vehicle.toLowerCase().includes(searchTerm) ||
-              c.route.toLowerCase().includes(searchTerm) ||
-              c.number.toLowerCase().includes(searchTerm)
-            );
-            renderContactsTable(filtered);
-          }
+          applyContactSearch();
+        }
+      });
+    });
+    // attach double-click for editing
+    document.querySelectorAll('#contactTable tbody tr').forEach(row => {
+      row.addEventListener('dblclick', function() {
+        const id = this.dataset.id;
+        const contact = contacts.find(c => c.id === id);
+        if (contact) {
+          document.getElementById('contactName').value = contact.name;
+          document.getElementById('contactVehicle').value = contact.vehicle;
+          document.getElementById('contactRoute').value = contact.route;
+          document.getElementById('contactNumber').value = contact.number;
+          editingContactId = id;
+          document.getElementById('contactAddBtn').textContent = '✏️ Update Contact';
         }
       });
     });
   }
 }
 
-// simple escape to prevent XSS
 function escapeHtml(unsafe) {
   return unsafe.replace(/[&<>"]/g, function(m) {
     if(m === '&') return '&amp;'; if(m === '<') return '&lt;'; if(m === '>') return '&gt;'; if(m === '"') return '&quot;';
@@ -1951,11 +2062,34 @@ function escapeHtml(unsafe) {
   });
 }
 
-function showContactModal() {
-  document.getElementById('contactModal').style.display = 'flex';
-  loadContacts(); // refresh
+function applyContactSearch() {
+  const term = document.getElementById('contactSearchInput').value.toLowerCase().trim();
+  if (term === '') renderContactsTable(contacts);
+  else {
+    const filtered = contacts.filter(c => 
+      c.name.toLowerCase().includes(term) ||
+      c.vehicle.toLowerCase().includes(term) ||
+      c.route.toLowerCase().includes(term) ||
+      c.number.toLowerCase().includes(term)
+    );
+    renderContactsTable(filtered);
+  }
 }
-function hideContactModal() { document.getElementById('contactModal').style.display = 'none'; }
+
+async function showContactModal() {
+  document.getElementById('contactModal').style.display = 'flex';
+  await loadContactsFromCloud(); // this will also render
+}
+function hideContactModal() {
+  document.getElementById('contactModal').style.display = 'none';
+  // reset form and button
+  document.getElementById('contactName').value = '';
+  document.getElementById('contactVehicle').value = '';
+  document.getElementById('contactRoute').value = '';
+  document.getElementById('contactNumber').value = '';
+  editingContactId = null;
+  document.getElementById('contactAddBtn').textContent = '➕ Add Contact';
+}
 
 // Initialize
 window.onload = async function() {
@@ -2025,8 +2159,8 @@ window.onload = async function() {
   document.getElementById('contactCloseBtn').addEventListener('click', hideContactModal);
   document.getElementById('contactModal').addEventListener('click', function(e) { if (e.target === this) hideContactModal(); });
 
-  // Add contact
-  document.getElementById('contactAddBtn').addEventListener('click', function() {
+  // Add/Update contact
+  document.getElementById('contactAddBtn').addEventListener('click', async function() {
     const name = document.getElementById('contactName').value.trim();
     const vehicle = document.getElementById('contactVehicle').value.trim();
     const route = document.getElementById('contactRoute').value.trim();
@@ -2035,32 +2169,28 @@ window.onload = async function() {
       showNotification('All fields are required!', 'danger');
       return;
     }
-    contacts.push({ name, vehicle, route, number });
-    saveContacts();
+    const contactData = { name, vehicle, route, number };
+    if (editingContactId) {
+      // update existing
+      await updateContactInCloud(editingContactId, contactData);
+      editingContactId = null;
+      document.getElementById('contactAddBtn').textContent = '➕ Add Contact';
+    } else {
+      // add new
+      await saveContactToCloud(contactData);
+    }
+    // clear form
     document.getElementById('contactName').value = '';
     document.getElementById('contactVehicle').value = '';
     document.getElementById('contactRoute').value = '';
     document.getElementById('contactNumber').value = '';
-    // clear search and refresh
+    // refresh search
     document.getElementById('contactSearchInput').value = '';
-    renderContactsTable(contacts);
-    showNotification('Contact added!', 'success');
+    applyContactSearch();
   });
 
   // Contact search
-  document.getElementById('contactSearchInput').addEventListener('input', function() {
-    const term = this.value.toLowerCase().trim();
-    if (term === '') renderContactsTable(contacts);
-    else {
-      const filtered = contacts.filter(c => 
-        c.name.toLowerCase().includes(term) ||
-        c.vehicle.toLowerCase().includes(term) ||
-        c.route.toLowerCase().includes(term) ||
-        c.number.toLowerCase().includes(term)
-      );
-      renderContactsTable(filtered);
-    }
-  });
+  document.getElementById('contactSearchInput').addEventListener('input', applyContactSearch);
 
   // Contact clear search
   document.getElementById('contactClearSearch').addEventListener('click', function() {
@@ -2068,8 +2198,7 @@ window.onload = async function() {
     renderContactsTable(contacts);
   });
 
-  // Load contacts on startup
-  loadContacts();
+  // Load contacts on startup (optional, but we'll load when modal opens)
 };
 
 if (document.readyState === 'loading') {
